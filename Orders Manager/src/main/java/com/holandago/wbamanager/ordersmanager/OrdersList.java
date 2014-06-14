@@ -1,8 +1,11 @@
 package com.holandago.wbamanager.ordersmanager;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -27,14 +30,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class OrdersList extends ListActivity {
+public class OrdersList extends Activity {
     private static String targetUrl = "http://wba-urbbox.herokuapp.com/rest/orders";
     private ArrayList<HashMap<String,String>> orderList = new ArrayList<HashMap<String, String>>();
     private ListView listView;
-    private TextView orderName;
+    private TextView orderTitle;
     private Button BtnGetData;
     private static final String ORDER_TITLE_TAG = "title";
     private JSONArray orderJSON = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,20 +53,20 @@ public class OrdersList extends ListActivity {
 
     }
 
-    private class JSONParse extends AsyncTask<String,String, JSONObject>{
+    private class JSONParse extends AsyncTask<String,String, JSONArray>{
         private ProgressDialog pDialog;
 
         @Override
-        protected JSONObject doInBackground(String... strings) {
+        protected JSONArray doInBackground(String... strings) {
             JSONParser jsonParser = new JSONParser();
-            JSONObject json = jsonParser.getJSONfromUrl(targetUrl);
+            JSONArray json = jsonParser.getJSONfromUrl(targetUrl);
             return json;
         }
 
         @Override
         protected void onPreExecute(){
             super.onPreExecute();
-            orderName = (TextView)findViewById(R.id.orderName);
+            orderTitle = (TextView)findViewById(R.id.title);
             pDialog = new ProgressDialog(OrdersList.this);
             pDialog.setMessage("Getting data...");
             pDialog.setIndeterminate(false);
@@ -70,23 +74,26 @@ public class OrdersList extends ListActivity {
             pDialog.show();
         }
 
+        @TargetApi(Build.VERSION_CODES.KITKAT)
         @Override
-        protected void onPostExecute(JSONObject json){
+        protected void onPostExecute(JSONArray json){
             pDialog.dismiss();
             try{
-                orderJSON = new JSONArray(json);
-                for(int i = 0; i< orderJSON.length(); i++){
-                    JSONObject object = orderJSON.getJSONObject(i);
+                for(int i = 0; i< json.length(); i++){
+                    JSONObject object = json.getJSONObject(i);
                     String title = object.getString(ORDER_TITLE_TAG);
                     HashMap<String,String> map = new HashMap<String, String>();
                     map.put(ORDER_TITLE_TAG,title);
+                    if(!orderList.contains(map)) {
+                        orderList.add(map);
+                    }
                     listView = (ListView)findViewById(R.id.orderList);
                     ListAdapter adapter = new SimpleAdapter(
                             OrdersList.this, //Context
                             orderList, //Data
                             R.layout.order_list_v, //Layout
                             new String[]{ORDER_TITLE_TAG}, //from
-                            new int[]{R.id.orderName} //to
+                            new int[]{R.id.title} //to
                     );
                     listView.setAdapter(adapter);
                     listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -95,8 +102,8 @@ public class OrdersList extends ListActivity {
                                                 int position, long id) {
                             Toast.makeText(
                                     OrdersList.this, //Context
-                                    "You Clicked at " + orderList.get(+position).get("name"), //Msg
-                                    Toast.LENGTH_SHORT //Lenght
+                                    "You Clicked at " + orderList.get(+position).get(ORDER_TITLE_TAG), //Msg
+                                    Toast.LENGTH_SHORT //Length
                             ).show();
                         }
                     });

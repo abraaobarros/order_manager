@@ -4,8 +4,10 @@ import android.util.Log;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,19 +22,19 @@ import java.io.UnsupportedEncodingException;
  */
 public class JSONParser {
     static InputStream input = null;
-    static JSONObject jObj = null;
+    static JSONArray jArray = null;
     static String json = "";
 
     public JSONParser(){
 
     }
-    public JSONObject getJSONfromUrl(String url){
+    public JSONArray getJSONfromUrl(String url){
         //Making the http request
         try{
             //Default Http Client
             DefaultHttpClient httpClient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost(url);
-            HttpResponse httpResponse = httpClient.execute(httpPost);
+            HttpGet httpGet = new HttpGet(url);
+            HttpResponse httpResponse = httpClient.execute(httpGet);
             HttpEntity httpEntity = httpResponse.getEntity();
             input = httpEntity.getContent();
         }catch(UnsupportedEncodingException e){
@@ -55,11 +57,11 @@ public class JSONParser {
             Log.e("Buffer Error", "Error converting http request " + e.toString());
         }
         try{
-            jObj = new JSONObject(json);
+            jArray = new JSONArray(json);
         }catch(JSONException e){
             Log.e("JSON Parser", "Error parsing data " + e.toString());
         }
 
-        return jObj;
+        return jArray;
     }
 }
