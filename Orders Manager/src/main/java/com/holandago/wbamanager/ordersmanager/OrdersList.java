@@ -84,6 +84,7 @@ public class OrdersList extends Activity {
                     String title = object.getString(ORDER_TITLE_TAG);
                     HashMap<String,String> map = new HashMap<String, String>();
                     map.put(ORDER_TITLE_TAG,title);
+                    //Assuming the title is the ID
                     if(!orderList.contains(map)) {
                         orderList.add(map);
                     }
