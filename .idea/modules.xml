@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Orders Manager/Orders Manager.iml" filepath="$PROJECT_DIR$/Orders Manager/Orders Manager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WBAManager.iml" filepath="$PROJECT_DIR$/WBAManager.iml" />
+    </modules>
+  </component>
+</project>
+
