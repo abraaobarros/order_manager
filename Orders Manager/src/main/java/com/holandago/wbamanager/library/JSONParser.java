@@ -57,7 +57,7 @@ public class JSONParser {
             Log.e("Buffer Error", "Error converting http request " + e.toString());
         }
         try{
-            jArray = new JSONArray(json);
+            jArray = (new JSONObject(json)).getJSONArray("data");
         }catch(JSONException e){
             Log.e("JSON Parser", "Error parsing data " + e.toString());
         }
