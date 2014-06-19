@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,10 +36,6 @@ import java.util.HashMap;
 
 public class DisplayOperationsActivity extends Activity {
     private ProgressDialog pDialog;
-    public final static String STATUS_MESSAGE =
-            "com.holandago.wbamanager.ordersmanager.STATUS_MESSAGE";
-    public final static String ID_MESSAGE =
-            "com.holandago.wbamanager.ordersmanager.ID_MESSAGE";
     private ListView listView;
     private static final String NAME_TAG = "operation_name";
     private static final String MACHINE_TAG = "machine";
