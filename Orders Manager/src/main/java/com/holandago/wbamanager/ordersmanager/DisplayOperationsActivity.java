@@ -37,7 +37,8 @@ public class DisplayOperationsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_operations);
         Intent intent = getIntent();
-        String operations = intent.getStringExtra(OrdersList.EXTRA_MESSAGE);
+        setTitle(intent.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE));
+        String operations = intent.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
         createList(operations);
 
     }

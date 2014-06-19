@@ -33,8 +33,10 @@ import java.util.HashMap;
 
 public class OrdersList extends Activity {
     private static String targetUrl = "http://wba-urbbox.herokuapp.com/rest/orders";
-    public final static String EXTRA_MESSAGE =
+    public final static String OPERATIONS_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.OPERATIONS_MESSAGE";
+    public final static String ORDER_TITLE_MESSAGE =
+            "com.holandago.wbamanager.ordersmanager.ORDER_TITLE_MESSAGE";
     private ArrayList<HashMap<String,String>> orderList = new ArrayList<HashMap<String, String>>();
     private ArrayList<String> existingOrders = new ArrayList<String>();
     private ListView listView;
@@ -58,9 +60,10 @@ public class OrdersList extends Activity {
 
     }
 
-    public void sendOperationsMessage(String message){
+    public void sendOperationsMessage(String message, String orderTitle){
         Intent intent = new Intent(this, DisplayOperationsActivity.class);
-        intent.putExtra(EXTRA_MESSAGE,message);
+        intent.putExtra(OPERATIONS_MESSAGE,message);
+        intent.putExtra(ORDER_TITLE_MESSAGE, orderTitle);
         startActivity(intent);
     }
 
@@ -124,7 +127,8 @@ public class OrdersList extends Activity {
                         public void onItemClick(AdapterView<?> parent, View view,
                                                 int position, long id) {
                             //Sends the operations part of the JSONObject to the next activity
-                            sendOperationsMessage(orderList.get(+position).get(OPERATIONS_TAG));
+                            sendOperationsMessage(orderList.get(+position).get(OPERATIONS_TAG),
+                                    orderList.get(+position).get(ORDER_TITLE_TAG));
                         }
                     });
 
