@@ -24,10 +24,6 @@
             android:label="@string/title_activity_display_operations" >
         </activity>
 
-        <activity
-            android:name="com.holandago.wbamanager.ordersmanager.OperationHandlingActivity"
-            android:label="@string/title_activity_operation_handling" >
-        </activity>
     </application>
 
 </manifest>

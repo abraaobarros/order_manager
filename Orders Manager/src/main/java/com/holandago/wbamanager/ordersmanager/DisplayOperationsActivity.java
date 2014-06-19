@@ -1,8 +1,10 @@
 package com.holandago.wbamanager.ordersmanager;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Layout;
 import android.view.LayoutInflater;
@@ -14,20 +16,27 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.holandago.wbamanager.R;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 
 public class DisplayOperationsActivity extends Activity {
+    private ProgressDialog pDialog;
     public final static String STATUS_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.STATUS_MESSAGE";
     public final static String ID_MESSAGE =
@@ -39,6 +48,8 @@ public class DisplayOperationsActivity extends Activity {
     private static final String ID_TAG = "id";
     private ArrayList<HashMap<String,String>> operationsList =
             new ArrayList<HashMap<String, String>>();
+    private String startUrl;
+    private String finishUrl;
 
 
     @Override
@@ -84,6 +95,7 @@ public class DisplayOperationsActivity extends Activity {
         }
     }
 
+    //----- Adapter for the ListItem ------------------
     private class CustomAdapter extends BaseAdapter{
         private LayoutInflater inflater;
         private ArrayList<HashMap<String,String>> data;
@@ -117,14 +129,16 @@ public class DisplayOperationsActivity extends Activity {
                 holder.operation_machine =
                         (TextView)convertView.findViewById(R.id.operation_machine);
                 holder.operation_status = (TextView)convertView.findViewById(R.id.operation_status);
+                //Start and Finish Buttons
                 holder.start_operation_button =
                         (Button) convertView.findViewById(R.id.start_operation_button);
-                holder.start_operation_button.setOnClickListener
-                        (new ButtonListener(position,"start"));
                 holder.finish_operation_button =
                         (Button) convertView.findViewById(R.id.finish_operation_button);
+                //Setting the listeners
+                holder.start_operation_button.setOnClickListener
+                        (new ButtonListener(position,"start",holder.finish_operation_button));
                 holder.finish_operation_button.setOnClickListener(
-                        new ButtonListener(position,"finish"));
+                        new ButtonListener(position,"finish",holder.start_operation_button));
                 convertView.setTag(holder);
             }else{
                 holder = (OperationViewHolder)convertView.getTag();
@@ -136,7 +150,7 @@ public class DisplayOperationsActivity extends Activity {
 
             if(getItem(position).get(STATUS_TAG).equals("1")){
                 holder.start_operation_button.setEnabled(false);
-                holder.start_operation_button.setEnabled(true);
+                holder.finish_operation_button.setEnabled(true);
             }else{
                 holder.start_operation_button.setEnabled(true);
                 holder.finish_operation_button.setEnabled(false);
@@ -145,24 +159,79 @@ public class DisplayOperationsActivity extends Activity {
             return convertView;
         }
 
+        public class ButtonListener implements OnClickListener {
+            private int position;
+            private String handle;
+            private View otherButton;
+
+            public ButtonListener(int position, String handle,View otherButton){
+                this.position = position;
+                this.handle = handle;
+                this.otherButton = otherButton;
+            }
+
+            @Override
+            public void onClick(View thisButton){
+                String id = getItem(position).get(ID_TAG);
+                startUrl = "http://wba-urbbox.herokuapp.com/rest/operation/"+id+"/start";
+                finishUrl = "http://wba-urbbox.herokuapp.com/rest/operation/"+id+"/finish";
+                AsyncGetRequest requester = new AsyncGetRequest();
+                if(handle.equals("start")){
+                    requester.execute(new String[]{startUrl});
+                }else{
+                    requester.execute(new String[]{finishUrl});
+                }
+                thisButton.setEnabled(false);
+                otherButton.setEnabled(true);
+            }
+        }
 
     }
+    //End of the Adapter ------
 
-    public class ButtonListener implements OnClickListener {
-        private int position;
-        private String handle;
+    //Asynchronous get request to access the url
+    private class AsyncGetRequest extends AsyncTask<String, String, String> {
 
-        public ButtonListener(int position, String handle){
-            this.position = position;
-            this.handle = handle;
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+            pDialog = new ProgressDialog(DisplayOperationsActivity.this);
+            pDialog.setMessage("Making the request");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(true);
+            pDialog.show();
+        }
+        @Override
+        protected String doInBackground(String... urls){
+            String output = null;
+            for(String url:urls){
+                output = getOutputFromUrl(url);
+            }
+
+            return output;
+        }
+
+        private String getOutputFromUrl(String url){
+            String output = null;
+            try{
+                DefaultHttpClient httpClient = new DefaultHttpClient();
+                HttpGet httpGet = new HttpGet(url);
+                HttpResponse httpResponse = httpClient.execute(httpGet);
+                HttpEntity httpEntity = httpResponse.getEntity();
+                output = EntityUtils.toString(httpEntity);
+            } catch(UnsupportedEncodingException e){
+                e.printStackTrace();
+            } catch(IOException e){
+                e.printStackTrace();
+            }
+            return output;
         }
 
         @Override
-        public void onClick(View v){
-
+        protected void onPostExecute(String output){
+            pDialog.dismiss();
         }
     }
-
 
     private static class OperationViewHolder {
         TextView operation_name;
