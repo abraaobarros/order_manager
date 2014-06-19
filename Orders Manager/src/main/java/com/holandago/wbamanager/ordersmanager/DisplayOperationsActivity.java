@@ -1,13 +1,21 @@
 package com.holandago.wbamanager.ordersmanager;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Layout;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
+import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+
+import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 import com.holandago.wbamanager.R;
 
@@ -17,6 +25,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
 
 public class DisplayOperationsActivity extends Activity {
     public final static String STATUS_MESSAGE =
@@ -43,13 +52,6 @@ public class DisplayOperationsActivity extends Activity {
 
     }
 
-    public void sendStatusAndIDMessage(String status, String id){
-        Intent intent = new Intent(this, OperationHandlingActivity.class);
-        intent.putExtra(STATUS_MESSAGE,status);
-        intent.putExtra(ID_MESSAGE,id);
-        startActivity(intent);
-    }
-
     public void createList(String json){
 
         try{
@@ -70,27 +72,104 @@ public class DisplayOperationsActivity extends Activity {
                     operationsList.add(map);
                 }
                 listView = (ListView)findViewById(R.id.operationsList);
-                ListAdapter adapter = new SimpleAdapter(
+                ListAdapter adapter = new CustomAdapter(
                         DisplayOperationsActivity.this, //Context
-                        operationsList, //Data
-                        R.layout.operations_list_v, //Layout
-                        new String[]{NAME_TAG, MACHINE_TAG,STATUS_TAG}, //from
-                        new int[]{R.id.operation_name,R.id.operation_machine,R.id.operation_status,} //to
+                        operationsList//Data
                 );
                 listView.setAdapter(adapter);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view,
-                                            int position, long id) {
-                        sendStatusAndIDMessage(operationsList.get(+position).get(STATUS_TAG),
-                                operationsList.get(+position).get(ID_TAG));
-                    }
-                });
 
             }
         }catch(JSONException e){
             e.printStackTrace();
         }
+    }
+
+    private class CustomAdapter extends BaseAdapter{
+        private LayoutInflater inflater;
+        private ArrayList<HashMap<String,String>> data;
+
+        public CustomAdapter(Context context, ArrayList<HashMap<String,String>> data){
+            this.inflater = LayoutInflater.from(context);
+            this.data = data;
+        }
+
+        public int getCount(){
+            return data.size();
+        }
+
+        @Override
+        public long getItemId(int position){
+            return position;
+        }
+
+        @Override
+        public HashMap<String,String> getItem(int position){
+            return data.get(+position);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent){
+            OperationViewHolder holder;
+            if(convertView == null){
+                convertView = inflater.inflate(R.layout.operations_list_v,null);
+                holder = new OperationViewHolder();
+                holder.operation_name = (TextView)convertView.findViewById(R.id.operation_name);
+                holder.operation_machine =
+                        (TextView)convertView.findViewById(R.id.operation_machine);
+                holder.operation_status = (TextView)convertView.findViewById(R.id.operation_status);
+                holder.start_operation_button =
+                        (Button) convertView.findViewById(R.id.start_operation_button);
+                holder.start_operation_button.setOnClickListener
+                        (new ButtonListener(position,"start"));
+                holder.finish_operation_button =
+                        (Button) convertView.findViewById(R.id.finish_operation_button);
+                holder.finish_operation_button.setOnClickListener(
+                        new ButtonListener(position,"finish"));
+                convertView.setTag(holder);
+            }else{
+                holder = (OperationViewHolder)convertView.getTag();
+            }
+
+            holder.operation_name.setText(data.get(+position).get(NAME_TAG));
+            holder.operation_machine.setText(data.get(+position).get(MACHINE_TAG));
+            holder.operation_status.setText(data.get(+position).get(STATUS_TAG));
+
+            if(getItem(position).get(STATUS_TAG).equals("1")){
+                holder.start_operation_button.setEnabled(false);
+                holder.start_operation_button.setEnabled(true);
+            }else{
+                holder.start_operation_button.setEnabled(true);
+                holder.finish_operation_button.setEnabled(false);
+            }
+
+            return convertView;
+        }
+
+
+    }
+
+    public class ButtonListener implements OnClickListener {
+        private int position;
+        private String handle;
+
+        public ButtonListener(int position, String handle){
+            this.position = position;
+            this.handle = handle;
+        }
+
+        @Override
+        public void onClick(View v){
+
+        }
+    }
+
+
+    private static class OperationViewHolder {
+        TextView operation_name;
+        TextView operation_machine;
+        TextView operation_status;
+        Button start_operation_button;
+        Button finish_operation_button;
     }
 
 
