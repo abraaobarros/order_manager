@@ -6,5 +6,6 @@
     <string name="action_settings">Settings</string>
     <string name="get_data_button">Get Data</string>
     <string name="title_activity_display_operations">DisplayOperationsActivity</string>
+    <string name="title_activity_operation_handling">OperationHandlingActivity</string>
 
 </resources>

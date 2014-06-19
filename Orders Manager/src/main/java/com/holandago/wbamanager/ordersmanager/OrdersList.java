@@ -33,8 +33,10 @@ import java.util.HashMap;
 
 public class OrdersList extends Activity {
     private static String targetUrl = "http://wba-urbbox.herokuapp.com/rest/orders";
-    public final static String EXTRA_MESSAGE = "com.holandago.wbamanager.ordersmanager.MESSAGE";
+    public final static String EXTRA_MESSAGE =
+            "com.holandago.wbamanager.ordersmanager.OPERATIONS_MESSAGE";
     private ArrayList<HashMap<String,String>> orderList = new ArrayList<HashMap<String, String>>();
+    private ArrayList<String> existingOrders = new ArrayList<String>();
     private ListView listView;
     private TextView orderTitle;
     private Button BtnGetData;
@@ -96,10 +98,18 @@ public class OrdersList extends Activity {
                     HashMap<String,String> map = new HashMap<String, String>();
                     map.put(ORDER_TITLE_TAG,title);
                     map.put(OPERATIONS_TAG,operations);
-                    //Assuming the title is the ID
-                    if(!orderList.contains(map)) {
+                    if(!existingOrders.contains(title)){
+                        existingOrders.add(title);
                         orderList.add(map);
+                    }else{
+                        if(!orderList.contains(map)) {
+                            int indexToUpdate = existingOrders.indexOf(title);
+                            orderList.remove(indexToUpdate);
+                            orderList.add(indexToUpdate,map);
+                        }
                     }
+                    //Assuming the title is the ID
+
                     listView = (ListView)findViewById(R.id.orderList);
                     ListAdapter adapter = new SimpleAdapter(
                             OrdersList.this, //Context

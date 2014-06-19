@@ -19,10 +19,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DisplayOperationsActivity extends Activity {
+    public final static String STATUS_MESSAGE =
+            "com.holandago.wbamanager.ordersmanager.STATUS_MESSAGE";
+    public final static String ID_MESSAGE =
+            "com.holandago.wbamanager.ordersmanager.ID_MESSAGE";
     private ListView listView;
     private static final String NAME_TAG = "operation_name";
     private static final String MACHINE_TAG = "machine";
     private static final String STATUS_TAG = "status";
+    private static final String ID_TAG = "id";
     private ArrayList<HashMap<String,String>> operationsList =
             new ArrayList<HashMap<String, String>>();
 
@@ -37,19 +42,28 @@ public class DisplayOperationsActivity extends Activity {
 
     }
 
+    public void sendStatusAndIDMessage(String status, String id){
+        Intent intent = new Intent(this, OperationHandlingActivity.class);
+        intent.putExtra(STATUS_MESSAGE,status);
+        intent.putExtra(ID_MESSAGE,id);
+        startActivity(intent);
+    }
+
     public void createList(String json){
 
         try{
+            JSONArray array = new JSONArray(json);
             for(int i = 0; i< json.length(); i++){
-                JSONArray array = new JSONArray(json);
                 JSONObject object = array.getJSONObject(i);
                 String name = object.getString(NAME_TAG);
                 String machine = object.getString(MACHINE_TAG);
                 String status = object.getString(STATUS_TAG);
+                String id = object.getString(ID_TAG);
                 HashMap<String,String> map = new HashMap<String, String>();
                 map.put(NAME_TAG,name);
                 map.put(MACHINE_TAG,machine);
                 map.put(STATUS_TAG,status);
+                map.put(ID_TAG,id);
                 //Assuming the title is the ID
                 if(!operationsList.contains(map)) {
                     operationsList.add(map);
@@ -67,7 +81,8 @@ public class DisplayOperationsActivity extends Activity {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view,
                                             int position, long id) {
-
+                        sendStatusAndIDMessage(operationsList.get(+position).get(STATUS_TAG),
+                                operationsList.get(+position).get(ID_TAG));
                     }
                 });
 
@@ -75,10 +90,6 @@ public class DisplayOperationsActivity extends Activity {
         }catch(JSONException e){
             e.printStackTrace();
         }
-
-        listView = (ListView)findViewById(R.id.operationsList);
-
-
     }
 
 
