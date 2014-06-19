@@ -44,6 +44,7 @@ public class DisplayOperationsActivity extends Activity {
     private ListView listView;
     private static final String NAME_TAG = "operation_name";
     private static final String MACHINE_TAG = "machine";
+    private static final String TIME_TAG = "time";
     private static final String STATUS_TAG = "status";
     private static final String ID_TAG = "id";
     private ArrayList<HashMap<String,String>> operationsList =
@@ -72,11 +73,14 @@ public class DisplayOperationsActivity extends Activity {
                 String name = object.getString(NAME_TAG);
                 String machine = object.getString(MACHINE_TAG);
                 String status = object.getString(STATUS_TAG);
+                String time = object.getString(TIME_TAG);
                 String id = object.getString(ID_TAG);
                 HashMap<String,String> map = new HashMap<String, String>();
                 map.put(NAME_TAG,name);
                 map.put(MACHINE_TAG,machine);
                 map.put(STATUS_TAG,status);
+                map.put(TIME_TAG,time);
+
                 map.put(ID_TAG,id);
                 //Assuming the title is the ID
                 if(!operationsList.contains(map)) {
@@ -149,11 +153,16 @@ public class DisplayOperationsActivity extends Activity {
             holder.operation_status.setText(data.get(+position).get(STATUS_TAG));
 
             if(getItem(position).get(STATUS_TAG).equals("1")){
-                holder.start_operation_button.setEnabled(false);
-                holder.finish_operation_button.setEnabled(true);
+                holder.start_operation_button.setVisibility(View.INVISIBLE);
+                holder.finish_operation_button.setVisibility(View.VISIBLE);
+            }else if(getItem(position).get(STATUS_TAG).equals("null")){
+                holder.start_operation_button.setText("Start");
+                holder.start_operation_button.setVisibility(View.VISIBLE);
+                holder.finish_operation_button.setVisibility(View.INVISIBLE);
             }else{
-                holder.start_operation_button.setEnabled(true);
-                holder.finish_operation_button.setEnabled(false);
+                holder.start_operation_button.setText("Restart");
+                holder.start_operation_button.setVisibility(View.VISIBLE);
+                holder.finish_operation_button.setVisibility(View.INVISIBLE);
             }
 
             return convertView;
@@ -162,9 +171,9 @@ public class DisplayOperationsActivity extends Activity {
         public class ButtonListener implements OnClickListener {
             private int position;
             private String handle;
-            private View otherButton;
+            private Button otherButton;
 
-            public ButtonListener(int position, String handle,View otherButton){
+            public ButtonListener(int position, String handle,Button otherButton){
                 this.position = position;
                 this.handle = handle;
                 this.otherButton = otherButton;
@@ -181,8 +190,14 @@ public class DisplayOperationsActivity extends Activity {
                 }else{
                     requester.execute(new String[]{finishUrl});
                 }
-                thisButton.setEnabled(false);
-                otherButton.setEnabled(true);
+                thisButton.setVisibility(View.INVISIBLE);
+                if(handle.equals("start")) {
+                    otherButton.setVisibility(View.VISIBLE);
+                }
+                else {
+                    otherButton.setText("Restart");
+                    otherButton.setVisibility(View.VISIBLE);
+                }
             }
         }
 

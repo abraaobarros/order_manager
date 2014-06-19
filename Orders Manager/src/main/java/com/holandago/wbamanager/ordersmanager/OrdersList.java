@@ -51,6 +51,7 @@ public class OrdersList extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_orders_list);
         BtnGetData = (Button)findViewById(R.id.getData);
+        new JSONParse().execute();
         BtnGetData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
