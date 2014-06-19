@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
@@ -32,11 +33,13 @@ import java.util.HashMap;
 
 public class OrdersList extends Activity {
     private static String targetUrl = "http://wba-urbbox.herokuapp.com/rest/orders";
+    public final static String EXTRA_MESSAGE = "com.holandago.wbamanager.ordersmanager.MESSAGE";
     private ArrayList<HashMap<String,String>> orderList = new ArrayList<HashMap<String, String>>();
     private ListView listView;
     private TextView orderTitle;
     private Button BtnGetData;
     private static final String ORDER_TITLE_TAG = "title";
+    private static final String OPERATIONS_TAG = "operations";
     private JSONArray orderJSON = null;
 
     @Override
@@ -52,6 +55,13 @@ public class OrdersList extends Activity {
         });
 
     }
+
+    public void sendOperationsMessage(String message){
+        Intent intent = new Intent(this, DisplayOperationsActivity.class);
+        intent.putExtra(EXTRA_MESSAGE,message);
+        startActivity(intent);
+    }
+
 
     private class JSONParse extends AsyncTask<String,String, JSONArray>{
         private ProgressDialog pDialog;
@@ -82,8 +92,10 @@ public class OrdersList extends Activity {
                 for(int i = 0; i< json.length(); i++){
                     JSONObject object = json.getJSONObject(i);
                     String title = object.getString(ORDER_TITLE_TAG);
+                    String operations = object.getString(OPERATIONS_TAG);
                     HashMap<String,String> map = new HashMap<String, String>();
                     map.put(ORDER_TITLE_TAG,title);
+                    map.put(OPERATIONS_TAG,operations);
                     //Assuming the title is the ID
                     if(!orderList.contains(map)) {
                         orderList.add(map);
@@ -101,11 +113,8 @@ public class OrdersList extends Activity {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view,
                                                 int position, long id) {
-                            Toast.makeText(
-                                    OrdersList.this, //Context
-                                    "You Clicked at " + orderList.get(+position).get(ORDER_TITLE_TAG), //Msg
-                                    Toast.LENGTH_SHORT //Length
-                            ).show();
+                            //Sends the operations part of the JSONObject to the next activity
+                            sendOperationsMessage(orderList.get(+position).get(OPERATIONS_TAG));
                         }
                     });
 
