@@ -106,7 +106,7 @@ public class OrdersList extends Activity {
                             orderList, //Data
                             R.layout.order_list_v, //Layout
                             new String[]{ORDER_TITLE_TAG}, //from
-                            new int[]{R.id.title} //to
+                            new int[]{R.id.order_title} //to
                     );
                     listView.setAdapter(adapter);
                     listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
