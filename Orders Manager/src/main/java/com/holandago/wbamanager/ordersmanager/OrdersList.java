@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -41,7 +42,7 @@ public class OrdersList extends Activity {
     private ArrayList<String> existingOrders = new ArrayList<String>();
     private ListView listView;
     private TextView orderTitle;
-    private Button BtnGetData;
+    private ImageView BtnGetData;
     private static final String ORDER_TITLE_TAG = "title";
     private static final String OPERATIONS_TAG = "operations";
     private JSONArray orderJSON = null;
@@ -50,8 +51,8 @@ public class OrdersList extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_orders_list);
-        BtnGetData = (Button)findViewById(R.id.getData);
         new JSONParse().execute();
+        BtnGetData = (ImageView)findViewById(R.id.getData);
         BtnGetData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

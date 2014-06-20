@@ -11,16 +11,16 @@
     <ListView
         android:id="@+id/orderList"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         android:layout_above="@+id/getData"/>
 
-    <Button
+    <ImageView
         android:id="@+id/getData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="23dp"
-        android:text="@string/refresh_data_button" />
+        android:paddingBottom="23dp"
+        android:src="@drawable/ic_action_name" />
 
 </RelativeLayout>
