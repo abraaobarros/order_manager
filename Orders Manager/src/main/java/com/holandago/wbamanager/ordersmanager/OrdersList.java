@@ -26,6 +26,10 @@ import android.widget.Toast;
 import com.holandago.wbamanager.R;
 import com.holandago.wbamanager.library.JSONParser;
 
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +44,8 @@ public class OrdersList extends ActionBarActivity {
             "com.holandago.wbamanager.ordersmanager.OPERATIONS_MESSAGE";
     public final static String ORDER_TITLE_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.ORDER_TITLE_MESSAGE";
+    private static final String ORDER_FORM_URL =
+            "http://wba-urbbox.herokuapp.com/panel/orders/workcard";
     private ArrayList<HashMap<String,String>> orderList = new ArrayList<HashMap<String, String>>();
     private ArrayList<String> existingOrders = new ArrayList<String>();
     private ListView listView;
@@ -103,15 +109,21 @@ public class OrdersList extends ActionBarActivity {
         super.onActivityResult(requestCode,resultCode,data);
         if(requestCode == 0){
             if(resultCode == RESULT_OK){
-                String contents = data.getStringExtra("SCAN_RESULT");
-                Toast.makeText(this, contents,Toast.LENGTH_LONG).show();
+                String orderUrl = data.getStringExtra("SCAN_RESULT");
+                try {
+                    JSONObject json = new JSONObject(orderUrl);
+                    String title = json.getString(ORDER_TITLE_TAG);
+                    String operations = json.getString(OPERATIONS_TAG);
+                    sendOperationsMessage(operations, title);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }else
             if(resultCode == RESULT_CANCELED){
-                //TODO: Handle cancel
+                onResume();
             }
         }
     }
-
 
     public void sendOperationsMessage(String message, String orderTitle){
         Intent intent = new Intent(this, DisplayOperationsActivity.class);
@@ -121,14 +133,13 @@ public class OrdersList extends ActionBarActivity {
     }
 
 
+
     private class JSONParse extends AsyncTask<String,String, JSONArray>{
         private ProgressDialog pDialog;
 
         @Override
         protected JSONArray doInBackground(String... strings) {
-            JSONParser jsonParser = new JSONParser();
-            JSONArray json = jsonParser.getJSONfromUrl(targetUrl);
-            return json;
+            return new JSONParser().getJSONfromUrl(targetUrl);
         }
 
         @Override
@@ -154,6 +165,7 @@ public class OrdersList extends ActionBarActivity {
                     HashMap<String,String> map = new HashMap<String, String>();
                     map.put(ORDER_TITLE_TAG,title);
                     map.put(OPERATIONS_TAG,operations);
+                    //Assuming the title is the ID
                     if(!existingOrders.contains(title)){
                         existingOrders.add(title);
                         orderList.add(map);
@@ -164,7 +176,6 @@ public class OrdersList extends ActionBarActivity {
                             orderList.add(indexToUpdate,map);
                         }
                     }
-                    //Assuming the title is the ID
 
                     listView = (ListView)findViewById(R.id.orderList);
                     ListAdapter adapter = new SimpleAdapter(
