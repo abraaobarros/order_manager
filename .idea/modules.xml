@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Orders Manager/Orders Manager.iml" filepath="$PROJECT_DIR$/Orders Manager/Orders Manager.iml" />
       <module fileurl="file://$PROJECT_DIR$/WBAManager.iml" filepath="$PROJECT_DIR$/WBAManager.iml" />
-      <module fileurl="file://$PROJECT_DIR$/order_manager.iml" filepath="$PROJECT_DIR$/order_manager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Zxing/Zxing.iml" filepath="$PROJECT_DIR$/Zxing/Zxing.iml" />
     </modules>
   </component>
 </project>

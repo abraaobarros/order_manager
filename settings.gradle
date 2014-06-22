@@ -1,1 +1,1 @@
-include ':Orders Manager'
+include ':Orders Manager', ':Zxing'

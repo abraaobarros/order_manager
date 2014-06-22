@@ -1,15 +1,17 @@
 package com.holandago.wbamanager.ordersmanager;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
+import android.app.ActionBar;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -32,7 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class OrdersList extends Activity {
+public class OrdersList extends ActionBarActivity {
     private static String targetUrl = "http://wba-urbbox.herokuapp.com/rest/orders";
     public final static String OPERATIONS_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.OPERATIONS_MESSAGE";
@@ -52,6 +54,8 @@ public class OrdersList extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_orders_list);
         new JSONParse().execute();
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
         BtnGetData = (ImageView)findViewById(R.id.getData);
         BtnGetData.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,6 +65,53 @@ public class OrdersList extends Activity {
         });
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        //Inflating the actionBar menu
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.order_list_actions,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                new JSONParse().execute();
+                return true;
+            case R.id.action_qrcode:
+                try{
+                    Intent intent = new Intent("com.google.zxing.client.android.SCAN");
+                    intent.putExtra("SCAN_MODE","QR_CODE_MODE");
+                    startActivityForResult(intent,0);
+                }catch(Exception e){
+                    Uri marketUri = Uri.parse("market://details?id=com.google.zxing.client.android");
+                    Intent marketIntent = new Intent(Intent.ACTION_VIEW,marketUri);
+                    startActivity(marketIntent);
+                    e.printStackTrace();
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+        if(requestCode == 0){
+            if(resultCode == RESULT_OK){
+                String contents = data.getStringExtra("SCAN_RESULT");
+                Toast.makeText(this, contents,Toast.LENGTH_LONG).show();
+            }else
+            if(resultCode == RESULT_CANCELED){
+                //TODO: Handle cancel
+            }
+        }
+    }
+
 
     public void sendOperationsMessage(String message, String orderTitle){
         Intent intent = new Intent(this, DisplayOperationsActivity.class);
