@@ -11,17 +11,6 @@
     <ListView
         android:id="@+id/orderList"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_above="@+id/getData"/>
-
-    <ImageView
-        android:id="@+id/getData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:paddingTop="13dp"
-        android:paddingBottom="10dp"
-        android:src="@drawable/ic_action_name" />
+        android:layout_height="fill_parent"/>
 
 </RelativeLayout>

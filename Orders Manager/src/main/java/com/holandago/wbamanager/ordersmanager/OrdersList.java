@@ -62,13 +62,6 @@ public class OrdersList extends ActionBarActivity {
         new JSONParse().execute();
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        BtnGetData = (ImageView)findViewById(R.id.getData);
-        BtnGetData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new JSONParse().execute();
-            }
-        });
 
     }
 
