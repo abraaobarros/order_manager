@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pre-dex-items>
+
+    <item
+        dex="/home/maestro/AndroidStudioProjects/WBAManager/Orders Manager/build/intermediates/pre-dexed/debug/support-v4-19.1.0-aac1d7d705e6a3febd0d3430d91c7192e15766e4.jar"
+        jar="/home/maestro/Documents/AndroidApps/android-studio/sdk/extras/android/m2repository/com/android/support/support-v4/19.1.0/support-v4-19.1.0.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67"/>
+    <item
+        dex="/home/maestro/AndroidStudioProjects/WBAManager/Orders Manager/build/intermediates/pre-dexed/debug/classes-b6d10d3c229648fa5303ad60613a14a01b09ff13.jar"
+        jar="/home/maestro/AndroidStudioProjects/WBAManager/build/intermediates/exploded-aar/com.android.support/appcompat-v7/19.1.0/classes.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="3499ceba05ca1f6037c6a2fad73df8f636224a28"/>
+
+</pre-dex-items>
