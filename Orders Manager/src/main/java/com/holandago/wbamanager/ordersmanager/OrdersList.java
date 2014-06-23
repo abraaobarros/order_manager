@@ -59,7 +59,6 @@ public class OrdersList extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_orders_list);
-        new JSONParse().execute();
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
@@ -132,7 +131,9 @@ public class OrdersList extends ActionBarActivity {
 
         @Override
         protected JSONArray doInBackground(String... strings) {
-            return new JSONParser().getJSONfromUrl(targetUrl);
+            JSONParser jsonParser = new JSONParser();
+            JSONArray json = jsonParser.getJSONfromUrl(targetUrl);
+            return json;
         }
 
         @Override
