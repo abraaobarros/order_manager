@@ -8,15 +8,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-
+import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.holandago.wbamanager.R;
 
@@ -66,14 +64,13 @@ public class DisplayOperationsActivity extends Activity {
 
     }
 
-
     @Override
-    public void onPause(){
+    public void onBackPressed(){
         Intent intent = new Intent();
         intent.putExtra(OrdersList.OPERATIONS_MESSAGE,operations);
         intent.putExtra(OrdersList.ORDER_TITLE_MESSAGE, orderTitle);
         setResult(RESULT_OK,intent);
-        super.onPause();
+        super.onBackPressed();
     }
 
     public void createList(String operations,String lotNumber){

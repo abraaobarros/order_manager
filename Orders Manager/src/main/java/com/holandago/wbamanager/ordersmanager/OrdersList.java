@@ -1,8 +1,6 @@
 package com.holandago.wbamanager.ordersmanager;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -15,21 +13,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.holandago.wbamanager.R;
 import com.holandago.wbamanager.library.JSONParser;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,7 +56,6 @@ public class OrdersList extends ActionBarActivity {
         setContentView(R.layout.activity_orders_list);
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        new JSONParse().execute();
     }
 
     @Override
@@ -98,6 +89,12 @@ public class OrdersList extends ActionBarActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onResume(){
+        new JSONParse().execute();
+        super.onResume();
     }
 
     @Override
@@ -139,7 +136,7 @@ public class OrdersList extends ActionBarActivity {
         Intent intent = new Intent(this, DisplayLotsActivity.class);
         intent.putExtra(OPERATIONS_MESSAGE,message);
         intent.putExtra(ORDER_TITLE_MESSAGE, orderTitle);
-        startActivityForResult(intent, 1);
+        startActivity(intent);
     }
 
     public void sendLotOperationMessage(String operations, String orderTitle,String lotNumber){
@@ -148,7 +145,7 @@ public class OrdersList extends ActionBarActivity {
         intent.putExtra(OPERATIONS_MESSAGE,operations);
         intent.putExtra(ORDER_TITLE_MESSAGE, orderTitle);
         intent.putExtra(LOT_NUMBER_MESSAGE, lotNumber);
-        startActivityForResult(intent, 2);
+        startActivity(intent);
     }
 
     public void createList(String orders){

@@ -1,9 +1,8 @@
 package com.holandago.wbamanager.ordersmanager;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -12,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import com.holandago.wbamanager.R;
 
@@ -71,12 +71,6 @@ public class DisplayLotsActivity extends ActionBarActivity {
         }
     }
 
-    @Override
-    public void onPause(){
-        Intent intent = new Intent();
-        setResult(RESULT_OK,intent);
-        super.onPause();
-    }
 
     public void sendOperationsMessage(String message, String orderTitle,String lotNumber){
         Intent intent = new Intent(this, DisplayOperationsActivity.class);
