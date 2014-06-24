@@ -130,6 +130,7 @@ public class OrdersList extends ActionBarActivity {
     }
 
     public void sendOperationsMessage(String message, String orderTitle){
+        //Travels to DisplayLotsActivity
         Intent intent = new Intent(this, DisplayLotsActivity.class);
         intent.putExtra(OPERATIONS_MESSAGE,message);
         intent.putExtra(ORDER_TITLE_MESSAGE, orderTitle);
@@ -137,6 +138,7 @@ public class OrdersList extends ActionBarActivity {
     }
 
     public void sendLotOperationMessage(String operations, String orderTitle,String lotNumber){
+        //Travels to DisplayOperationsActivity
         Intent intent = new Intent(this, DisplayOperationsActivity.class);
         intent.putExtra(OPERATIONS_MESSAGE,operations);
         intent.putExtra(ORDER_TITLE_MESSAGE, orderTitle);

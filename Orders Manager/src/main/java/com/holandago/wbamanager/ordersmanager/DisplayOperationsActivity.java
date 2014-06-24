@@ -48,6 +48,9 @@ public class DisplayOperationsActivity extends Activity {
             new ArrayList<HashMap<String, String>>();
     private String startUrl;
     private String finishUrl;
+    private String operations;
+    private String lotNumber;
+    private String orderTitle;
 
 
     @Override
@@ -55,20 +58,25 @@ public class DisplayOperationsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_operations);
         Intent intent = getIntent();
-        String orderTitle = intent.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
-        String lotNumber = intent.getStringExtra(OrdersList.LOT_NUMBER_MESSAGE);
+        orderTitle = intent.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
+        lotNumber = intent.getStringExtra(OrdersList.LOT_NUMBER_MESSAGE);
         setTitle(lotNumber+", from order:"+orderTitle);
-        String operations = intent.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
+        operations = intent.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
         createList(operations,lotNumber);
 
     }
 
-    public void createList(String json,String lotNumber){
+    @Override
+    public void onBackPressed(){
+        sendOperationsMessage(operations,orderTitle);
+    }
+
+    public void createList(String operations,String lotNumber){
 
         try{
-            JSONArray array = new JSONArray(json);
+            JSONArray array = new JSONArray(operations);
             operationsList = new ArrayList<HashMap<String, String>>();
-            for(int i = 0; i< json.length(); i++){
+            for(int i = 0; i< operations.length(); i++){
                 JSONObject object = array.getJSONObject(i);
                 String lot = object.getString(LOT_NUMBER_TAG);
                 if(("Lot Number: "+lot).equals(lotNumber)) {
@@ -95,6 +103,57 @@ public class DisplayOperationsActivity extends Activity {
             }
         }catch(JSONException e){
             e.printStackTrace();
+        }
+    }
+
+    public void sendOperationsMessage(String message, String orderTitle){
+        //Travel to DisplayLotsActivity
+        Intent intent = new Intent(this, DisplayLotsActivity.class);
+        intent.putExtra(OrdersList.OPERATIONS_MESSAGE,message);
+        intent.putExtra(OrdersList.ORDER_TITLE_MESSAGE, orderTitle);
+        startActivity(intent);
+    }
+
+    public void changeStatus(String progressID, boolean start, int position){
+        //Updates the strings and maps used
+        if(start) {
+            operationsList.get(position).put(STATUS_TAG,"1");
+            try {
+                JSONArray operationsJson = new JSONArray(operations);
+                for(int i = 0; i<operations.length();i++){
+                    JSONObject object = operationsJson.getJSONObject(i);
+                    String lot = object.getString(LOT_NUMBER_TAG);
+                    if(("Lot Number: "+lot).equals(lotNumber)){
+                        String pID = object.getString(ID_TAG);
+                        if(pID.equals(progressID)){
+                            object.put(STATUS_TAG,"1");
+                            break;
+                        }
+                    }
+                }
+                operations = operationsJson.toString();
+            }catch(JSONException e){
+                e.printStackTrace();
+            }
+        }else{
+            operationsList.get(position).put(STATUS_TAG,"2");
+            try {
+                JSONArray operationsJson = new JSONArray(operations);
+                for(int i = 0; i<operations.length();i++){
+                    JSONObject object = operationsJson.getJSONObject(i);
+                    String lot = object.getString(LOT_NUMBER_TAG);
+                    if(("Lot Number: "+lot).equals(lotNumber)){
+                        String pID = object.getString(ID_TAG);
+                        if(pID.equals(progressID)){
+                            object.put(STATUS_TAG,"2");
+                            break;
+                        }
+                    }
+                }
+                operations = operationsJson.toString();
+            }catch(JSONException e){
+                e.printStackTrace();
+            }
         }
     }
 
@@ -186,8 +245,10 @@ public class DisplayOperationsActivity extends Activity {
                 AsyncGetRequest requester = new AsyncGetRequest();
                 if(handle.equals("start")){
                     requester.execute(new String[]{startUrl});
+                    changeStatus(id,true,position);
                 }else{
                     requester.execute(new String[]{finishUrl});
+                    changeStatus(id,false,position);
                 }
                 thisButton.setVisibility(View.INVISIBLE);
                 if(handle.equals("start")) {
