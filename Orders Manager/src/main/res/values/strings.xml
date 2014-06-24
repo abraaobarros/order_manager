@@ -9,5 +9,7 @@
     <string name="finish_operation">Finish</string>
     <string name="title_activity_display_operations">DisplayOperationsActivity</string>
     <string name="title_activity_operation_handling">OperationHandlingActivity</string>
+    <string name="title_activity_display_lots">DisplayLotsActivity</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

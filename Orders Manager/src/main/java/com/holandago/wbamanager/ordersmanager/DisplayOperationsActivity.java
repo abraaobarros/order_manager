@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.holandago.wbamanager.R;
 
@@ -41,7 +42,8 @@ public class DisplayOperationsActivity extends Activity {
     private static final String MACHINE_TAG = "machine";
     private static final String TIME_TAG = "time";
     private static final String STATUS_TAG = "status";
-    private static final String ID_TAG = "id";
+    private static final String ID_TAG = "progress_id";
+    private static final String LOT_NUMBER_TAG = "lot";
     private ArrayList<HashMap<String,String>> operationsList =
             new ArrayList<HashMap<String, String>>();
     private String startUrl;
@@ -53,41 +55,43 @@ public class DisplayOperationsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_operations);
         Intent intent = getIntent();
-        setTitle(intent.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE));
+        String orderTitle = intent.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
+        String lotNumber = intent.getStringExtra(OrdersList.LOT_NUMBER_MESSAGE);
+        setTitle(lotNumber+", from order:"+orderTitle);
         String operations = intent.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
-        createList(operations);
+        createList(operations,lotNumber);
 
     }
 
-    public void createList(String json){
+    public void createList(String json,String lotNumber){
 
         try{
             JSONArray array = new JSONArray(json);
+            operationsList = new ArrayList<HashMap<String, String>>();
             for(int i = 0; i< json.length(); i++){
                 JSONObject object = array.getJSONObject(i);
-                String name = object.getString(NAME_TAG);
-                String machine = object.getString(MACHINE_TAG);
-                String status = object.getString(STATUS_TAG);
-                String time = object.getString(TIME_TAG);
-                String id = object.getString(ID_TAG);
-                HashMap<String,String> map = new HashMap<String, String>();
-                map.put(NAME_TAG,name);
-                map.put(MACHINE_TAG,machine);
-                map.put(STATUS_TAG,status);
-                map.put(TIME_TAG,time);
-
-                map.put(ID_TAG,id);
-                //Assuming the title is the ID
-                if(!operationsList.contains(map)) {
+                String lot = object.getString(LOT_NUMBER_TAG);
+                if(("Lot Number: "+lot).equals(lotNumber)) {
+                    String name = object.getString(NAME_TAG);
+                    String machine = object.getString(MACHINE_TAG);
+                    String status = object.getString(STATUS_TAG);
+                    String time = object.getString(TIME_TAG);
+                    String id = object.getString(ID_TAG);
+                    HashMap<String, String> map = new HashMap<String, String>();
+                    map.put(NAME_TAG, name);
+                    map.put(MACHINE_TAG, machine);
+                    map.put(STATUS_TAG, status);
+                    map.put(TIME_TAG, time);
+                    map.put(ID_TAG, id);
+                    //Assuming the title is the ID
                     operationsList.add(map);
+                    listView = (ListView) findViewById(R.id.operationsList);
+                    ListAdapter adapter = new CustomAdapter(
+                            DisplayOperationsActivity.this, //Context
+                            operationsList//Data
+                    );
+                    listView.setAdapter(adapter);
                 }
-                listView = (ListView)findViewById(R.id.operationsList);
-                ListAdapter adapter = new CustomAdapter(
-                        DisplayOperationsActivity.this, //Context
-                        operationsList//Data
-                );
-                listView.setAdapter(adapter);
-
             }
         }catch(JSONException e){
             e.printStackTrace();
@@ -150,7 +154,7 @@ public class DisplayOperationsActivity extends Activity {
             if(getItem(position).get(STATUS_TAG).equals("1")){
                 holder.start_operation_button.setVisibility(View.INVISIBLE);
                 holder.finish_operation_button.setVisibility(View.VISIBLE);
-            }else if(getItem(position).get(STATUS_TAG).equals("null")){
+            }else if(getItem(position).get(STATUS_TAG).equals("0")){
                 holder.start_operation_button.setText("Start");
                 holder.start_operation_button.setVisibility(View.VISIBLE);
                 holder.finish_operation_button.setVisibility(View.INVISIBLE);
@@ -177,8 +181,8 @@ public class DisplayOperationsActivity extends Activity {
             @Override
             public void onClick(View thisButton){
                 String id = getItem(position).get(ID_TAG);
-                startUrl = "http://wba-urbbox.herokuapp.com/rest/operation/"+id+"/start";
-                finishUrl = "http://wba-urbbox.herokuapp.com/rest/operation/"+id+"/finish";
+                startUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+id+"/start";
+                finishUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+id+"/finish";
                 AsyncGetRequest requester = new AsyncGetRequest();
                 if(handle.equals("start")){
                     requester.execute(new String[]{startUrl});

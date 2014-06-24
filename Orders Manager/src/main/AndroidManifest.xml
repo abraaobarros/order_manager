@@ -9,21 +9,23 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-
         <activity
-            android:name="com.holandago.wbamanager.ordersmanager.OrdersList"
+            android:name=".ordersmanager.OrdersList"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name="com.holandago.wbamanager.ordersmanager.DisplayOperationsActivity"
+            android:name=".ordersmanager.DisplayOperationsActivity"
             android:label="@string/title_activity_display_operations" >
         </activity>
-
+        <activity
+            android:name=".ordersmanager.DisplayLotsActivity"
+            android:label="@string/title_activity_display_lots" >
+        </activity>
     </application>
 
 </manifest>

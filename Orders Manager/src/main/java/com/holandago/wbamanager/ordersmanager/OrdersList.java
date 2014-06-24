@@ -44,15 +44,18 @@ public class OrdersList extends ActionBarActivity {
             "com.holandago.wbamanager.ordersmanager.OPERATIONS_MESSAGE";
     public final static String ORDER_TITLE_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.ORDER_TITLE_MESSAGE";
-    private static final String ORDER_FORM_URL =
-            "http://wba-urbbox.herokuapp.com/panel/orders/workcard";
+    public final static String LOT_NUMBER_MESSAGE =
+            "com.holandago.wbamanager.ordersmanager.LOT_NUMBER_MESSAGE";
     private ArrayList<HashMap<String,String>> orderList = new ArrayList<HashMap<String, String>>();
     private ArrayList<String> existingOrders = new ArrayList<String>();
     private ListView listView;
     private TextView orderTitle;
     private ImageView BtnGetData;
     private static final String ORDER_TITLE_TAG = "title";
+    private static final String ORDER_ID_TAG = "order_id";
+    private static final String ID_TAG = "id";
     private static final String OPERATIONS_TAG = "operations";
+    private static final String LOT_NUMBER_TAG = "lot";
     private JSONArray orderJSON = null;
 
     @Override
@@ -61,7 +64,7 @@ public class OrdersList extends ActionBarActivity {
         setContentView(R.layout.activity_orders_list);
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-
+        new JSONParse().execute();
     }
 
     @Override
@@ -104,9 +107,18 @@ public class OrdersList extends ActionBarActivity {
                 String orderUrl = data.getStringExtra("SCAN_RESULT");
                 try {
                     JSONObject json = new JSONObject(orderUrl);
-                    String title = json.getString(ORDER_TITLE_TAG);
-                    String operations = json.getString(OPERATIONS_TAG);
-                    sendOperationsMessage(operations, title);
+                    String id = json.getString(ORDER_ID_TAG);
+                    String lot = "Lot Number: "+json.getString(LOT_NUMBER_TAG);
+                    String title="";
+                    String operations="";
+                    for(HashMap<String,String> map : orderList){
+                        if(map.get(ID_TAG).equals(id)){
+                            operations = map.get(OPERATIONS_TAG);
+                            title = map.get(ORDER_TITLE_TAG);
+                            break;
+                        }
+                    }
+                    sendLotOperationMessage(operations, title, lot);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -118,22 +130,27 @@ public class OrdersList extends ActionBarActivity {
     }
 
     public void sendOperationsMessage(String message, String orderTitle){
-        Intent intent = new Intent(this, DisplayOperationsActivity.class);
+        Intent intent = new Intent(this, DisplayLotsActivity.class);
         intent.putExtra(OPERATIONS_MESSAGE,message);
         intent.putExtra(ORDER_TITLE_MESSAGE, orderTitle);
         startActivity(intent);
     }
 
+    public void sendLotOperationMessage(String operations, String orderTitle,String lotNumber){
+        Intent intent = new Intent(this, DisplayOperationsActivity.class);
+        intent.putExtra(OPERATIONS_MESSAGE,operations);
+        intent.putExtra(ORDER_TITLE_MESSAGE, orderTitle);
+        intent.putExtra(LOT_NUMBER_MESSAGE, lotNumber);
+        startActivity(intent);
+    }
 
 
-    private class JSONParse extends AsyncTask<String,String, JSONArray>{
+    public class JSONParse extends AsyncTask<String,String, JSONArray>{
         private ProgressDialog pDialog;
 
         @Override
         protected JSONArray doInBackground(String... strings) {
-            JSONParser jsonParser = new JSONParser();
-            JSONArray json = jsonParser.getJSONfromUrl(targetUrl);
-            return json;
+            return new JSONParser().getJSONfromUrl(targetUrl);
         }
 
         @Override
@@ -151,26 +168,19 @@ public class OrdersList extends ActionBarActivity {
         @Override
         protected void onPostExecute(JSONArray json){
             pDialog.dismiss();
+            orderList = new ArrayList<HashMap<String, String>>();
             try{
                 for(int i = 0; i< json.length(); i++){
                     JSONObject object = json.getJSONObject(i);
                     String title = object.getString(ORDER_TITLE_TAG);
                     String operations = object.getString(OPERATIONS_TAG);
+                    String id = object.getString(ID_TAG);
                     HashMap<String,String> map = new HashMap<String, String>();
                     map.put(ORDER_TITLE_TAG,title);
                     map.put(OPERATIONS_TAG,operations);
+                    map.put(ID_TAG,id);
                     //Assuming the title is the ID
-                    if(!existingOrders.contains(title)){
-                        existingOrders.add(title);
-                        orderList.add(map);
-                    }else{
-                        if(!orderList.contains(map)) {
-                            int indexToUpdate = existingOrders.indexOf(title);
-                            orderList.remove(indexToUpdate);
-                            orderList.add(indexToUpdate,map);
-                        }
-                    }
-
+                    orderList.add(map);
                     listView = (ListView)findViewById(R.id.orderList);
                     ListAdapter adapter = new SimpleAdapter(
                             OrdersList.this, //Context
