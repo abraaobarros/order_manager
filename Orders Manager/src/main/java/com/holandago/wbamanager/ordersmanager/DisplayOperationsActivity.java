@@ -66,9 +66,14 @@ public class DisplayOperationsActivity extends Activity {
 
     }
 
+
     @Override
-    public void onBackPressed(){
-        sendOperationsMessage(operations,orderTitle);
+    public void onPause(){
+        Intent intent = new Intent();
+        intent.putExtra(OrdersList.OPERATIONS_MESSAGE,operations);
+        intent.putExtra(OrdersList.ORDER_TITLE_MESSAGE, orderTitle);
+        setResult(RESULT_OK,intent);
+        super.onPause();
     }
 
     public void createList(String operations,String lotNumber){

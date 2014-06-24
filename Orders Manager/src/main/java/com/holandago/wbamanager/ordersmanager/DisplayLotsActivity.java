@@ -59,12 +59,31 @@ public class DisplayLotsActivity extends ActionBarActivity {
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+        if(requestCode==0){
+            if(resultCode == RESULT_OK){
+                final String operations = data.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
+                final String title = data.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
+                createList(operations,title);
+            }
+        }
+    }
+
+    @Override
+    public void onPause(){
+        Intent intent = new Intent();
+        setResult(RESULT_OK,intent);
+        super.onPause();
+    }
+
     public void sendOperationsMessage(String message, String orderTitle,String lotNumber){
         Intent intent = new Intent(this, DisplayOperationsActivity.class);
         intent.putExtra(OrdersList.OPERATIONS_MESSAGE,message);
         intent.putExtra(OrdersList.ORDER_TITLE_MESSAGE, orderTitle);
         intent.putExtra(OrdersList.LOT_NUMBER_MESSAGE, lotNumber);
-        startActivity(intent);
+        startActivityForResult(intent, 0);
     }
 
     public void createList(final String operations,final String orderTitle){

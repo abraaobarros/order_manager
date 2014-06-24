@@ -83,6 +83,7 @@ public class OrdersList extends ActionBarActivity {
                 new JSONParse().execute();
                 return true;
             case R.id.action_qrcode:
+                new JSONParse().execute();
                 try{
                     Intent intent = new Intent("com.google.zxing.client.android.SCAN");
                     intent.putExtra("SCAN_MODE","QR_CODE_MODE");
@@ -126,6 +127,10 @@ public class OrdersList extends ActionBarActivity {
             if(resultCode == RESULT_CANCELED){
                 onResume();
             }
+        }else{
+            if(resultCode == RESULT_OK){
+                new JSONParse().execute();
+            }
         }
     }
 
@@ -134,7 +139,7 @@ public class OrdersList extends ActionBarActivity {
         Intent intent = new Intent(this, DisplayLotsActivity.class);
         intent.putExtra(OPERATIONS_MESSAGE,message);
         intent.putExtra(ORDER_TITLE_MESSAGE, orderTitle);
-        startActivity(intent);
+        startActivityForResult(intent, 1);
     }
 
     public void sendLotOperationMessage(String operations, String orderTitle,String lotNumber){
@@ -143,7 +148,47 @@ public class OrdersList extends ActionBarActivity {
         intent.putExtra(OPERATIONS_MESSAGE,operations);
         intent.putExtra(ORDER_TITLE_MESSAGE, orderTitle);
         intent.putExtra(LOT_NUMBER_MESSAGE, lotNumber);
-        startActivity(intent);
+        startActivityForResult(intent, 2);
+    }
+
+    public void createList(String orders){
+        orderList = new ArrayList<HashMap<String, String>>();
+        try{
+            JSONArray json = new JSONArray(orders);
+            for(int i = 0; i< json.length(); i++){
+                JSONObject object = json.getJSONObject(i);
+                String title = object.getString(ORDER_TITLE_TAG);
+                String operations = object.getString(OPERATIONS_TAG);
+                String id = object.getString(ID_TAG);
+                HashMap<String,String> map = new HashMap<String, String>();
+                map.put(ORDER_TITLE_TAG,title);
+                map.put(OPERATIONS_TAG,operations);
+                map.put(ID_TAG,id);
+                //Assuming the title is the ID
+                orderList.add(map);
+                listView = (ListView)findViewById(R.id.orderList);
+                ListAdapter adapter = new SimpleAdapter(
+                        OrdersList.this, //Context
+                        orderList, //Data
+                        R.layout.order_list_v, //Layout
+                        new String[]{ORDER_TITLE_TAG}, //from
+                        new int[]{R.id.order_title} //to
+                );
+                listView.setAdapter(adapter);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view,
+                                            int position, long id) {
+                        //Sends the operations part of the JSONObject to the next activity
+                        sendOperationsMessage(orderList.get(+position).get(OPERATIONS_TAG),
+                                orderList.get(+position).get(ORDER_TITLE_TAG));
+                    }
+                });
+
+            }
+        }catch(JSONException e){
+            e.printStackTrace();
+        }
     }
 
 
@@ -170,42 +215,7 @@ public class OrdersList extends ActionBarActivity {
         @Override
         protected void onPostExecute(JSONArray json){
             pDialog.dismiss();
-            orderList = new ArrayList<HashMap<String, String>>();
-            try{
-                for(int i = 0; i< json.length(); i++){
-                    JSONObject object = json.getJSONObject(i);
-                    String title = object.getString(ORDER_TITLE_TAG);
-                    String operations = object.getString(OPERATIONS_TAG);
-                    String id = object.getString(ID_TAG);
-                    HashMap<String,String> map = new HashMap<String, String>();
-                    map.put(ORDER_TITLE_TAG,title);
-                    map.put(OPERATIONS_TAG,operations);
-                    map.put(ID_TAG,id);
-                    //Assuming the title is the ID
-                    orderList.add(map);
-                    listView = (ListView)findViewById(R.id.orderList);
-                    ListAdapter adapter = new SimpleAdapter(
-                            OrdersList.this, //Context
-                            orderList, //Data
-                            R.layout.order_list_v, //Layout
-                            new String[]{ORDER_TITLE_TAG}, //from
-                            new int[]{R.id.order_title} //to
-                    );
-                    listView.setAdapter(adapter);
-                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view,
-                                                int position, long id) {
-                            //Sends the operations part of the JSONObject to the next activity
-                            sendOperationsMessage(orderList.get(+position).get(OPERATIONS_TAG),
-                                    orderList.get(+position).get(ORDER_TITLE_TAG));
-                        }
-                    });
-
-                }
-            }catch(JSONException e){
-                e.printStackTrace();
-            }
+            createList(json.toString());
         }
 
     }
