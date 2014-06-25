@@ -26,18 +26,24 @@ public class DisplayLotsActivity extends ActionBarActivity {
 
     private ListView listView;
     private static final String LOT_NUMBER_TAG = "lot";
+    private static final String ORDER_ID_TAG = "lot";
     private static final String OPERATIONS_TAG = "operations";
     private ArrayList<HashMap<String,String>> lotsList = new ArrayList<HashMap<String, String>>();
-
+    String operations;
+    String orderID;
+    String orderTitle;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_lots);
         Intent intent = getIntent();
-        final String operations = intent.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
-        final String orderTitle = intent.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
-        setTitle(orderTitle);
-        createList(operations, orderTitle);
+        orderID = intent.getStringExtra(OrdersList.ORDER_ID_MESSAGE);
+        final String operationsFinal = intent.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
+        final String orderTitleFinal = intent.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
+        operations = intent.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
+        orderTitle = intent.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
+        setTitle(orderTitleFinal);
+        createList(operationsFinal, orderTitleFinal);
     }
 
     @Override
@@ -64,19 +70,38 @@ public class DisplayLotsActivity extends ActionBarActivity {
         super.onActivityResult(requestCode,resultCode,data);
         if(requestCode==0){
             if(resultCode == RESULT_OK){
-                final String operations = data.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
-                final String title = data.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
-                createList(operations,title);
+                operations = data.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
+                orderTitle = data.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
+                final String operationsFinal = data.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
+                final String orderTitleFinal = data.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
+                createList(operationsFinal,orderTitleFinal);
             }
         }
     }
 
+    @Override
+    public void onBackPressed(){
+        Intent intent = new Intent();
+        intent.putExtra(OrdersList.OPERATIONS_MESSAGE,operations);
+        intent.putExtra(OrdersList.ORDER_TITLE_MESSAGE, orderTitle);
+        intent.putExtra(OrdersList.ORDER_ID_MESSAGE, orderID);
+        setResult(RESULT_OK,intent);
+        super.onBackPressed();
+    }
 
-    public void sendOperationsMessage(String message, String orderTitle,String lotNumber){
+
+    public void sendOperationsMessage(String operations, String orderTitle,String lotNumber){
         Intent intent = new Intent(this, DisplayOperationsActivity.class);
-        intent.putExtra(OrdersList.OPERATIONS_MESSAGE,message);
+        String orderId = "";
+        try {
+            orderId = new JSONArray(operations).getJSONObject(0).getString(ORDER_ID_TAG);
+        }catch(JSONException e){
+            e.printStackTrace();
+        }
+        intent.putExtra(OrdersList.OPERATIONS_MESSAGE,operations);
         intent.putExtra(OrdersList.ORDER_TITLE_MESSAGE, orderTitle);
         intent.putExtra(OrdersList.LOT_NUMBER_MESSAGE, lotNumber);
+        intent.putExtra(OrdersList.ORDER_ID_MESSAGE,orderId);
         startActivityForResult(intent, 0);
     }
 

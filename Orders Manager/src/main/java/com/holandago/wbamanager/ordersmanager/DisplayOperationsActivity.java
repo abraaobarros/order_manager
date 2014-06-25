@@ -1,8 +1,10 @@
 package com.holandago.wbamanager.ordersmanager;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.holandago.wbamanager.R;
 
@@ -49,6 +52,7 @@ public class DisplayOperationsActivity extends Activity {
     private String operations;
     private String lotNumber;
     private String orderTitle;
+    private String orderID;
 
 
     @Override
@@ -57,10 +61,11 @@ public class DisplayOperationsActivity extends Activity {
         setContentView(R.layout.activity_display_operations);
         Intent intent = getIntent();
         orderTitle = intent.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
+        orderID = intent.getStringExtra(OrdersList.ORDER_ID_MESSAGE);
         lotNumber = intent.getStringExtra(OrdersList.LOT_NUMBER_MESSAGE);
-        setTitle(lotNumber+", from order:"+orderTitle);
+        setTitle(lotNumber+", order:"+orderTitle);
         operations = intent.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
-        createList(operations,lotNumber);
+        createList(operations, lotNumber);
 
     }
 
@@ -69,6 +74,7 @@ public class DisplayOperationsActivity extends Activity {
         Intent intent = new Intent();
         intent.putExtra(OrdersList.OPERATIONS_MESSAGE,operations);
         intent.putExtra(OrdersList.ORDER_TITLE_MESSAGE, orderTitle);
+        intent.putExtra(OrdersList.ORDER_ID_MESSAGE, orderID);
         setResult(RESULT_OK,intent);
         super.onBackPressed();
     }
@@ -105,16 +111,24 @@ public class DisplayOperationsActivity extends Activity {
             }
         }catch(JSONException e){
             e.printStackTrace();
+        }finally{
+            if(operationsList.isEmpty()){
+                orderWasDeleted();
+            }
         }
     }
 
-    public void sendOperationsMessage(String message, String orderTitle){
-        //Travel to DisplayLotsActivity
-        Intent intent = new Intent(this, DisplayLotsActivity.class);
-        intent.putExtra(OrdersList.OPERATIONS_MESSAGE,message);
-        intent.putExtra(OrdersList.ORDER_TITLE_MESSAGE, orderTitle);
-        startActivity(intent);
+    public void orderWasDeleted(){
+        new AlertDialog.Builder(this)
+                .setTitle("Invalid order and/or lot")
+                .setNeutralButton("Go back", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        onBackPressed();
+                    }
+                }).create().show();
     }
+
 
     public void changeStatus(String progressID, boolean start, int position){
         //Updates the strings and maps used

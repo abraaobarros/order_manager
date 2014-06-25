@@ -1,7 +1,9 @@
 package com.holandago.wbamanager.ordersmanager;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -18,6 +20,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.holandago.wbamanager.R;
 import com.holandago.wbamanager.library.JSONParser;
@@ -38,6 +41,8 @@ public class OrdersList extends ActionBarActivity {
             "com.holandago.wbamanager.ordersmanager.ORDER_TITLE_MESSAGE";
     public final static String LOT_NUMBER_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.LOT_NUMBER_MESSAGE";
+    public final static String ORDER_ID_MESSAGE =
+            "com.holandago.wbamanager.ordersmanager.ORDER_ID_MESSAGE";
     private ArrayList<HashMap<String,String>> orderList = new ArrayList<HashMap<String, String>>();
     private ArrayList<String> existingOrders = new ArrayList<String>();
     private ListView listView;
@@ -55,6 +60,7 @@ public class OrdersList extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_orders_list);
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        new JSONParse().execute();
         actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
@@ -92,14 +98,8 @@ public class OrdersList extends ActionBarActivity {
     }
 
     @Override
-    public void onResume(){
-        new JSONParse().execute();
-        super.onResume();
-    }
-
-    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
-        super.onActivityResult(requestCode,resultCode,data);
+        super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 0){
             if(resultCode == RESULT_OK){
                 String orderUrl = data.getStringExtra("SCAN_RESULT");
@@ -124,28 +124,72 @@ public class OrdersList extends ActionBarActivity {
             if(resultCode == RESULT_CANCELED){
                 onResume();
             }
-        }else{
+        }else
+        if(requestCode==1 || requestCode == 2){
             if(resultCode == RESULT_OK){
-                new JSONParse().execute();
+                String operations = data.getStringExtra(OPERATIONS_MESSAGE);
+                String orderID = data.getStringExtra(ORDER_ID_MESSAGE);
+                for(HashMap<String,String> map : orderList) {
+                    if(map.get(ID_TAG).equals(orderID)){
+                        map.put(OPERATIONS_TAG,operations);
+                        break;
+                    }
+                }
+                updateOrCreateList();
             }
         }
     }
 
-    public void sendOperationsMessage(String message, String orderTitle){
+    public void sendOperationsMessage(String operations, String orderTitle){
         //Travels to DisplayLotsActivity
         Intent intent = new Intent(this, DisplayLotsActivity.class);
-        intent.putExtra(OPERATIONS_MESSAGE,message);
+        String orderId = "";
+        try {
+            orderId = new JSONArray(operations).getJSONObject(0).getString(ORDER_ID_TAG);
+        }catch(JSONException e){
+            e.printStackTrace();
+        }
+        intent.putExtra(OPERATIONS_MESSAGE,operations);
+        intent.putExtra(ORDER_ID_MESSAGE,orderId);
         intent.putExtra(ORDER_TITLE_MESSAGE, orderTitle);
-        startActivity(intent);
+        startActivityForResult(intent,1);
     }
 
     public void sendLotOperationMessage(String operations, String orderTitle,String lotNumber){
         //Travels to DisplayOperationsActivity
         Intent intent = new Intent(this, DisplayOperationsActivity.class);
+        String orderId = "";
+        try {
+            orderId = new JSONArray(operations).getJSONObject(1).getString(ORDER_ID_TAG);
+        }catch(JSONException e){
+            e.printStackTrace();
+        }
         intent.putExtra(OPERATIONS_MESSAGE,operations);
         intent.putExtra(ORDER_TITLE_MESSAGE, orderTitle);
         intent.putExtra(LOT_NUMBER_MESSAGE, lotNumber);
-        startActivity(intent);
+        intent.putExtra(ORDER_ID_MESSAGE,orderId);
+        startActivityForResult(intent, 2);
+    }
+
+    public void updateOrCreateList(){
+        listView = (ListView)findViewById(R.id.orderList);
+        ListAdapter adapter = new SimpleAdapter(
+                OrdersList.this, //Context
+                orderList, //Data
+                R.layout.order_list_v, //Layout
+                new String[]{ORDER_TITLE_TAG}, //from
+                new int[]{R.id.order_title} //to
+        );
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                //Sends the operations part of the JSONObject to the next activity
+                sendOperationsMessage(orderList.get(+position).get(OPERATIONS_TAG),
+                        orderList.get(+position).get(ORDER_TITLE_TAG));
+            }
+        });
     }
 
     public void createList(String orders){
@@ -163,29 +207,25 @@ public class OrdersList extends ActionBarActivity {
                 map.put(ID_TAG,id);
                 //Assuming the title is the ID
                 orderList.add(map);
-                listView = (ListView)findViewById(R.id.orderList);
-                ListAdapter adapter = new SimpleAdapter(
-                        OrdersList.this, //Context
-                        orderList, //Data
-                        R.layout.order_list_v, //Layout
-                        new String[]{ORDER_TITLE_TAG}, //from
-                        new int[]{R.id.order_title} //to
-                );
-                listView.setAdapter(adapter);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view,
-                                            int position, long id) {
-                        //Sends the operations part of the JSONObject to the next activity
-                        sendOperationsMessage(orderList.get(+position).get(OPERATIONS_TAG),
-                                orderList.get(+position).get(ORDER_TITLE_TAG));
-                    }
-                });
-
+                updateOrCreateList();
             }
         }catch(JSONException e){
             e.printStackTrace();
+        }finally{
+            if(orderList.isEmpty())
+                cannotGetOrders();
         }
+    }
+
+    public void cannotGetOrders(){
+        new AlertDialog.Builder(this)
+                .setTitle("Cannot get orders from server")
+                .setNeutralButton("Try Again", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        onResume();
+                    }
+                }).create().show();
     }
 
 
@@ -212,7 +252,11 @@ public class OrdersList extends ActionBarActivity {
         @Override
         protected void onPostExecute(JSONArray json){
             pDialog.dismiss();
-            createList(json.toString());
+            try {
+                createList(json.toString());
+            }catch (NullPointerException e){
+                cannotGetOrders();
+            }
         }
 
     }
