@@ -223,7 +223,7 @@ public class OrdersList extends ActionBarActivity {
                 .setNeutralButton("Try Again", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        onResume();
+                        new JSONParse().execute();
                     }
                 }).create().show();
     }
