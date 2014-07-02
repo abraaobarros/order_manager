@@ -2,6 +2,8 @@ package com.holandago.wbamanager.library;
 
 import android.util.Log;
 
+import com.holandago.wbamanager.ordersmanager.HttpClient;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -32,7 +34,7 @@ public class JSONParser {
         //Making the http request
         try{
             //Default Http Client
-            DefaultHttpClient httpClient = new DefaultHttpClient();
+            DefaultHttpClient httpClient = HttpClient.getDefaultHttpClient();
             HttpGet httpGet = new HttpGet(url);
             HttpResponse httpResponse = httpClient.execute(httpGet);
             HttpEntity httpEntity = httpResponse.getEntity();

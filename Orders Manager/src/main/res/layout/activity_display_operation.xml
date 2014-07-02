@@ -1,0 +1,185 @@
+<RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/operation_background"
+    android:background="@color/wba_light_grey">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="00"
+        android:textColor="@color/wba_orange"
+        android:id="@+id/lot_number"
+        android:layout_marginTop="56dp"
+        android:textSize="110sp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="32dp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/checkImage"
+        android:background="@drawable/ic_check"
+        android:layout_alignTop="@+id/lot_number"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="27dp"
+        android:minHeight="50dp"
+        android:minWidth="50dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Part Name"
+        android:paddingBottom="30dp"
+        android:id="@+id/part"
+        android:layout_alignBottom="@+id/lot_number"
+        android:layout_alignLeft="@+id/checkImage"
+        android:layout_alignStart="@+id/checkImage"
+        android:textSize="33sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Machine"
+        android:paddingTop="15dp"
+        android:id="@+id/machine"
+        android:layout_alignBottom="@+id/part"
+        android:layout_alignLeft="@+id/part"
+        android:layout_alignStart="@+id/part" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Project"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:id="@+id/project"
+        android:layout_below="@+id/lot_number"
+        android:layout_alignLeft="@+id/part"
+        android:layout_alignStart="@+id/part" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Client"
+        android:id="@+id/client"
+        android:layout_below="@+id/project"
+        android:layout_alignLeft="@+id/project"
+        android:layout_alignStart="@+id/project" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Owner Name"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:id="@+id/owner_name"
+        android:paddingStart="20dp"
+        android:layout_above="@+id/client"
+        android:layout_alignLeft="@+id/lot_number"
+        android:layout_alignStart="@+id/lot_number" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Next Process"
+        android:id="@+id/next_process"
+        android:layout_below="@+id/owner_name"
+        android:layout_alignLeft="@+id/owner_name"
+        android:layout_alignStart="@+id/owner_name"
+        android:paddingStart="20dp" />
+
+    <LinearLayout
+        android:id="@+id/actions_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="130dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/wba_light_grey"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/action1"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@color/wba_dark_grey"
+            android:textColor="@color/white"
+            android:text="Start" />
+
+        <View
+            android:layout_width="3dp"
+            android:layout_height="fill_parent"/>
+
+        <Button
+            android:id="@+id/action2"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@color/wba_dark_grey"
+            android:textColor="@color/white"
+            android:text="Finish"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout"
+        android:layout_above="@+id/linearLayout2"
+        android:layout_centerHorizontal="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/wba_blue"
+            android:text="00:00:00"
+            android:textSize="30dp"
+            android:layout_gravity="center"
+            android:id="@+id/expected_time" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/actions_layout"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/linearLayout2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="00h00m00s"
+            android:textSize="40dp"
+            android:layout_gravity="center"
+            android:id="@+id/timer" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Lot:"
+        android:id="@+id/lot_string"
+        android:textSize="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/lot_number"
+        android:layout_alignStart="@+id/lot_number"
+        android:layout_marginTop="40dp"
+        android:paddingStart="10dp" />
+
+
+</RelativeLayout>

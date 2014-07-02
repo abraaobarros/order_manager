@@ -11,7 +11,6 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.Toast;
 
 import com.holandago.wbamanager.R;
 
@@ -37,11 +36,11 @@ public class DisplayLotsActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_lots);
         Intent intent = getIntent();
-        orderID = intent.getStringExtra(OrdersList.ORDER_ID_MESSAGE);
-        final String operationsFinal = intent.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
-        final String orderTitleFinal = intent.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
-        operations = intent.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
-        orderTitle = intent.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
+        orderID = intent.getStringExtra(OperationsList.ORDER_ID_MESSAGE);
+        final String operationsFinal = intent.getStringExtra(OperationsList.OPERATIONS_MESSAGE);
+        final String orderTitleFinal = intent.getStringExtra(OperationsList.ORDER_TITLE_MESSAGE);
+        operations = intent.getStringExtra(OperationsList.OPERATIONS_MESSAGE);
+        orderTitle = intent.getStringExtra(OperationsList.ORDER_TITLE_MESSAGE);
         setTitle(orderTitleFinal);
         createList(operationsFinal, orderTitleFinal);
     }
@@ -70,10 +69,10 @@ public class DisplayLotsActivity extends ActionBarActivity {
         super.onActivityResult(requestCode,resultCode,data);
         if(requestCode==0){
             if(resultCode == RESULT_OK){
-                operations = data.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
-                orderTitle = data.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
-                final String operationsFinal = data.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
-                final String orderTitleFinal = data.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
+                operations = data.getStringExtra(OperationsList.OPERATIONS_MESSAGE);
+                orderTitle = data.getStringExtra(OperationsList.ORDER_TITLE_MESSAGE);
+                final String operationsFinal = data.getStringExtra(OperationsList.OPERATIONS_MESSAGE);
+                final String orderTitleFinal = data.getStringExtra(OperationsList.ORDER_TITLE_MESSAGE);
                 createList(operationsFinal,orderTitleFinal);
             }
         }
@@ -82,26 +81,26 @@ public class DisplayLotsActivity extends ActionBarActivity {
     @Override
     public void onBackPressed(){
         Intent intent = new Intent();
-        intent.putExtra(OrdersList.OPERATIONS_MESSAGE,operations);
-        intent.putExtra(OrdersList.ORDER_TITLE_MESSAGE, orderTitle);
-        intent.putExtra(OrdersList.ORDER_ID_MESSAGE, orderID);
+        intent.putExtra(OperationsList.OPERATIONS_MESSAGE,operations);
+        intent.putExtra(OperationsList.ORDER_TITLE_MESSAGE, orderTitle);
+        intent.putExtra(OperationsList.ORDER_ID_MESSAGE, orderID);
         setResult(RESULT_OK,intent);
         super.onBackPressed();
     }
 
 
     public void sendOperationsMessage(String operations, String orderTitle,String lotNumber){
-        Intent intent = new Intent(this, DisplayOperationsActivity.class);
+        Intent intent = new Intent(this, DisplayProgressActivity.class);
         String orderId = "";
         try {
             orderId = new JSONArray(operations).getJSONObject(0).getString(ORDER_ID_TAG);
         }catch(JSONException e){
             e.printStackTrace();
         }
-        intent.putExtra(OrdersList.OPERATIONS_MESSAGE,operations);
-        intent.putExtra(OrdersList.ORDER_TITLE_MESSAGE, orderTitle);
-        intent.putExtra(OrdersList.LOT_NUMBER_MESSAGE, lotNumber);
-        intent.putExtra(OrdersList.ORDER_ID_MESSAGE,orderId);
+        intent.putExtra(OperationsList.OPERATIONS_MESSAGE,operations);
+        intent.putExtra(OperationsList.ORDER_TITLE_MESSAGE, orderTitle);
+        intent.putExtra(OperationsList.LOT_NUMBER_MESSAGE, lotNumber);
+        intent.putExtra(OperationsList.ORDER_ID_MESSAGE,orderId);
         startActivityForResult(intent, 0);
     }
 

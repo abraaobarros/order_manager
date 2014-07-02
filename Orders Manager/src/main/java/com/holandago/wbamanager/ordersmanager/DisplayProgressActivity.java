@@ -17,7 +17,6 @@ import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.holandago.wbamanager.R;
 
@@ -36,7 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class DisplayOperationsActivity extends Activity {
+public class DisplayProgressActivity extends Activity {
     private ProgressDialog pDialog;
     private ListView listView;
     private static final String NAME_TAG = "operation_name";
@@ -60,11 +59,11 @@ public class DisplayOperationsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_operations);
         Intent intent = getIntent();
-        orderTitle = intent.getStringExtra(OrdersList.ORDER_TITLE_MESSAGE);
-        orderID = intent.getStringExtra(OrdersList.ORDER_ID_MESSAGE);
-        lotNumber = intent.getStringExtra(OrdersList.LOT_NUMBER_MESSAGE);
+        orderTitle = intent.getStringExtra(OperationsList.ORDER_TITLE_MESSAGE);
+        orderID = intent.getStringExtra(OperationsList.ORDER_ID_MESSAGE);
+        lotNumber = intent.getStringExtra(OperationsList.LOT_NUMBER_MESSAGE);
         setTitle(lotNumber+", order:"+orderTitle);
-        operations = intent.getStringExtra(OrdersList.OPERATIONS_MESSAGE);
+        operations = intent.getStringExtra(OperationsList.OPERATIONS_MESSAGE);
         createList(operations, lotNumber);
 
     }
@@ -72,9 +71,9 @@ public class DisplayOperationsActivity extends Activity {
     @Override
     public void onBackPressed(){
         Intent intent = new Intent();
-        intent.putExtra(OrdersList.OPERATIONS_MESSAGE,operations);
-        intent.putExtra(OrdersList.ORDER_TITLE_MESSAGE, orderTitle);
-        intent.putExtra(OrdersList.ORDER_ID_MESSAGE, orderID);
+        intent.putExtra(OperationsList.OPERATIONS_MESSAGE,operations);
+        intent.putExtra(OperationsList.ORDER_TITLE_MESSAGE, orderTitle);
+        intent.putExtra(OperationsList.ORDER_ID_MESSAGE, orderID);
         setResult(RESULT_OK,intent);
         super.onBackPressed();
     }
@@ -87,7 +86,7 @@ public class DisplayOperationsActivity extends Activity {
             for(int i = 0; i< operations.length(); i++){
                 JSONObject object = array.getJSONObject(i);
                 String lot = object.getString(LOT_NUMBER_TAG);
-                if(("Lot Number: "+lot).equals(lotNumber)) {
+                if(lot.equals(lotNumber)) {
                     String name = object.getString(NAME_TAG);
                     String machine = object.getString(MACHINE_TAG);
                     String status = object.getString(STATUS_TAG);
@@ -103,7 +102,7 @@ public class DisplayOperationsActivity extends Activity {
                     operationsList.add(map);
                     listView = (ListView) findViewById(R.id.operationsList);
                     ListAdapter adapter = new CustomAdapter(
-                            DisplayOperationsActivity.this, //Context
+                            DisplayProgressActivity.this, //Context
                             operationsList//Data
                     );
                     listView.setAdapter(adapter);
@@ -256,8 +255,8 @@ public class DisplayOperationsActivity extends Activity {
             @Override
             public void onClick(View thisButton){
                 String id = getItem(position).get(ID_TAG);
-                startUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+id+"/start";
-                finishUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+id+"/finish";
+                startUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+id+"/start";
+                finishUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+id+"/finish";
                 AsyncGetRequest requester = new AsyncGetRequest();
                 if(handle.equals("start")){
                     requester.execute(new String[]{startUrl});
@@ -286,7 +285,7 @@ public class DisplayOperationsActivity extends Activity {
         @Override
         protected void onPreExecute(){
             super.onPreExecute();
-            pDialog = new ProgressDialog(DisplayOperationsActivity.this);
+            pDialog = new ProgressDialog(DisplayProgressActivity.this);
             pDialog.setMessage("Making the request");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(true);
@@ -305,7 +304,7 @@ public class DisplayOperationsActivity extends Activity {
         private String getOutputFromUrl(String url){
             String output = null;
             try{
-                DefaultHttpClient httpClient = new DefaultHttpClient();
+                DefaultHttpClient httpClient = HttpClient.getDefaultHttpClient();
                 HttpGet httpGet = new HttpGet(url);
                 HttpResponse httpResponse = httpClient.execute(httpGet);
                 HttpEntity httpEntity = httpResponse.getEntity();
