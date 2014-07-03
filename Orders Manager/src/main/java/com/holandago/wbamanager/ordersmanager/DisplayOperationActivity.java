@@ -298,7 +298,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 holder.action1.setBackgroundColor(Color.parseColor(WBA_DARK_GREY_COLOR));
             }else {
                 holder.action2.setBackgroundColor(Color.parseColor(WBA_DARK_GREY_COLOR));
-
+                onBackPressed();
             }
         }
     }
