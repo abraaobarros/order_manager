@@ -65,7 +65,7 @@ public class OperationsList extends ActionBarActivity {
     private static final String START_TIME_TAG = "start_time";
     private static final String CUSTOMER_TAG = "costumer";
     private static final String PART_TAG = "part";
-    private static final String PROJECT_NAME_TAG = "project_name";
+    private static final String PROJECT_NAME_TAG = "title";
     private static final String TIME_TAG = "time";
     private static final String ORDER_ID_TAG = "order_id";
     private static final String ID_TAG = "id";
@@ -227,7 +227,7 @@ public class OperationsList extends ActionBarActivity {
                 OperationsList.this, //Context
                 uniqueOperationsf, //Data
                 R.layout.operations_list_v, //Layout
-                new String[]{OPERATION_NAME_TAG, MACHINE_TAG, TIME_TAG,
+                new String[]{PART_TAG, MACHINE_TAG, TIME_TAG,
                 LOT_NUMBER_TAG}, //from
                 new int[]{R.id.operation_list_name, R.id.operation_list_machine,
                         R.id.operation_list_time, R.id.operation_list_lot} //to
@@ -267,7 +267,7 @@ public class OperationsList extends ActionBarActivity {
             for(int i = 0; i< json.length(); i++){
                 JSONObject object = json.getJSONObject(i);
                 //String projectName = object.getString(PROJECT_NAME_TAG);
-                //String title = object.getString(PART_TAG);
+                String part = object.getString(PART_TAG);
                 String opNo = object.getString(OPERATION_NUMBER_TAG);
                 String pID = object.getString(PROGRESS_ID_TAG);
                 String customer = object.getString(CUSTOMER_TAG);
@@ -281,7 +281,7 @@ public class OperationsList extends ActionBarActivity {
                 String id = object.getString(ID_TAG);
                 HashMap<String,String> map = new HashMap<String, String>();
                 //map.put(PROJECT_NAME_TAG,projectName);
-                //map.put(PART_TAG,title);
+                map.put(PART_TAG,part);
                 map.put(PROGRESS_ID_TAG,pID);
                 map.put(OPERATION_NUMBER_TAG,opNo);
                 map.put(ORDER_ID_TAG,orderID);

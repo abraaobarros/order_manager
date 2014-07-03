@@ -114,11 +114,13 @@ public class DisplayOperationActivity extends ActionBarActivity {
             String nextProcess = json.getString(NEXT_OPERATION_TAG);
             String expectedTime = json.getString(TIME_TAG);
             String customer = json.getString(CUSTOMER_TAG);
+            String part = json.getString(PART_TAG);
             status = json.getString(STATUS_TAG);
             id = json.getString(ID_TAG);
             pID = json.getString(PROGRESS_ID_TAG);
             holder = new OperationViewHolder();
             fillHolder(holder);
+            holder.part.setText(part);
             holder.machine.setText(machine);
             holder.owner_name.setText(ownerName);
             holder.lot_number.setText(lotNumber);
