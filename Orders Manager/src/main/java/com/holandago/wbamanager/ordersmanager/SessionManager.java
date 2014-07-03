@@ -1,7 +1,6 @@
 package com.holandago.wbamanager.ordersmanager;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
@@ -32,7 +31,7 @@ public class SessionManager {
 
     public void createLoginSession(String username, String userID){
         editor.putBoolean(IS_LOGIN,true);
-        editor.putString(KEY_USER,username);
+        editor.putString(KEY_USER, username);
         editor.putString(KEY_ID,userID);
         editor.commit();
     }

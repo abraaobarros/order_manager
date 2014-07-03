@@ -41,7 +41,7 @@ public class UserOperations {
     }
 
     public static void changeOperationStatus(
-            String operationID,String lotNumber,boolean start, String doneAt){
+        String operationID,String lotNumber,boolean start, String doneAt){
         if(start){
             for(HashMap<String,String> map : operationsList){
                 if(map.get(ID_TAG).equals(operationID)){

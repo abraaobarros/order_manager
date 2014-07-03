@@ -88,7 +88,7 @@ public class DisplayLotsActivity extends ActionBarActivity {
         super.onBackPressed();
     }
 
-
+    /*
     public void sendOperationsMessage(String operations, String orderTitle,String lotNumber){
         Intent intent = new Intent(this, DisplayProgressActivity.class);
         String orderId = "";
@@ -103,6 +103,7 @@ public class DisplayLotsActivity extends ActionBarActivity {
         intent.putExtra(OperationsList.ORDER_ID_MESSAGE,orderId);
         startActivityForResult(intent, 0);
     }
+    */
 
     public void createList(final String operations,final String orderTitle){
 
@@ -126,14 +127,15 @@ public class DisplayLotsActivity extends ActionBarActivity {
                         new int[]{R.id.lot_number} //to
                 );
                 listView.setAdapter(adapter);
+
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view,
                                             int position, long id) {
                         //Sends the operations part of the JSONObject to the next activity
-                        sendOperationsMessage(operations,
+                        /*sendOperationsMessage(operations,
                                 orderTitle,
-                                lotsList.get(+position).get(LOT_NUMBER_TAG));
+                                lotsList.get(+position).get(LOT_NUMBER_TAG));*/
                     }
                 });
 

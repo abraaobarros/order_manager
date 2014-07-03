@@ -34,7 +34,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
+/*
 public class DisplayProgressActivity extends Activity {
     private ProgressDialog pDialog;
     private ListView listView;
@@ -334,3 +334,4 @@ public class DisplayProgressActivity extends Activity {
 
 
 }
+*/

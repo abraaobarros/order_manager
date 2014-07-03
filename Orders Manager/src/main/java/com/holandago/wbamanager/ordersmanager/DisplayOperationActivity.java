@@ -4,10 +4,10 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,12 +24,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 
 public class DisplayOperationActivity extends ActionBarActivity {
@@ -38,8 +35,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
     private OperationViewHolder holder;
     private String startUrl;
     private String finishUrl;
-    private ProgressDialog pDialog;
     private String id;
+    private String pID;
     private String lotNumber;
     private String status;
     private long timeInMillis = 0L;
@@ -47,7 +44,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
     private long updatedTime = 0L;
     private long timeSwapBuff = 0L;
     private Handler customHandler = new Handler();
-    private static final String WBA_DARK_GREY_COLOR = "666767";
+    private static final String WBA_DARK_GREY_COLOR = "#666767";
+    private static final String WBA_BLUE_COLOR = "#72A7C4";
     private static final String WBA_ORANGE_COLOR = "#FBB03B";
     private static final String WBA_LIGHT_GREY_COLOR = "#E9E9EA";
     private static final String NEXT_OPERATION_TAG = "next_operation";
@@ -55,12 +53,13 @@ public class DisplayOperationActivity extends ActionBarActivity {
     private static final String OWNER_ID_TAG = "owner_id";
     private static final String OWNER_NAME_TAG = "owner_name";
     private static final String STATUS_TAG = "status";
-    private static final String CUSTOMER_TAG = "customer";
+    private static final String CUSTOMER_TAG = "costumer";
     private static final String PART_TAG = "part";
     private static final String PROJECT_NAME_TAG = "project_name";
     private static final String TIME_TAG = "time";
     private static final String ORDER_ID_TAG = "order_id";
     private static final String ID_TAG = "id";
+    private static final String PROGRESS_ID_TAG = "progress_id";
     private static final String OPERATION_NAME_TAG = "operation_name";
     private static final String LOT_NUMBER_TAG = "lot";
     private static final String STARTED_AT_TAG = "started_at";
@@ -114,21 +113,24 @@ public class DisplayOperationActivity extends ActionBarActivity {
             lotNumber = json.getString(LOT_NUMBER_TAG);
             String nextProcess = json.getString(NEXT_OPERATION_TAG);
             String expectedTime = json.getString(TIME_TAG);
+            String customer = json.getString(CUSTOMER_TAG);
             status = json.getString(STATUS_TAG);
             id = json.getString(ID_TAG);
+            pID = json.getString(PROGRESS_ID_TAG);
             holder = new OperationViewHolder();
             fillHolder(holder);
             holder.machine.setText(machine);
             holder.owner_name.setText(ownerName);
             holder.lot_number.setText(lotNumber);
             holder.next_process.setText(nextProcess);
+            holder.client.setText(customer);
             holder.expected_time.setText(convertTime(expectedTime));
             holder.action1.setOnClickListener(
                     new ButtonListener("start", holder.action2));
             holder.action2.setOnClickListener(
                     new ButtonListener("finish", holder.action1));
             holder.action2.setEnabled(false);
-            if(status.equals("1")){
+            if(!status.equals("0")){
                 setColorsStart();
                 startTime = Long.parseLong(json.getString(STARTED_AT_TAG));
                 customHandler.postDelayed(updateTimer, 0);
@@ -189,10 +191,11 @@ public class DisplayOperationActivity extends ActionBarActivity {
 
         @Override
         public void onClick(View thisButton){
-            startUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+id+"/start";
-            finishUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+id+"/finish";
-            AsyncGetRequest requester = new AsyncGetRequest();
+            startUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+pID+"/start";
+            finishUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+pID+"/finish";
+            thisButton.setBackgroundColor(Color.parseColor(WBA_BLUE_COLOR));
             if(handle.equals("start")){
+                AsyncGetRequest requester = new AsyncGetRequest(true);
                 requester.execute(new String[]{startUrl});
                 setColorsStart();
                 startTime = SystemClock.uptimeMillis();
@@ -204,6 +207,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 );
                 customHandler.postDelayed(updateTimer, 0);
             }else{
+                AsyncGetRequest requester = new AsyncGetRequest(false);
                 requester.execute(new String[]{finishUrl});
                 UserOperations.changeOperationStatus(
                         id,
@@ -244,7 +248,12 @@ public class DisplayOperationActivity extends ActionBarActivity {
 
     //Asynchronous get request to access the url
     private class AsyncGetRequest extends AsyncTask<String, String, String> {
+        private ProgressDialog pDialog;
+        private boolean start;
 
+        private AsyncGetRequest(boolean start){
+            this.start = start;
+        }
         @Override
         protected void onPreExecute(){
             super.onPreExecute();
@@ -283,6 +292,12 @@ public class DisplayOperationActivity extends ActionBarActivity {
         @Override
         protected void onPostExecute(String output){
             pDialog.dismiss();
+            if(start){
+                holder.action1.setBackgroundColor(Color.parseColor(WBA_DARK_GREY_COLOR));
+            }else {
+                holder.action2.setBackgroundColor(Color.parseColor(WBA_DARK_GREY_COLOR));
+
+            }
         }
     }
 }

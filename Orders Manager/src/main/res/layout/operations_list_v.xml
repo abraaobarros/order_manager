@@ -2,35 +2,67 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <TextView
-        android:id="@+id/operation_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        />
-    <TextView
-        android:id="@+id/operation_machine"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
-    <TextView
-        android:id="@+id/operation_status"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+    android:layout_height="match_parent"
+    android:id="@+id/operation_list_background">
 
-    <Button
-        android:id="@+id/start_operation_button"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/start_operation"/>
+        >
 
-    <Button
-        android:id="@+id/finish_operation_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/finish_operation"/>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5">
+
+            <TextView
+                android:id="@+id/operation_list_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:text="Operation Name"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/operation_list_machine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Machine"
+                />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Time: 00"
+            android:id="@+id/operation_list_time" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/operation_list_project"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Project"
+            android:layout_weight=".5" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Lot: 0"
+            android:id="@+id/operation_list_lot"
+            android:singleLine="false" />
+    </LinearLayout>
 
 
 </LinearLayout>
