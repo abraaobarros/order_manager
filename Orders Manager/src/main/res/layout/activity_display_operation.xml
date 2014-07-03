@@ -100,7 +100,8 @@
         android:layout_below="@+id/owner_name"
         android:layout_alignLeft="@+id/owner_name"
         android:layout_alignStart="@+id/owner_name"
-        android:paddingStart="20dp" />
+        android:paddingStart="20dp"
+        android:maxWidth="180dp" />
 
     <LinearLayout
         android:id="@+id/actions_layout"
