@@ -71,8 +71,11 @@ public class OperationsList extends ActionBarActivity {
     private static final String ID_TAG = "id";
     private static final String OPERATION_NAME_TAG = "operation_name";
     private static final String LOT_NUMBER_TAG = "lot";
-    private static final String STOPPED_AT_TAG = "stopped_at";
+    private static final String TIME_SWAP_TAG = "time_swap";
+    private static final String STARTED_AT_TAG = "started_at";
     private static final String UPDATED_AT_TAG = "updated_at";
+    private static final String STOPPED_TAG = "stopped?";
+    private static final String MY_STARTED_AT_TAG = "my_started_at";
 
     private String operations;
     SessionManager session;
@@ -122,6 +125,7 @@ public class OperationsList extends ActionBarActivity {
                 }
                 return true;
             case R.id.action_logout:
+                UserOperations.flush();
                 session.logoutUser();
                 startLoginActivity();
             default:
@@ -227,14 +231,9 @@ public class OperationsList extends ActionBarActivity {
         final ArrayList<HashMap<String,String>> uniqueOperationsf =
                 new ArrayList<HashMap<String, String>>(uniqueID.values());
         listView = (ListView)findViewById(R.id.orderList);
-        ListAdapter adapter = new SimpleAdapter(
-                OperationsList.this, //Context
-                uniqueOperationsf, //Data
-                R.layout.operations_list_v, //Layout
-                new String[]{PART_TAG, MACHINE_TAG, TIME_TAG,
-                LOT_NUMBER_TAG}, //from
-                new int[]{R.id.operation_list_name, R.id.operation_list_machine,
-                        R.id.operation_list_time, R.id.operation_list_lot} //to
+        ListAdapter adapter = new CustomAdapter(
+                OperationsList.this,
+                uniqueOperationsf
         );
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -281,11 +280,15 @@ public class OperationsList extends ActionBarActivity {
                 String orderID = object.getString(ORDER_ID_TAG);
                 String time = object.getString(TIME_TAG);
                 String lot = object.getString(LOT_NUMBER_TAG);
+                String startedAt = object.getString(STARTED_AT_TAG);
+                String updatedAt = object.getString(UPDATED_AT_TAG);
                 String operation_name = object.getString(OPERATION_NAME_TAG);
                 String id = object.getString(ID_TAG);
                 HashMap<String,String> map = new HashMap<String, String>();
+                map.put(MY_STARTED_AT_TAG,"0");
+                map.put(UPDATED_AT_TAG,updatedAt);
                 map.put(PROJECT_NAME_TAG,projectName);
-                map.put(STOPPED_AT_TAG,"0");
+                map.put(TIME_SWAP_TAG,"0");
                 map.put(PART_TAG,part);
                 map.put(PROGRESS_ID_TAG,pID);
                 map.put(OPERATION_NUMBER_TAG,opNo);
@@ -298,6 +301,8 @@ public class OperationsList extends ActionBarActivity {
                 map.put(TIME_TAG,time);
                 map.put(OPERATION_NAME_TAG,operation_name);
                 map.put(ID_TAG,id);
+                map.put(STARTED_AT_TAG,startedAt);
+                map.put(STOPPED_TAG,"false");
                 map.put(OWNER_NAME_TAG,session.getUserDetails().get(SessionManager.KEY_USER));
                 //Assuming the title is the ID
                 operationList.add(map);
@@ -408,11 +413,13 @@ public class OperationsList extends ActionBarActivity {
 
             holder.operation_name.setText(data.get(+position).get(OPERATION_NAME_TAG));
             holder.operation_machine.setText(data.get(+position).get(MACHINE_TAG));
-            holder.operation_lot.setText(data.get(+position).get(LOT_NUMBER_TAG));
+            holder.operation_lot.setText("Lot: "+data.get(+position).get(LOT_NUMBER_TAG));
             holder.operation_time.setText("Time: "+data.get(+position).get(TIME_TAG));
 
             if(getItem(position).get(STATUS_TAG).equals("1")){
                 holder.background.setBackgroundColor(Color.parseColor(WBA_ORANGE_COLOR));
+            }else{
+                holder.background.setBackgroundColor(Color.parseColor("#FFFFFFFF"));
             }
 
             return convertView;

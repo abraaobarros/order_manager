@@ -15,8 +15,10 @@ public class UserOperations {
     private static final String LOT_NUMBER_TAG = "lot";
     private static final String STATUS_TAG = "status";
     private static final String STARTED_AT_TAG = "started_at";
-    private static final String STOPPED_AT_TAG = "stopped_at";
+    private static final String TIME_SWAP_TAG = "time_swap";
     private static final String FINISHED_AT_TAG = "finished_at";
+    private static final String STOPPED_TAG = "stopped?";
+    private static final String MY_STARTED_AT_TAG = "my_started_at";
     public static final int START = 0;
     public static final int FINISH = 1;
     public static final int STOP = 2;
@@ -44,6 +46,11 @@ public class UserOperations {
         return null;
     }
 
+    public static void flush(){
+        me = new UserOperations();
+        operationsList = new ArrayList<HashMap<String, String>>();
+    }
+
     public static void changeOperationStatus(
         String operationID,String lotNumber,int action, String doneAt){
         if(action == START){
@@ -51,7 +58,8 @@ public class UserOperations {
                 if(map.get(ID_TAG).equals(operationID)){
                     if(map.get(LOT_NUMBER_TAG).equals(lotNumber)){
                         map.put(STATUS_TAG,"1");
-                        map.put(STARTED_AT_TAG,doneAt);
+                        map.put(STOPPED_TAG,"false");
+                        map.put(MY_STARTED_AT_TAG,doneAt);
                     }
                 }
             }
@@ -70,7 +78,8 @@ public class UserOperations {
             for(HashMap<String,String> map : operationsList){
                 if(map.get(ID_TAG).equals(operationID)){
                     if(map.get(LOT_NUMBER_TAG).equals(lotNumber)){
-                        map.put(STOPPED_AT_TAG,doneAt);
+                        map.put(TIME_SWAP_TAG,doneAt);
+                        map.put(STOPPED_TAG,"true");
                     }
                 }
             }

@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,15 +22,21 @@ import com.holandago.wbamanager.R;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 
 public class DisplayOperationActivity extends ActionBarActivity {
@@ -66,11 +73,14 @@ public class DisplayOperationActivity extends ActionBarActivity {
     private static final String OPERATION_NAME_TAG = "operation_name";
     private static final String LOT_NUMBER_TAG = "lot";
     private static final String STARTED_AT_TAG = "started_at";
-    private static final String STOPPED_AT_TAG = "stopped_at";
+    private static final String TIME_SWAP_TAG = "time_swap";
     private static final String UPDATED_AT_TAG = "updated_at";
+    private static final String STOPPED_TAG = "stopped?";
+    private static final String MY_STARTED_AT_TAG = "my_started_at";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //TODO: CHANGE THE LAYOUT, NEED TO MAKE IT IN A BETTER WAY (ENCAPSULATING ELEMENTS)
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_operation);
         Intent intent = getIntent();
@@ -154,17 +164,28 @@ public class DisplayOperationActivity extends ActionBarActivity {
             holder.expected_time.setTypeface(font);
 
             if(status.equals("1")){
+                String stopped = json.getString(STOPPED_TAG);
                 setColorsStart();
-                startTime = Long.parseLong(json.getString(STARTED_AT_TAG));
+                startTime = Long.parseLong(json.getString(MY_STARTED_AT_TAG));
                 if(startTime == 0){
-                    startTime = TimeDifferenceInMillis(json.getString(UPDATED_AT_TAG));
+                    startTime = TimeDifferenceInMillis(json.getString(STARTED_AT_TAG));
                 }
                 customHandler.postDelayed(updateTimer, 0);
-                timeSwapBuff = Long.parseLong(json.getString(STOPPED_AT_TAG));
-                if(timeSwapBuff != 0){
-                    holder.action1.setText("Stop");
-                    holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
+                timeSwapBuff = Long.parseLong(json.getString(TIME_SWAP_TAG));
+                holder.action1.setText("Stop");
+                holder.action1.setEnabled(true);
+                holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
+                if(stopped.equals("true")){
+                    holder.action1.setText("Start");
+                    holder.action1.setOnClickListener(new ButtonListener("start",holder.action2));
                     customHandler.removeCallbacks(updateTimer);
+                    updatedTime = timeSwapBuff;
+                    int secs = (int)(updatedTime/1000);
+                    int mins = secs/60;
+                    int hours = mins/60;
+                    mins = mins%60;
+                    secs = secs%60;
+                    holder.timer.setText(String.format("%02dh%02dm%02ds",hours,mins,secs));
                 }
             }
         }catch(JSONException e){
@@ -174,15 +195,28 @@ public class DisplayOperationActivity extends ActionBarActivity {
 
     private long TimeDifferenceInMillis(String date){
         String[] yearMonthDay = date.split("-");
+        String[] day = yearMonthDay[2].split(" ");
+        String[] hours = day[1].split(":");
+        for(String s : day){
+            Log.e("TESTING VALUES: ",s);
+        }
         Calendar updated = Calendar.getInstance();
         Calendar epoch = Calendar.getInstance();
         epoch.set(Calendar.YEAR, 1970);
         epoch.set(Calendar.MONTH, Calendar.JANUARY);
         epoch.set(Calendar.DAY_OF_MONTH, 1);
+        epoch.set(Calendar.HOUR_OF_DAY, 0);
+        epoch.set(Calendar.MINUTE,0);
+        epoch.set(Calendar.SECOND,0);
         updated.set(Calendar.YEAR, Integer.parseInt(yearMonthDay[0]));
-        updated.set(Calendar.MONTH, Integer.parseInt(yearMonthDay[1]));
-        updated.set(Calendar.DAY_OF_MONTH, Integer.parseInt(yearMonthDay[2]));
-        return updated.getTimeInMillis()-epoch.getTimeInMillis();
+        updated.set(Calendar.MONTH, Integer.parseInt(yearMonthDay[1])-1);
+        updated.set(Calendar.DAY_OF_MONTH, Integer.parseInt(day[0]));
+        //fine adjustment of time to fit the fuse of the server's clock
+        //TODO: FIND A BETTER WAY TO DO THIS
+        updated.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hours[0])-2);
+        updated.set(Calendar.MINUTE, Integer.parseInt(hours[1])+1);
+        updated.set(Calendar.SECOND, Integer.parseInt(hours[2])-19);
+        return updated.getTimeInMillis() - epoch.getTimeInMillis();
     }
 
     private String convertTime(String time){
@@ -252,6 +286,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                         UserOperations.START,
                         String.format("%d", startTime)
                 );
+                holder.action1.setEnabled(true);
                 otherButton.setEnabled(true);
             }else
             if(handle.equals("finish")){
@@ -276,12 +311,30 @@ public class DisplayOperationActivity extends ActionBarActivity {
             }else
             if(handle.equals("stop")){
                 customHandler.removeCallbacks(updateTimer);
-                timeSwapBuff = System.currentTimeMillis();
+                timeSwapBuff += timeInMillis;
                 UserOperations.changeOperationStatus(
                         id,
                         lotNumber,
                         UserOperations.STOP,
-                        String.format("%d",System.currentTimeMillis())
+                        String.format("%d",timeSwapBuff)
+                );
+                holder.action1.setText("Start");
+                holder.action1.setBackgroundColor(Color.parseColor(WBA_DARK_GREY_COLOR));
+                holder.action1.setOnClickListener(new ButtonListener("start2",holder.action2));
+            }else
+            if(handle.equals("start2")){
+                startTime = System.currentTimeMillis();
+                holder.action1.setEnabled(true);
+                otherButton.setEnabled(true);
+                customHandler.postDelayed(updateTimer, 0);
+                holder.action1.setText("Stop");
+                holder.action1.setBackgroundColor(Color.parseColor(WBA_DARK_GREY_COLOR));
+                holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
+                UserOperations.changeOperationStatus(
+                        id,
+                        lotNumber,
+                        UserOperations.START,
+                        String.format("%d", startTime)
                 );
             }
         }
@@ -330,7 +383,11 @@ public class DisplayOperationActivity extends ActionBarActivity {
         protected String doInBackground(String... urls){
             String output = null;
             for(String url:urls){
-                output = getOutputFromUrl(url);
+                if(start){
+                    output = getOutputFromUrl(url);
+                }else{
+                    output = postTime(url);
+                }
             }
 
             return output;
@@ -342,6 +399,28 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 DefaultHttpClient httpClient = HttpClient.getDefaultHttpClient();
                 HttpGet httpGet = new HttpGet(url);
                 HttpResponse httpResponse = httpClient.execute(httpGet);
+                HttpEntity httpEntity = httpResponse.getEntity();
+                output = EntityUtils.toString(httpEntity);
+            } catch(UnsupportedEncodingException e){
+                e.printStackTrace();
+            } catch(IOException e){
+                e.printStackTrace();
+            }
+            return output;
+        }
+
+        private String postTime(String url){
+            String output = null;
+            try{
+                DefaultHttpClient httpClient = HttpClient.getDefaultHttpClient();
+                HttpPost httpPost = new HttpPost(url);
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+                nameValuePairs.add(new BasicNameValuePair(
+                        "real_time",String.format("%d",updatedTime/1000)));
+                nameValuePairs.add(new BasicNameValuePair(
+                        PROGRESS_ID_TAG,pID));
+                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                HttpResponse httpResponse = httpClient.execute(httpPost);
                 HttpEntity httpEntity = httpResponse.getEntity();
                 output = EntityUtils.toString(httpEntity);
             } catch(UnsupportedEncodingException e){
