@@ -71,8 +71,12 @@ public class OperationsList extends ActionBarActivity {
     private static final String ID_TAG = "id";
     private static final String OPERATION_NAME_TAG = "operation_name";
     private static final String LOT_NUMBER_TAG = "lot";
+    private static final String STOPPED_AT_TAG = "stopped_at";
+    private static final String UPDATED_AT_TAG = "updated_at";
+
     private String operations;
     SessionManager session;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -266,7 +270,7 @@ public class OperationsList extends ActionBarActivity {
             JSONArray json = new JSONArray(operations);
             for(int i = 0; i< json.length(); i++){
                 JSONObject object = json.getJSONObject(i);
-                //String projectName = object.getString(PROJECT_NAME_TAG);
+                String projectName = object.getString(PROJECT_NAME_TAG);
                 String part = object.getString(PART_TAG);
                 String opNo = object.getString(OPERATION_NUMBER_TAG);
                 String pID = object.getString(PROGRESS_ID_TAG);
@@ -280,7 +284,8 @@ public class OperationsList extends ActionBarActivity {
                 String operation_name = object.getString(OPERATION_NAME_TAG);
                 String id = object.getString(ID_TAG);
                 HashMap<String,String> map = new HashMap<String, String>();
-                //map.put(PROJECT_NAME_TAG,projectName);
+                map.put(PROJECT_NAME_TAG,projectName);
+                map.put(STOPPED_AT_TAG,"0");
                 map.put(PART_TAG,part);
                 map.put(PROGRESS_ID_TAG,pID);
                 map.put(OPERATION_NUMBER_TAG,opNo);

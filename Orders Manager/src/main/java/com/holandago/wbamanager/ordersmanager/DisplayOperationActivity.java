@@ -1,12 +1,14 @@
 package com.holandago.wbamanager.ordersmanager;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +29,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Calendar;
 
 
 public class DisplayOperationActivity extends ActionBarActivity {
@@ -55,7 +58,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
     private static final String STATUS_TAG = "status";
     private static final String CUSTOMER_TAG = "costumer";
     private static final String PART_TAG = "part";
-    private static final String PROJECT_NAME_TAG = "project_name";
+    private static final String PROJECT_NAME_TAG = "title";
     private static final String TIME_TAG = "time";
     private static final String ORDER_ID_TAG = "order_id";
     private static final String ID_TAG = "id";
@@ -63,6 +66,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
     private static final String OPERATION_NAME_TAG = "operation_name";
     private static final String LOT_NUMBER_TAG = "lot";
     private static final String STARTED_AT_TAG = "started_at";
+    private static final String STOPPED_AT_TAG = "stopped_at";
+    private static final String UPDATED_AT_TAG = "updated_at";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +112,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
 
     public void fillLayout(JSONObject json){
         try {
+            //Using the json to fill the layout
             setTitle(json.getString(OPERATION_NAME_TAG));
             String machine = json.getString(MACHINE_TAG);
             String ownerName = json.getString(OWNER_NAME_TAG);
@@ -115,11 +121,15 @@ public class DisplayOperationActivity extends ActionBarActivity {
             String expectedTime = json.getString(TIME_TAG);
             String customer = json.getString(CUSTOMER_TAG);
             String part = json.getString(PART_TAG);
+            String operation = json.getString(OPERATION_NAME_TAG);
+            String projectName = json.getString(PROJECT_NAME_TAG);
             status = json.getString(STATUS_TAG);
             id = json.getString(ID_TAG);
             pID = json.getString(PROGRESS_ID_TAG);
             holder = new OperationViewHolder();
             fillHolder(holder);
+            holder.project.setText(projectName);
+            holder.operation.setText(operation);
             holder.part.setText(part);
             holder.machine.setText(machine);
             holder.owner_name.setText(ownerName);
@@ -132,14 +142,47 @@ public class DisplayOperationActivity extends ActionBarActivity {
             holder.action2.setOnClickListener(
                     new ButtonListener("finish", holder.action1));
             holder.action2.setEnabled(false);
-            if(!status.equals("0")){
+            //Setting up font
+            //TODO: Find a smarter way to do this
+            Typeface font = Typeface.createFromAsset(getAssets(),"HelveticaNeue_Lt.ttf");
+            holder.part.setTypeface(font,Typeface.BOLD);
+            holder.machine.setTypeface(font);
+            holder.owner_name.setTypeface(font);
+            holder.lot_number.setTypeface(font);
+            holder.next_process.setTypeface(font);
+            holder.client.setTypeface(font);
+            holder.expected_time.setTypeface(font);
+
+            if(status.equals("1")){
                 setColorsStart();
                 startTime = Long.parseLong(json.getString(STARTED_AT_TAG));
+                if(startTime == 0){
+                    startTime = TimeDifferenceInMillis(json.getString(UPDATED_AT_TAG));
+                }
                 customHandler.postDelayed(updateTimer, 0);
+                timeSwapBuff = Long.parseLong(json.getString(STOPPED_AT_TAG));
+                if(timeSwapBuff != 0){
+                    holder.action1.setText("Stop");
+                    holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
+                    customHandler.removeCallbacks(updateTimer);
+                }
             }
         }catch(JSONException e){
             e.printStackTrace();
         }
+    }
+
+    private long TimeDifferenceInMillis(String date){
+        String[] yearMonthDay = date.split("-");
+        Calendar updated = Calendar.getInstance();
+        Calendar epoch = Calendar.getInstance();
+        epoch.set(Calendar.YEAR, 1970);
+        epoch.set(Calendar.MONTH, Calendar.JANUARY);
+        epoch.set(Calendar.DAY_OF_MONTH, 1);
+        updated.set(Calendar.YEAR, Integer.parseInt(yearMonthDay[0]));
+        updated.set(Calendar.MONTH, Integer.parseInt(yearMonthDay[1]));
+        updated.set(Calendar.DAY_OF_MONTH, Integer.parseInt(yearMonthDay[2]));
+        return updated.getTimeInMillis()-epoch.getTimeInMillis();
     }
 
     private String convertTime(String time){
@@ -153,7 +196,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
     }
 
     private void fillHolder(OperationViewHolder holder){
-        holder.part = (TextView)findViewById(R.id.part);
+        holder.part = (TextView)findViewById(R.id.part_name);
+        holder.operation = (TextView)findViewById(R.id.operation);
         holder.machine = (TextView)findViewById(R.id.machine);
         holder.client = (TextView)findViewById(R.id.client);
         holder.project = (TextView)findViewById(R.id.project);
@@ -169,6 +213,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
 
     private static class OperationViewHolder {
         RelativeLayout background;
+        TextView operation;
         TextView part;
         TextView machine;
         TextView client;
@@ -200,28 +245,44 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 AsyncGetRequest requester = new AsyncGetRequest(true);
                 requester.execute(new String[]{startUrl});
                 setColorsStart();
-                startTime = SystemClock.uptimeMillis();
+                startTime = System.currentTimeMillis();
                 UserOperations.changeOperationStatus(
                         id,
                         lotNumber,
-                        true,
+                        UserOperations.START,
                         String.format("%d", startTime)
                 );
-                customHandler.postDelayed(updateTimer, 0);
-            }else{
-                AsyncGetRequest requester = new AsyncGetRequest(false);
-                requester.execute(new String[]{finishUrl});
+                otherButton.setEnabled(true);
+            }else
+            if(handle.equals("finish")){
+                new AlertDialog.Builder(DisplayOperationActivity.this)
+                        .setTitle("Really Finish?")
+                        .setMessage("Are you sure you want to finish this operation?")
+                        .setNegativeButton(android.R.string.no, null)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface arg0, int arg1) {
+                                AsyncGetRequest requester = new AsyncGetRequest(false);
+                                requester.execute(new String[]{finishUrl});
+                                UserOperations.changeOperationStatus(
+                                        id,
+                                        lotNumber,
+                                        UserOperations.FINISH,
+                                        String.format("%d",System.currentTimeMillis())
+                                );
+
+                            }
+                        }).create().show();
+            }else
+            if(handle.equals("stop")){
+                customHandler.removeCallbacks(updateTimer);
+                timeSwapBuff = System.currentTimeMillis();
                 UserOperations.changeOperationStatus(
                         id,
                         lotNumber,
-                        false,
-                        String.format("%d",SystemClock.uptimeMillis())
+                        UserOperations.STOP,
+                        String.format("%d",System.currentTimeMillis())
                 );
-                customHandler.removeCallbacks(updateTimer);
-            }
-            thisButton.setEnabled(false);
-            if(handle.equals("start")) {
-                otherButton.setEnabled(true);
             }
         }
     }
@@ -236,7 +297,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
 
     private Runnable updateTimer = new Runnable(){
         public void run(){
-            timeInMillis = SystemClock.uptimeMillis() - startTime;
+            timeInMillis = System.currentTimeMillis() - startTime;
             updatedTime = timeSwapBuff+timeInMillis;
             int secs = (int)(updatedTime/1000);
             int mins = secs/60;
@@ -296,6 +357,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
             pDialog.dismiss();
             if(start){
                 holder.action1.setBackgroundColor(Color.parseColor(WBA_DARK_GREY_COLOR));
+                customHandler.postDelayed(updateTimer, 0);
             }else {
                 holder.action2.setBackgroundColor(Color.parseColor(WBA_DARK_GREY_COLOR));
                 onBackPressed();

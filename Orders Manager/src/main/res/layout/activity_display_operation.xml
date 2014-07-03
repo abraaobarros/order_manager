@@ -19,11 +19,13 @@
         android:layout_alignParentEnd="true"
         android:layout_marginRight="32dp" />
 
-    <ImageView
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/checkImage"
-        android:background="@drawable/ic_check"
+        android:id="@+id/part_name"
+        android:text="Part Name"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="28sp"
         android:layout_alignTop="@+id/lot_number"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -34,13 +36,12 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Part Name"
+        android:text="Operation"
         android:paddingBottom="30dp"
-        android:id="@+id/part"
+        android:id="@+id/operation"
         android:layout_alignBottom="@+id/lot_number"
-        android:layout_alignLeft="@+id/checkImage"
-        android:layout_alignStart="@+id/checkImage"
+        android:layout_alignLeft="@+id/part_name"
+        android:layout_alignStart="@+id/part_name"
         android:textSize="28sp" />
 
     <TextView
@@ -50,9 +51,9 @@
         android:text="Machine"
         android:paddingTop="15dp"
         android:id="@+id/machine"
-        android:layout_alignBottom="@+id/part"
-        android:layout_alignLeft="@+id/part"
-        android:layout_alignStart="@+id/part" />
+        android:layout_alignBottom="@+id/operation"
+        android:layout_alignLeft="@+id/operation"
+        android:layout_alignStart="@+id/operation" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -63,8 +64,8 @@
         android:paddingBottom="15dp"
         android:id="@+id/project"
         android:layout_below="@+id/lot_number"
-        android:layout_alignLeft="@+id/part"
-        android:layout_alignStart="@+id/part" />
+        android:layout_alignLeft="@+id/operation"
+        android:layout_alignStart="@+id/operation" />
 
     <TextView
         android:layout_width="wrap_content"
