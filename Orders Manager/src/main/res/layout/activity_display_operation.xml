@@ -13,7 +13,7 @@
         android:textColor="@color/wba_orange"
         android:id="@+id/lot_number"
         android:layout_marginTop="56dp"
-        android:textSize="110sp"
+        android:textSize="100sp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
@@ -41,7 +41,7 @@
         android:layout_alignBottom="@+id/lot_number"
         android:layout_alignLeft="@+id/checkImage"
         android:layout_alignStart="@+id/checkImage"
-        android:textSize="33sp" />
+        android:textSize="28sp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -103,7 +103,7 @@
     <LinearLayout
         android:id="@+id/actions_layout"
         android:layout_width="fill_parent"
-        android:layout_height="130dp"
+        android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:background="@color/wba_light_grey"
         android:weightSum="2">
