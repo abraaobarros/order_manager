@@ -35,7 +35,8 @@
         </activity>
         <activity
             android:name=".ordersmanager.DisplayOperationActivity"
-            android:label="@string/title_activity_display_operation" >
+            android:label="@string/title_activity_display_operation"
+            android:screenOrientation="portrait">
         </activity>
     </application>
 

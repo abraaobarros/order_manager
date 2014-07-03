@@ -358,6 +358,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
             if(start){
                 holder.action1.setBackgroundColor(Color.parseColor(WBA_DARK_GREY_COLOR));
                 customHandler.postDelayed(updateTimer, 0);
+                holder.action1.setText("Stop");
+                holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
             }else {
                 holder.action2.setBackgroundColor(Color.parseColor(WBA_DARK_GREY_COLOR));
                 onBackPressed();
