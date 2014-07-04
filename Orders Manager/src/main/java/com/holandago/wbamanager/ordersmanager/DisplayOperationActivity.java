@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -71,6 +72,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
         //TODO: CHANGE THE LAYOUT, NEED TO MAKE IT IN A BETTER WAY (ENCAPSULATING ELEMENTS)
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_operation);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         Intent intent = getIntent();
         try {
             operationJson =
@@ -110,6 +113,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
     @Override
     public void onBackPressed(){
         Intent intent = new Intent();
+        customHandler.removeCallbacks(updateTimer);
         setResult(RESULT_OK,intent);
         super.onBackPressed();
     }

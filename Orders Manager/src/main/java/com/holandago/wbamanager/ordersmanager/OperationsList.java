@@ -20,6 +20,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
@@ -65,6 +66,8 @@ public class OperationsList extends ActionBarActivity {
         setContentView(R.layout.activity_orders_list);
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         session = new SessionManager(getApplicationContext());
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         if(session.isLoggedIn())
             new JSONParse(session.getUserDetails()
                     .get(SessionManager.KEY_ID)).execute();
@@ -106,6 +109,7 @@ public class OperationsList extends ActionBarActivity {
                 UserOperations.flush();
                 session.logoutUser();
                 startLoginActivity();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
