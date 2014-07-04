@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -24,7 +25,6 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.holandago.wbamanager.R;
@@ -34,11 +34,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+
+import com.holandago.wbamanager.library.Utils;
 
 
 public class OperationsList extends ActionBarActivity {
@@ -53,29 +54,6 @@ public class OperationsList extends ActionBarActivity {
             "com.holandago.wbamanager.ordersmanager.ORDER_ID_MESSAGE";
     public final static String OPERATION_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.OPERATION_MESSAGE";
-    private ListView listView;
-    private static final String PROGRESS_ID_TAG = "progress_id";
-    private static final String WBA_ORANGE_COLOR = "#FBB03B";
-    private static final String NEXT_OPERATION_TAG = "next_operation";
-    private static final String MACHINE_TAG = "machine";
-    private static final String OWNER_ID_TAG = "owner_id";
-    private static final String OWNER_NAME_TAG = "owner_name";
-    private static final String STATUS_TAG = "status";
-    private static final String OPERATION_NUMBER_TAG = "no";
-    private static final String START_TIME_TAG = "start_time";
-    private static final String CUSTOMER_TAG = "costumer";
-    private static final String PART_TAG = "part";
-    private static final String PROJECT_NAME_TAG = "title";
-    private static final String TIME_TAG = "time";
-    private static final String ORDER_ID_TAG = "order_id";
-    private static final String ID_TAG = "id";
-    private static final String OPERATION_NAME_TAG = "operation_name";
-    private static final String LOT_NUMBER_TAG = "lot";
-    private static final String TIME_SWAP_TAG = "time_swap";
-    private static final String STARTED_AT_TAG = "started_at";
-    private static final String UPDATED_AT_TAG = "updated_at";
-    private static final String STOPPED_TAG = "stopped?";
-    private static final String MY_STARTED_AT_TAG = "my_started_at";
 
     private String operations;
     SessionManager session;
@@ -143,14 +121,14 @@ public class OperationsList extends ActionBarActivity {
                     ArrayList<HashMap<String,String>> operationList =
                             UserOperations.getOperationsList();
                     JSONObject json = new JSONObject(orderUrl);
-                    String id = json.getString(ORDER_ID_TAG);
+                    String id = json.getString(Utils.ORDER_ID_TAG);
                     Log.e("DEBUGGING", "ORDER ID = "+id);
-                    String lot = json.getString(LOT_NUMBER_TAG);
+                    String lot = json.getString(Utils.LOT_NUMBER_TAG);
                     ArrayList<HashMap<String,String>> operationsFromOrder =
                             new ArrayList<HashMap<String, String>>();
                     for(HashMap<String,String> operation : operationList){
-                        if(operation.get(ORDER_ID_TAG).equals(id)){
-                            if(operation.get(LOT_NUMBER_TAG).equals(lot)){
+                        if(operation.get(Utils.ORDER_ID_TAG).equals(id)){
+                            if(operation.get(Utils.LOT_NUMBER_TAG).equals(lot)){
                                 operationsFromOrder.add(operation);
                             }
                         }
@@ -181,8 +159,6 @@ public class OperationsList extends ActionBarActivity {
     }
 
     private void startLoginActivity(){
-        ArrayList<HashMap<String,String>> operations = UserOperations.getOperationsList();
-        operations = null;
         Intent intent = new Intent(this, LoginActivity.class);
         startActivityForResult(intent, 2);
     }
@@ -206,10 +182,10 @@ public class OperationsList extends ActionBarActivity {
             for(HashMap<String,String> map2:operationList){
                 if(!map2.equals(map1)){
                        //Equal lot
-                    if(map2.get(LOT_NUMBER_TAG).equals(map1.get(LOT_NUMBER_TAG)) &&
+                    if(map2.get(Utils.LOT_NUMBER_TAG).equals(map1.get(Utils.LOT_NUMBER_TAG)) &&
                        //Not finished
-                       !map2.get(STATUS_TAG).equals("2")){
-                        map1.put(NEXT_OPERATION_TAG,map2.get(OPERATION_NAME_TAG));
+                       !map2.get(Utils.STATUS_TAG).equals("2")){
+                        map1.put(Utils.NEXT_OPERATION_TAG,map2.get(Utils.OPERATION_NAME_TAG));
                         break;
                     }
                 }
@@ -220,8 +196,8 @@ public class OperationsList extends ActionBarActivity {
                 new HashMap<String, HashMap<String, String>>();
         //Only one for each ID and only the unfinished ones
         for(int i = operationList.size()-1;i>=0;i--){
-            if(!operationList.get(i).get(STATUS_TAG).equals("2"))
-                uniqueID.put(operationList.get(i).get(ID_TAG),operationList.get(i));
+            if(!operationList.get(i).get(Utils.STATUS_TAG).equals("2"))
+                uniqueID.put(operationList.get(i).get(Utils.ID_TAG),operationList.get(i));
         }
         //Holds the value of the uniqueOperations that are unfinished
         ArrayList<HashMap<String,String>> uniqueOperations =
@@ -230,7 +206,7 @@ public class OperationsList extends ActionBarActivity {
         //Needs to be a final because it's called from an inner class
         final ArrayList<HashMap<String,String>> uniqueOperationsf =
                 new ArrayList<HashMap<String, String>>(uniqueID.values());
-        listView = (ListView)findViewById(R.id.orderList);
+        ListView listView = (ListView)findViewById(R.id.orderList);
         ListAdapter adapter = new CustomAdapter(
                 OperationsList.this,
                 uniqueOperationsf
@@ -249,7 +225,7 @@ public class OperationsList extends ActionBarActivity {
     public class LotNumberComparator implements Comparator<HashMap<String,String>> {
         @Override
         public int compare(HashMap<String,String> operation1, HashMap<String,String> operation2){
-            return operation1.get(LOT_NUMBER_TAG).compareTo(operation2.get(LOT_NUMBER_TAG));
+            return operation1.get(Utils.LOT_NUMBER_TAG).compareTo(operation2.get(Utils.LOT_NUMBER_TAG));
         }
     }
 
@@ -257,7 +233,7 @@ public class OperationsList extends ActionBarActivity {
         @Override
         public int compare(HashMap<String,String> operation1, HashMap<String,String>operation2){
             return
-              operation1.get(OPERATION_NUMBER_TAG).compareTo(operation2.get(OPERATION_NUMBER_TAG));
+              operation1.get(Utils.OPERATION_NUMBER_TAG).compareTo(operation2.get(Utils.OPERATION_NUMBER_TAG));
         }
     }
 
@@ -269,41 +245,41 @@ public class OperationsList extends ActionBarActivity {
             JSONArray json = new JSONArray(operations);
             for(int i = 0; i< json.length(); i++){
                 JSONObject object = json.getJSONObject(i);
-                String projectName = object.getString(PROJECT_NAME_TAG);
-                String part = object.getString(PART_TAG);
-                String opNo = object.getString(OPERATION_NUMBER_TAG);
-                String pID = object.getString(PROGRESS_ID_TAG);
-                String customer = object.getString(CUSTOMER_TAG);
-                String ownerId = object.getString(OWNER_ID_TAG);
-                String machine = object.getString(MACHINE_TAG);
-                String status = object.getString(STATUS_TAG);
-                String orderID = object.getString(ORDER_ID_TAG);
-                String time = object.getString(TIME_TAG);
-                String lot = object.getString(LOT_NUMBER_TAG);
-                String startedAt = object.getString(STARTED_AT_TAG);
-                String updatedAt = object.getString(UPDATED_AT_TAG);
-                String operation_name = object.getString(OPERATION_NAME_TAG);
-                String id = object.getString(ID_TAG);
+                String projectName = object.getString(Utils.PROJECT_NAME_TAG);
+                String part = object.getString(Utils.PART_TAG);
+                String opNo = object.getString(Utils.OPERATION_NUMBER_TAG);
+                String pID = object.getString(Utils.PROGRESS_ID_TAG);
+                String customer = object.getString(Utils.CUSTOMER_TAG);
+                String ownerId = object.getString(Utils.OWNER_ID_TAG);
+                String machine = object.getString(Utils.MACHINE_TAG);
+                String status = object.getString(Utils.STATUS_TAG);
+                String orderID = object.getString(Utils.ORDER_ID_TAG);
+                String time = object.getString(Utils.TIME_TAG);
+                String lot = object.getString(Utils.LOT_NUMBER_TAG);
+                String startedAt = object.getString(Utils.STARTED_AT_TAG);
+                String updatedAt = object.getString(Utils.UPDATED_AT_TAG);
+                String operation_name = object.getString(Utils.OPERATION_NAME_TAG);
+                String id = object.getString(Utils.ID_TAG);
                 HashMap<String,String> map = new HashMap<String, String>();
-                map.put(MY_STARTED_AT_TAG,"0");
-                map.put(UPDATED_AT_TAG,updatedAt);
-                map.put(PROJECT_NAME_TAG,projectName);
-                map.put(TIME_SWAP_TAG,"0");
-                map.put(PART_TAG,part);
-                map.put(PROGRESS_ID_TAG,pID);
-                map.put(OPERATION_NUMBER_TAG,opNo);
-                map.put(ORDER_ID_TAG,orderID);
-                map.put(CUSTOMER_TAG,customer);
-                map.put(MACHINE_TAG,machine);
-                map.put(OWNER_ID_TAG,ownerId);
-                map.put(LOT_NUMBER_TAG,lot);
-                map.put(STATUS_TAG,status);
-                map.put(TIME_TAG,time);
-                map.put(OPERATION_NAME_TAG,operation_name);
-                map.put(ID_TAG,id);
-                map.put(STARTED_AT_TAG,startedAt);
-                map.put(STOPPED_TAG,"false");
-                map.put(OWNER_NAME_TAG,session.getUserDetails().get(SessionManager.KEY_USER));
+                map.put(Utils.MY_STARTED_AT_TAG,"0");
+                map.put(Utils.UPDATED_AT_TAG,updatedAt);
+                map.put(Utils.PROJECT_NAME_TAG,projectName);
+                map.put(Utils.TIME_SWAP_TAG,"0");
+                map.put(Utils.PART_TAG,part);
+                map.put(Utils.PROGRESS_ID_TAG,pID);
+                map.put(Utils.OPERATION_NUMBER_TAG,opNo);
+                map.put(Utils.ORDER_ID_TAG,orderID);
+                map.put(Utils.CUSTOMER_TAG,customer);
+                map.put(Utils.MACHINE_TAG,machine);
+                map.put(Utils.OWNER_ID_TAG,ownerId);
+                map.put(Utils.LOT_NUMBER_TAG,lot);
+                map.put(Utils.STATUS_TAG,status);
+                map.put(Utils.TIME_TAG,time);
+                map.put(Utils.OPERATION_NAME_TAG,operation_name);
+                map.put(Utils.ID_TAG,id);
+                map.put(Utils.STARTED_AT_TAG,startedAt);
+                map.put(Utils.STOPPED_TAG,"false");
+                map.put(Utils.OWNER_NAME_TAG,session.getUserDetails().get(SessionManager.KEY_USER));
                 //Assuming the title is the ID
                 operationList.add(map);
                 updateOrCreateList();
@@ -411,13 +387,21 @@ public class OperationsList extends ActionBarActivity {
                 holder = (OperationViewHolder)convertView.getTag();
             }
 
-            holder.operation_name.setText(data.get(+position).get(OPERATION_NAME_TAG));
-            holder.operation_machine.setText(data.get(+position).get(MACHINE_TAG));
-            holder.operation_lot.setText("Lot: "+data.get(+position).get(LOT_NUMBER_TAG));
-            holder.operation_time.setText("Time: "+data.get(+position).get(TIME_TAG));
+            //Setting up font
+            //TODO: Find a smarter way to do this
+            Typeface font = Typeface.createFromAsset(getAssets(),"HelveticaNeue_Lt.ttf");
+            holder.operation_name.setTypeface(font, Typeface.BOLD);
+            holder.operation_machine.setTypeface(font);
+            holder.operation_lot.setTypeface(font);
+            holder.operation_time.setTypeface(font);
 
-            if(getItem(position).get(STATUS_TAG).equals("1")){
-                holder.background.setBackgroundColor(Color.parseColor(WBA_ORANGE_COLOR));
+            holder.operation_name.setText(data.get(+position).get(Utils.OPERATION_NAME_TAG));
+            holder.operation_machine.setText(data.get(+position).get(Utils.MACHINE_TAG));
+            holder.operation_lot.setText("Lot: "+data.get(+position).get(Utils.LOT_NUMBER_TAG));
+            holder.operation_time.setText("Time: "+data.get(+position).get(Utils.TIME_TAG));
+
+            if(getItem(position).get(Utils.STATUS_TAG).equals("1")){
+                holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_ORANGE_COLOR));
             }else{
                 holder.background.setBackgroundColor(Color.parseColor("#FFFFFFFF"));
             }

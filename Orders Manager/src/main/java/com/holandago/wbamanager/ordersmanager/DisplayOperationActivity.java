@@ -11,14 +11,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.holandago.wbamanager.R;
+import com.holandago.wbamanager.library.Utils;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -54,29 +57,14 @@ public class DisplayOperationActivity extends ActionBarActivity {
     private long updatedTime = 0L;
     private long timeSwapBuff = 0L;
     private Handler customHandler = new Handler();
-    private static final String WBA_DARK_GREY_COLOR = "#666767";
-    private static final String WBA_BLUE_COLOR = "#72A7C4";
-    private static final String WBA_ORANGE_COLOR = "#FBB03B";
-    private static final String WBA_LIGHT_GREY_COLOR = "#E9E9EA";
-    private static final String NEXT_OPERATION_TAG = "next_operation";
-    private static final String MACHINE_TAG = "machine";
-    private static final String OWNER_ID_TAG = "owner_id";
-    private static final String OWNER_NAME_TAG = "owner_name";
-    private static final String STATUS_TAG = "status";
-    private static final String CUSTOMER_TAG = "costumer";
-    private static final String PART_TAG = "part";
-    private static final String PROJECT_NAME_TAG = "title";
-    private static final String TIME_TAG = "time";
-    private static final String ORDER_ID_TAG = "order_id";
-    private static final String ID_TAG = "id";
-    private static final String PROGRESS_ID_TAG = "progress_id";
-    private static final String OPERATION_NAME_TAG = "operation_name";
-    private static final String LOT_NUMBER_TAG = "lot";
-    private static final String STARTED_AT_TAG = "started_at";
-    private static final String TIME_SWAP_TAG = "time_swap";
-    private static final String UPDATED_AT_TAG = "updated_at";
-    private static final String STOPPED_TAG = "stopped?";
-    private static final String MY_STARTED_AT_TAG = "my_started_at";
+    private static final int SWIPE_MIN_DISTANCE = 120;
+    private static final int SWIPE_MAX_OFF_PATH = 250;
+    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+
+
+
+    private GestureDetector gestureDetector;
+    private View.OnTouchListener gestureListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +78,12 @@ public class DisplayOperationActivity extends ActionBarActivity {
         }catch(JSONException e){
             e.printStackTrace();
         }
+        gestureDetector = new GestureDetector(this, new MyGestureDetector());
+        gestureListener = new View.OnTouchListener(){
+            public boolean onTouch(View v, MotionEvent event){
+                return gestureDetector.onTouchEvent(event);
+            }
+        };
         fillLayout(operationJson);
     }
 
@@ -120,22 +114,44 @@ public class DisplayOperationActivity extends ActionBarActivity {
         super.onBackPressed();
     }
 
+    class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            try {
+                if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+                    return false;
+                // right to left swipe
+                if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                    onBackPressed();
+                }
+            } catch (Exception e) {
+                // nothing
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+    }
+
     public void fillLayout(JSONObject json){
         try {
             //Using the json to fill the layout
-            setTitle(json.getString(OPERATION_NAME_TAG));
-            String machine = json.getString(MACHINE_TAG);
-            String ownerName = json.getString(OWNER_NAME_TAG);
-            lotNumber = json.getString(LOT_NUMBER_TAG);
-            String nextProcess = json.getString(NEXT_OPERATION_TAG);
-            String expectedTime = json.getString(TIME_TAG);
-            String customer = json.getString(CUSTOMER_TAG);
-            String part = json.getString(PART_TAG);
-            String operation = json.getString(OPERATION_NAME_TAG);
-            String projectName = json.getString(PROJECT_NAME_TAG);
-            status = json.getString(STATUS_TAG);
-            id = json.getString(ID_TAG);
-            pID = json.getString(PROGRESS_ID_TAG);
+            setTitle(json.getString(Utils.OPERATION_NAME_TAG));
+            String machine = json.getString(Utils.MACHINE_TAG);
+            String ownerName = json.getString(Utils.OWNER_NAME_TAG);
+            lotNumber = json.getString(Utils.LOT_NUMBER_TAG);
+            String nextProcess = json.getString(Utils.NEXT_OPERATION_TAG);
+            String expectedTime = json.getString(Utils.TIME_TAG);
+            String customer = json.getString(Utils.CUSTOMER_TAG);
+            String part = json.getString(Utils.PART_TAG);
+            String operation = json.getString(Utils.OPERATION_NAME_TAG);
+            String projectName = json.getString(Utils.PROJECT_NAME_TAG);
+            status = json.getString(Utils.STATUS_TAG);
+            id = json.getString(Utils.ID_TAG);
+            pID = json.getString(Utils.PROGRESS_ID_TAG);
             holder = new OperationViewHolder();
             fillHolder(holder);
             holder.project.setText(projectName);
@@ -164,14 +180,14 @@ public class DisplayOperationActivity extends ActionBarActivity {
             holder.expected_time.setTypeface(font);
 
             if(status.equals("1")){
-                String stopped = json.getString(STOPPED_TAG);
+                String stopped = json.getString(Utils.STOPPED_TAG);
                 setColorsStart();
-                startTime = Long.parseLong(json.getString(MY_STARTED_AT_TAG));
+                startTime = Long.parseLong(json.getString(Utils.MY_STARTED_AT_TAG));
                 if(startTime == 0){
-                    startTime = TimeDifferenceInMillis(json.getString(STARTED_AT_TAG));
+                    startTime = TimeDifferenceInMillis(json.getString(Utils.STARTED_AT_TAG));
                 }
                 customHandler.postDelayed(updateTimer, 0);
-                timeSwapBuff = Long.parseLong(json.getString(TIME_SWAP_TAG));
+                timeSwapBuff = Long.parseLong(json.getString(Utils.TIME_SWAP_TAG));
                 holder.action1.setText("Stop");
                 holder.action1.setEnabled(true);
                 holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
@@ -243,6 +259,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
         holder.action1 = (Button)findViewById(R.id.action1);
         holder.action2 = (Button)findViewById(R.id.action2);
         holder.background = (RelativeLayout)findViewById(R.id.operation_background);
+        holder.background.setOnTouchListener(gestureListener);
     }
 
     private static class OperationViewHolder {
@@ -274,7 +291,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
         public void onClick(View thisButton){
             startUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+pID+"/start";
             finishUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+pID+"/finish";
-            thisButton.setBackgroundColor(Color.parseColor(WBA_BLUE_COLOR));
+            thisButton.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
             if(handle.equals("start")){
                 AsyncGetRequest requester = new AsyncGetRequest(true);
                 requester.execute(new String[]{startUrl});
@@ -319,7 +336,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                         String.format("%d",timeSwapBuff)
                 );
                 holder.action1.setText("Start");
-                holder.action1.setBackgroundColor(Color.parseColor(WBA_DARK_GREY_COLOR));
+                holder.action1.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
                 holder.action1.setOnClickListener(new ButtonListener("start2",holder.action2));
             }else
             if(handle.equals("start2")){
@@ -328,7 +345,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 otherButton.setEnabled(true);
                 customHandler.postDelayed(updateTimer, 0);
                 holder.action1.setText("Stop");
-                holder.action1.setBackgroundColor(Color.parseColor(WBA_DARK_GREY_COLOR));
+                holder.action1.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
                 holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
                 UserOperations.changeOperationStatus(
                         id,
@@ -341,9 +358,9 @@ public class DisplayOperationActivity extends ActionBarActivity {
     }
 
     private void setColorsStart(){
-        holder.background.setBackgroundColor(Color.parseColor(WBA_ORANGE_COLOR));
-        holder.expected_time.setTextColor(Color.parseColor(WBA_LIGHT_GREY_COLOR));
-        holder.lot_number.setTextColor(Color.parseColor(WBA_LIGHT_GREY_COLOR));
+        holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_ORANGE_COLOR));
+        holder.expected_time.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.lot_number.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.action1.setEnabled(false);
         holder.action2.setEnabled(true);
     }
@@ -418,7 +435,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 nameValuePairs.add(new BasicNameValuePair(
                         "real_time",String.format("%d",updatedTime/1000)));
                 nameValuePairs.add(new BasicNameValuePair(
-                        PROGRESS_ID_TAG,pID));
+                        Utils.PROGRESS_ID_TAG,pID));
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                 HttpResponse httpResponse = httpClient.execute(httpPost);
                 HttpEntity httpEntity = httpResponse.getEntity();
@@ -435,12 +452,12 @@ public class DisplayOperationActivity extends ActionBarActivity {
         protected void onPostExecute(String output){
             pDialog.dismiss();
             if(start){
-                holder.action1.setBackgroundColor(Color.parseColor(WBA_DARK_GREY_COLOR));
+                holder.action1.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
                 customHandler.postDelayed(updateTimer, 0);
                 holder.action1.setText("Stop");
                 holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
             }else {
-                holder.action2.setBackgroundColor(Color.parseColor(WBA_DARK_GREY_COLOR));
+                holder.action2.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
                 onBackPressed();
             }
         }
