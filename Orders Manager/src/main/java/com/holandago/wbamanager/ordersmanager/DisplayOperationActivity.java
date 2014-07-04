@@ -236,6 +236,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
     }
 
     private String convertTime(String time){
+        if(time.equals(""))
+            time = "0";
         double t = Double.parseDouble(time);
         int hour = (int)Math.floor(t);
         double fractional = t - Math.floor(t);
