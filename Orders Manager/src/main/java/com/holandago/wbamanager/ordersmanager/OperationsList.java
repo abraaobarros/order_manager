@@ -36,8 +36,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 
 import com.holandago.wbamanager.library.Utils;
@@ -62,6 +64,7 @@ public class OperationsList extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_orders_list);
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
@@ -379,7 +382,7 @@ public class OperationsList extends ActionBarActivity {
             if(convertView == null){
                 convertView = inflater.inflate(R.layout.operations_list_v,null);
                 holder = new OperationViewHolder();
-                holder.operation_name = (TextView)convertView.findViewById(R.id.operation_list_name);
+                holder.operation_name = (TextView)convertView.findViewById(R.id.operation_list_part);
                 holder.operation_machine =
                         (TextView)convertView.findViewById(R.id.operation_list_machine);
                 holder.operation_lot = (TextView)convertView.findViewById(R.id.operation_list_lot);
@@ -399,7 +402,7 @@ public class OperationsList extends ActionBarActivity {
             holder.operation_lot.setTypeface(font);
             holder.operation_time.setTypeface(font);
 
-            holder.operation_name.setText(data.get(+position).get(Utils.OPERATION_NAME_TAG));
+            holder.operation_name.setText(data.get(+position).get(Utils.PART_TAG));
             holder.operation_machine.setText(data.get(+position).get(Utils.MACHINE_TAG));
             holder.operation_lot.setText("Lot: "+data.get(+position).get(Utils.LOT_NUMBER_TAG));
             holder.operation_time.setText("Time: "+data.get(+position).get(Utils.TIME_TAG));

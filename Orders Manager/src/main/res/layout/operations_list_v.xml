@@ -21,11 +21,11 @@
             android:layout_weight=".5">
 
             <TextView
-                android:id="@+id/operation_list_name"
+                android:id="@+id/operation_list_part"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
-                android:text="Operation Name"
+                android:text="Part Name"
                 android:textSize="20dp" />
 
             <TextView

@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -40,7 +41,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 
 public class DisplayOperationActivity extends ActionBarActivity {
@@ -53,6 +57,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
     private String pID;
     private String lotNumber;
     private String status;
+    private long timeFromServer = 0L;
     private long timeInMillis = 0L;
     private long startTime = 0L;
     private long updatedTime = 0L;
@@ -61,9 +66,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
     private static final int SWIPE_MIN_DISTANCE = 120;
     private static final int SWIPE_MAX_OFF_PATH = 250;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
-
-
-
     private GestureDetector gestureDetector;
     private View.OnTouchListener gestureListener;
 
@@ -104,10 +106,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        return (id == R.id.action_settings) || super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -145,7 +144,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
             //Using the json to fill the layout
             setTitle(json.getString(Utils.OPERATION_NAME_TAG));
             String machine = json.getString(Utils.MACHINE_TAG);
-            String ownerName = json.getString(Utils.OWNER_NAME_TAG);
             lotNumber = json.getString(Utils.LOT_NUMBER_TAG);
             String nextProcess = json.getString(Utils.NEXT_OPERATION_TAG);
             String expectedTime = json.getString(Utils.TIME_TAG);
@@ -162,7 +160,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
             holder.operation.setText(operation);
             holder.part.setText(part);
             holder.machine.setText(machine);
-            holder.owner_name.setText(ownerName);
             holder.lot_number.setText(lotNumber);
             holder.next_process.setText(nextProcess);
             holder.client.setText(customer);
@@ -177,7 +174,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
             Typeface font = Typeface.createFromAsset(getAssets(),"HelveticaNeue_Lt.ttf");
             holder.part.setTypeface(font,Typeface.BOLD);
             holder.machine.setTypeface(font);
-            holder.owner_name.setTypeface(font);
             holder.lot_number.setTypeface(font);
             holder.next_process.setTypeface(font);
             holder.client.setTypeface(font);
@@ -188,7 +184,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 setColorsStart();
                 startTime = Long.parseLong(json.getString(Utils.MY_STARTED_AT_TAG));
                 if(startTime == 0){
-                    startTime = TimeDifferenceInMillis(json.getString(Utils.STARTED_AT_TAG));
+                    calculateElapsedTime(json.getString(Utils.STARTED_AT_TAG));
                 }
                 customHandler.postDelayed(updateTimer, 0);
                 timeSwapBuff = Long.parseLong(json.getString(Utils.TIME_SWAP_TAG));
@@ -213,30 +209,33 @@ public class DisplayOperationActivity extends ActionBarActivity {
         }
     }
 
-    private long TimeDifferenceInMillis(String date){
+    private void calculateElapsedTime(String date){
         String[] yearMonthDay = date.split("-");
         String[] day = yearMonthDay[2].split(" ");
         String[] hours = day[1].split(":");
         for(String s : day){
             Log.e("TESTING VALUES: ",s);
         }
-        Calendar updated = Calendar.getInstance();
-        Calendar epoch = Calendar.getInstance();
-        epoch.set(Calendar.YEAR, 1970);
-        epoch.set(Calendar.MONTH, Calendar.JANUARY);
-        epoch.set(Calendar.DAY_OF_MONTH, 1);
-        epoch.set(Calendar.HOUR_OF_DAY, 0);
-        epoch.set(Calendar.MINUTE,0);
-        epoch.set(Calendar.SECOND,0);
-        updated.set(Calendar.YEAR, Integer.parseInt(yearMonthDay[0]));
-        updated.set(Calendar.MONTH, Integer.parseInt(yearMonthDay[1])-1);
-        updated.set(Calendar.DAY_OF_MONTH, Integer.parseInt(day[0]));
-        //fine adjustment of time to fit the fuse of the server's clock
-        //TODO: FIND A BETTER WAY TO DO THIS
-        updated.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hours[0])-2);
-        updated.set(Calendar.MINUTE, Integer.parseInt(hours[1])+1);
-        updated.set(Calendar.SECOND, Integer.parseInt(hours[2])-19);
-        return updated.getTimeInMillis() - epoch.getTimeInMillis();
+        Calendar started = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"),Locale.GERMANY);
+        Calendar now = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"),Locale.GERMANY);
+        Log.e("TESTING VALUES: ", +now.get(Calendar.YEAR)+"/"+
+                now.get(Calendar.MONTH)+"/"+now.get(Calendar.DAY_OF_MONTH)
+                +"/"+now.get(Calendar.HOUR_OF_DAY)+":"+now.get(Calendar.MINUTE)+":"+now.get(Calendar.SECOND));
+
+        started.set(Calendar.YEAR, Integer.parseInt(yearMonthDay[0]));
+        started.set(Calendar.MONTH, Integer.parseInt(yearMonthDay[1])-1);
+        started.set(Calendar.DAY_OF_MONTH, Integer.parseInt(day[0]));
+        started.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hours[0]));
+        started.set(Calendar.MINUTE, Integer.parseInt(hours[1]));
+        started.set(Calendar.SECOND, Integer.parseInt(hours[2]));
+
+        Log.e("TESTING VALUES: ", +started.get(Calendar.YEAR)+"/"+
+                started.get(Calendar.MONTH)+"/"+started.get(Calendar.DAY_OF_MONTH)
+                +"/"+started.get(Calendar.HOUR_OF_DAY)+":"+started.get(Calendar.MINUTE)+":"+started.get(Calendar.SECOND));
+        startTime = SystemClock.elapsedRealtime();
+        Log.e("TESTING VALUES: ", ""+now.getTimeInMillis());
+        Log.e("TESTING VALUES: ", ""+started.getTimeInMillis());
+        timeFromServer = now.getTimeInMillis()-started.getTimeInMillis()-41200;
     }
 
     private String convertTime(String time){
@@ -257,7 +256,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
         holder.machine = (TextView)findViewById(R.id.machine);
         holder.client = (TextView)findViewById(R.id.client);
         holder.project = (TextView)findViewById(R.id.project);
-        holder.owner_name = (TextView)findViewById(R.id.owner_name);
         holder.lot_number = (TextView)findViewById(R.id.lot_number);
         holder.next_process = (TextView)findViewById(R.id.next_process);
         holder.expected_time = (TextView)findViewById(R.id.expected_time);
@@ -275,7 +273,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
         TextView machine;
         TextView client;
         TextView project;
-        TextView owner_name;
         TextView lot_number;
         TextView next_process;
         TextView expected_time;
@@ -302,7 +299,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 AsyncGetRequest requester = new AsyncGetRequest(true);
                 requester.execute(new String[]{startUrl});
                 setColorsStart();
-                startTime = System.currentTimeMillis();
+                startTime = SystemClock.elapsedRealtime();
                 UserOperations.changeOperationStatus(
                         id,
                         lotNumber,
@@ -373,7 +370,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
 
     private Runnable updateTimer = new Runnable(){
         public void run(){
-            timeInMillis = System.currentTimeMillis() - startTime;
+            timeInMillis = timeFromServer + SystemClock.elapsedRealtime() - startTime;
             updatedTime = timeSwapBuff+timeInMillis;
             int secs = (int)(updatedTime/1000);
             int mins = secs/60;
