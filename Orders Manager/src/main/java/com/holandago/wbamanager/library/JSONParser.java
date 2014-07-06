@@ -24,13 +24,13 @@ import java.io.UnsupportedEncodingException;
  */
 public class JSONParser {
     static InputStream input = null;
-    static JSONArray jArray = null;
+    static JSONObject jObj = null;
     static String json = "";
 
     public JSONParser(){
 
     }
-    public JSONArray getJSONfromUrl(String url){
+    public JSONObject getJSONfromUrl(String url){
         //Making the http request
         try{
             //Default Http Client
@@ -59,11 +59,11 @@ public class JSONParser {
             Log.e("Buffer Error", "Error converting http request " + e.toString());
         }
         try{
-            jArray = (new JSONObject(json)).getJSONArray("data");
+            jObj = (new JSONObject(json));
         }catch(JSONException e){
             Log.e("JSON Parser", "Error parsing data " + e.toString());
         }
 
-        return jArray;
+        return jObj;
     }
 }

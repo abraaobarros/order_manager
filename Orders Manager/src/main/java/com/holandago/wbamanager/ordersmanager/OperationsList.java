@@ -59,6 +59,7 @@ public class OperationsList extends ActionBarActivity {
             "com.holandago.wbamanager.ordersmanager.OPERATION_MESSAGE";
 
     private String operations;
+    private String data;
     SessionManager session;
 
 
@@ -129,7 +130,6 @@ public class OperationsList extends ActionBarActivity {
                             UserOperations.getOperationsList();
                     JSONObject json = new JSONObject(orderUrl);
                     String id = json.getString(Utils.ORDER_ID_TAG);
-                    Log.e("DEBUGGING", "ORDER ID = "+id);
                     String lot = json.getString(Utils.LOT_NUMBER_TAG);
                     ArrayList<HashMap<String,String>> operationsFromOrder =
                             new ArrayList<HashMap<String, String>>();
@@ -140,10 +140,21 @@ public class OperationsList extends ActionBarActivity {
                             }
                         }
                     }
-                    Collections.sort(operationsFromOrder,new NumberComparator());
-                    sendOperationMessage(
-                            //Sends first element of the ordered Array
-                            operationsFromOrder.get(0));
+                    if(!operationsFromOrder.isEmpty()) {
+                        Collections.sort(operationsFromOrder, new NumberComparator());
+                        sendOperationMessage(
+                                //Sends first element of the ordered Array
+                                operationsFromOrder.get(0));
+                    }else{
+                        new AlertDialog.Builder(this)
+                                .setTitle("You do not have any operations from this order")
+                                .setNeutralButton("Go Back", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        onResume();
+                                    }
+                                }).create().show();
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -314,8 +325,19 @@ public class OperationsList extends ActionBarActivity {
                 }).create().show();
     }
 
+    public void emptyOperations(){
+        new AlertDialog.Builder(this)
+                .setTitle("There are no operations assigned to you")
+                .setNeutralButton("Try Again", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        onResume();
+                    }
+                }).create().show();
+    }
 
-    public class JSONParse extends AsyncTask<String,String, JSONArray>{
+
+    public class JSONParse extends AsyncTask<String,String, JSONObject>{
         private ProgressDialog pDialog;
         private String userID;
         private JSONParser parser = new JSONParser();
@@ -325,7 +347,7 @@ public class OperationsList extends ActionBarActivity {
         }
 
         @Override
-        protected JSONArray doInBackground(String... strings) {
+        protected JSONObject doInBackground(String... strings) {
             return parser.getJSONfromUrl(targetUrl+"/"+userID);
         }
 
@@ -341,13 +363,20 @@ public class OperationsList extends ActionBarActivity {
 
         @TargetApi(Build.VERSION_CODES.KITKAT)
         @Override
-        protected void onPostExecute(JSONArray json){
+        protected void onPostExecute(JSONObject json){
             pDialog.dismiss();
             try {
-                operations = json.toString();
-                createList();
+                String size = json.getString("size");
+                if(!size.equals("0")) {
+                    operations = json.getString("data");
+                    createList();
+                }else{
+                    emptyOperations();
+                }
             }catch (NullPointerException e){
                 cannotGetOperations();
+            }catch(JSONException e){
+                e.printStackTrace();
             }
         }
 
