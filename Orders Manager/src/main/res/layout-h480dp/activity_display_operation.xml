@@ -87,16 +87,17 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Next Process"
         android:id="@+id/next_process"
-        android:layout_below="@+id/client"
-        android:layout_alignLeft="@+id/client"
-        android:layout_alignStart="@+id/client"
         android:paddingStart="20dp"
-        android:maxWidth="180dp" />
+        android:maxWidth="180dp"
+        android:layout_below="@+id/client"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="10dp" />
 
     <LinearLayout
         android:id="@+id/actions_layout"
         android:layout_width="fill_parent"
-        android:layout_height="100dp"
+        android:layout_height="130dp"
         android:layout_alignParentBottom="true"
         android:background="@color/wba_light_grey"
         android:weightSum="2">

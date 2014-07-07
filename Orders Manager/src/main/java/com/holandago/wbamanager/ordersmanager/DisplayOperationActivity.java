@@ -17,10 +17,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.holandago.wbamanager.R;
 import com.holandago.wbamanager.library.Utils;
@@ -41,7 +43,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -73,6 +75,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         //TODO: CHANGE THE LAYOUT, NEED TO MAKE IT IN A BETTER WAY (ENCAPSULATING ELEMENTS)
         super.onCreate(savedInstanceState);
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_display_operation);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -123,9 +126,27 @@ public class DisplayOperationActivity extends ActionBarActivity {
             try {
                 if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
                     return false;
-                // right to left swipe
                 if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                    onBackPressed();
+                    try {
+                        if(!operationJson.getString(Utils.NEXT_OPERATION_TAG).equals("null")) {
+                            sendOperationMessage(operationJson.getString(Utils.NEXT_OPERATION_TAG));
+                            finish();
+                        }
+                        else
+                            Toast.makeText(DisplayOperationActivity.this,"No next operation yet",
+                                    Toast.LENGTH_SHORT).show();
+                    }catch(JSONException e){
+                        e.printStackTrace();
+                    }
+                }
+                if(e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                    try {
+                        sendOperationMessage(operationJson.getString(Utils.LAST_OPERATION_TAG));
+                        finish();
+                    }catch(JSONException e){
+                        Toast.makeText(DisplayOperationActivity.this,"No previous operation yet",
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
             } catch (Exception e) {
                 // nothing
@@ -139,13 +160,40 @@ public class DisplayOperationActivity extends ActionBarActivity {
         }
     }
 
+    public void sendOperationMessage(String operation){
+        //Travels to DisplayLotsActivity
+        Intent intent = new Intent(this, DisplayOperationActivity.class);
+        ArrayList<HashMap<String,String>> operationsList = UserOperations.getOperationsList();
+        try {
+            JSONObject operationJ = new JSONObject(operation);
+            String id = operationJ.getString(Utils.ID_TAG);
+            String lotNumber = operationJ.getString(Utils.LOT_NUMBER_TAG);
+            String newOp = "";
+            for(HashMap<String,String> op : operationsList){
+                if(op.get(Utils.ID_TAG).equals(id)
+                        && op.get(Utils.LOT_NUMBER_TAG).equals(lotNumber)){
+                    newOp = new JSONObject(op).toString();
+                    break;
+                }
+            }
+            intent.putExtra(OperationsList.OPERATION_MESSAGE,newOp);
+            startActivityForResult(intent, 1);
+        }catch(JSONException e){
+            e.printStackTrace();
+        }
+    }
+
     public void fillLayout(JSONObject json){
         try {
             //Using the json to fill the layout
-            setTitle(json.getString(Utils.OPERATION_NAME_TAG));
             String machine = json.getString(Utils.MACHINE_TAG);
             lotNumber = json.getString(Utils.LOT_NUMBER_TAG);
-            String nextProcess = json.getString(Utils.NEXT_OPERATION_TAG);
+            String nextProcess = "";
+            if(!json.getString(Utils.NEXT_OPERATION_TAG).equals("null")) {
+                nextProcess =
+                        new JSONObject(json.getString(Utils.NEXT_OPERATION_TAG))
+                                .getString(Utils.OPERATION_NAME_TAG);
+            }
             String expectedTime = json.getString(Utils.TIME_TAG);
             String customer = json.getString(Utils.CUSTOMER_TAG);
             String part = json.getString(Utils.PART_TAG);
@@ -292,8 +340,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
 
         @Override
         public void onClick(View thisButton){
-            startUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+pID+"/start";
-            finishUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+pID+"/finish";
+            startUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+pID+"/start";
+            finishUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+pID+"/finish";
             thisButton.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
             if(handle.equals("start")){
                 AsyncGetRequest requester = new AsyncGetRequest(true);

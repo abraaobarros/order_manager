@@ -12,12 +12,13 @@
         android:text="00"
         android:textColor="@color/wba_orange"
         android:id="@+id/lot_number"
-        android:layout_marginTop="56dp"
-        android:textSize="90sp"
+        android:layout_marginTop="100dp"
+        android:textSize="140sp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginRight="32dp" />
+        android:layout_marginRight="32dp"
+        android:textIsSelectable="false" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -25,7 +26,7 @@
         android:id="@+id/part_name"
         android:text="Part Name"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="24sp"
+        android:textSize="50sp"
         android:layout_alignTop="@+id/lot_number"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -33,7 +34,7 @@
         android:layout_above="@+id/operation"
         android:minHeight="50dp"
         android:minWidth="50dp"
-        android:maxWidth="180dp" />
+        android:maxWidth="400dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -41,7 +42,7 @@
         android:text="Operation"
         android:paddingBottom="10dp"
         android:id="@+id/operation"
-        android:textSize="24sp"
+        android:textSize="38sp"
         android:layout_above="@+id/project"
         android:layout_alignLeft="@+id/part_name"
         android:layout_alignStart="@+id/part_name" />
@@ -55,19 +56,22 @@
         android:id="@+id/machine"
         android:layout_below="@+id/lot_number"
         android:layout_alignLeft="@+id/operation"
-        android:layout_alignStart="@+id/operation" />
+        android:layout_alignStart="@+id/operation"
+        android:textSize="35dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Project"
-        android:paddingTop="40dp"
+        android:paddingTop="60dp"
         android:paddingBottom="15dp"
         android:id="@+id/project"
+        android:layout_above="@+id/linearLayout"
         android:layout_below="@+id/lot_number"
         android:layout_alignLeft="@+id/operation"
-        android:layout_alignStart="@+id/operation" />
+        android:layout_alignStart="@+id/operation"
+        android:textSize="35dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -79,7 +83,8 @@
         android:paddingStart="20dp"
         android:layout_below="@+id/lot_number"
         android:layout_alignLeft="@+id/lot_number"
-        android:layout_alignStart="@+id/lot_number" />
+        android:layout_alignStart="@+id/lot_number"
+        android:textSize="35dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -87,16 +92,17 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Next Process"
         android:id="@+id/next_process"
+        android:paddingStart="20dp"
+        android:maxWidth="180dp"
+        android:textSize="35dp"
         android:layout_below="@+id/client"
         android:layout_alignLeft="@+id/client"
-        android:layout_alignStart="@+id/client"
-        android:paddingStart="20dp"
-        android:maxWidth="180dp" />
+        android:layout_alignStart="@+id/client" />
 
     <LinearLayout
         android:id="@+id/actions_layout"
         android:layout_width="fill_parent"
-        android:layout_height="60dp"
+        android:layout_height="200dp"
         android:layout_alignParentBottom="true"
         android:background="@color/wba_light_grey"
         android:weightSum="2">
@@ -108,7 +114,8 @@
             android:layout_weight="1"
             android:background="@color/wba_dark_grey"
             android:textColor="@color/white"
-            android:text="Start" />
+            android:text="Start"
+            android:textSize="60dp" />
 
         <View
             android:layout_width="3dp"
@@ -121,7 +128,8 @@
             android:layout_weight="1"
             android:background="@color/wba_dark_grey"
             android:textColor="@color/white"
-            android:text="Finish"/>
+            android:text="Finish"
+            android:textSize="60dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -138,7 +146,7 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/wba_blue"
             android:text="00:00:00"
-            android:textSize="25sp"
+            android:textSize="50sp"
             android:layout_gravity="center"
             android:id="@+id/expected_time" />
     </LinearLayout>
@@ -156,7 +164,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="00h00m00s"
-            android:textSize="35sp"
+            android:textSize="60sp"
             android:layout_gravity="center"
             android:id="@+id/timer" />
     </LinearLayout>
@@ -167,11 +175,11 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Lot:"
         android:id="@+id/lot_string"
-        android:textSize="30sp"
+        android:textSize="35sp"
         android:layout_alignParentTop="true"
         android:layout_alignLeft="@+id/lot_number"
         android:layout_alignStart="@+id/lot_number"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="50dp"
         android:paddingStart="10dp"
         android:layout_above="@+id/part_name" />
 

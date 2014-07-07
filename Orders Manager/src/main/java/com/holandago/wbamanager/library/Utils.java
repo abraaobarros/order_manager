@@ -15,7 +15,6 @@ public class Utils{
     public static final String OWNER_NAME_TAG = "owner_name";
     public static final String STATUS_TAG = "status";
     public static final String OPERATION_NUMBER_TAG = "no";
-    public static final String START_TIME_TAG = "start_time";
     public static final String CUSTOMER_TAG = "costumer";
     public static final String PART_TAG = "part";
     public static final String PROJECT_NAME_TAG = "title";
@@ -29,4 +28,5 @@ public class Utils{
     public static final String UPDATED_AT_TAG = "updated_at";
     public static final String STOPPED_TAG = "stopped?";
     public static final String MY_STARTED_AT_TAG = "my_started_at";
+    public static final String LAST_OPERATION_TAG = "last_operation";
 }

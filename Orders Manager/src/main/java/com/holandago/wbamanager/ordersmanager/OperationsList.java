@@ -36,30 +36,24 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 
 import com.holandago.wbamanager.library.Utils;
 
 
 public class OperationsList extends ActionBarActivity {
-    private static String targetUrl = "http://wba-urbbox-teste.herokuapp.com/rest/operations";
+    private static String targetUrl = "http://wba-urbbox.herokuapp.com/rest/operations";
     public final static String OPERATIONS_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.OPERATIONS_MESSAGE";
     public final static String ORDER_TITLE_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.ORDER_TITLE_MESSAGE";
-    public final static String LOT_NUMBER_MESSAGE =
-            "com.holandago.wbamanager.ordersmanager.LOT_NUMBER_MESSAGE";
     public final static String ORDER_ID_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.ORDER_ID_MESSAGE";
     public final static String OPERATION_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.OPERATION_MESSAGE";
 
-    private String operations;
-    private String data;
     SessionManager session;
 
 
@@ -191,39 +185,79 @@ public class OperationsList extends ActionBarActivity {
     }
 
     public void updateOrCreateList(){
-        //filling the next operations:
         ArrayList<HashMap<String,String>> operationList = UserOperations.getOperationsList();
-        //Ordering by lot
-        Collections.sort(operationList, new LotNumberComparator());
-        //Getting the next operation
-        for(HashMap<String,String> map1 :operationList){
-            for(HashMap<String,String> map2:operationList){
-                if(!map2.equals(map1)){
-                       //Equal lot
-                    if(map2.get(Utils.LOT_NUMBER_TAG).equals(map1.get(Utils.LOT_NUMBER_TAG)) &&
-                       //Not finished
-                       !map2.get(Utils.STATUS_TAG).equals("2")){
-                        map1.put(Utils.NEXT_OPERATION_TAG,map2.get(Utils.OPERATION_NAME_TAG));
-                        break;
+        LotNumberComparator lotComparator = new LotNumberComparator();
+        Collections.sort(operationList,lotComparator);
+        ArrayList<String> uniqueID = new ArrayList<String>();
+        //Holds the value of the uniqueOperations that are unfinished
+        ArrayList<HashMap<String,String>> uniqueOperations =
+                new ArrayList<HashMap<String, String>>();
+        for(HashMap<String,String> operation : operationList){
+            if(!uniqueID.contains(operation.get(Utils.ID_TAG))){
+                uniqueID.add(operation.get(Utils.ID_TAG));
+                uniqueOperations.add(operation);
+            }
+        }
+        Collections.sort(uniqueOperations,new NumberComparator());
+        //Setting the next and last operations
+        //Next Operation
+        for(int i = 0; i<uniqueOperations.size()-1;i++){
+            for(int j = 0; j<uniqueOperations.size();j++) {
+                if(uniqueOperations.get(j).get(Utils.PART_TAG).equals(
+                        uniqueOperations.get(i).get(Utils.PART_TAG))
+                    && j!=i)
+                {
+                    JSONObject json = new JSONObject();
+                    try {
+                        json.put(Utils.ID_TAG, uniqueOperations.get(j).get(Utils.ID_TAG));
+                        json.put(
+                                Utils.LOT_NUMBER_TAG,
+                                uniqueOperations.get(j).get(Utils.LOT_NUMBER_TAG));
+                        json.put(
+                                Utils.OPERATION_NAME_TAG,
+                                uniqueOperations.get(j).get(Utils.OPERATION_NAME_TAG)
+                        );
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
+                    uniqueOperations.get(i).put(
+                            Utils.NEXT_OPERATION_TAG,
+                            json.toString()
+                    );
+                    break;
                 }
             }
         }
-        //Will make sure that we only see the first operation of each id
-        HashMap<String,HashMap<String,String>> uniqueID =
-                new HashMap<String, HashMap<String, String>>();
-        //Only one for each ID and only the unfinished ones
-        for(int i = operationList.size()-1;i>=0;i--){
-            if(!operationList.get(i).get(Utils.STATUS_TAG).equals("2"))
-                uniqueID.put(operationList.get(i).get(Utils.ID_TAG),operationList.get(i));
+        //Last Operation
+        for(int i = 0; i<uniqueOperations.size();i++){
+            for(int j = 0; j<uniqueOperations.size();j++) {
+                if(uniqueOperations.get(j).get(Utils.PART_TAG)
+                   .equals(uniqueOperations.get(i).get(Utils.PART_TAG))
+                   && j !=i){
+
+                    JSONObject json = new JSONObject();
+                    try {
+                        json.put(Utils.ID_TAG, uniqueOperations.get(i).get(Utils.ID_TAG));
+                        json.put(
+                                Utils.LOT_NUMBER_TAG,
+                                uniqueOperations.get(i).get(Utils.LOT_NUMBER_TAG));
+                        json.put(
+                                Utils.OPERATION_NAME_TAG,
+                                uniqueOperations.get(i).get(Utils.OPERATION_NAME_TAG)
+                        );
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    uniqueOperations.get(j).put(
+                            Utils.LAST_OPERATION_TAG,
+                            json.toString()
+                    );
+                    break;
+                }
+            }
         }
-        //Holds the value of the uniqueOperations that are unfinished
-        ArrayList<HashMap<String,String>> uniqueOperations =
-                new ArrayList<HashMap<String, String>>(uniqueID.values());
-        Collections.sort(uniqueOperations,new LotNumberComparator());
         //Needs to be a final because it's called from an inner class
-        final ArrayList<HashMap<String,String>> uniqueOperationsf =
-                new ArrayList<HashMap<String, String>>(uniqueID.values());
+        final ArrayList<HashMap<String,String>> uniqueOperationsf = uniqueOperations;
         ListView listView = (ListView)findViewById(R.id.orderList);
         ListAdapter adapter = new CustomAdapter(
                 OperationsList.this,
@@ -255,7 +289,7 @@ public class OperationsList extends ActionBarActivity {
         }
     }
 
-    public void createList(){
+    public void createList(String operations){
         ArrayList<HashMap<String,String>> operationList = UserOperations.getOperationsList();
         try{
             //Gets the operation from a JSONArray and put them in an ArrayList of Hashmaps with
@@ -294,13 +328,13 @@ public class OperationsList extends ActionBarActivity {
                 map.put(Utils.STATUS_TAG,status);
                 map.put(Utils.TIME_TAG,time);
                 map.put(Utils.OPERATION_NAME_TAG,operation_name);
+                map.put(Utils.NEXT_OPERATION_TAG,"null");
                 map.put(Utils.ID_TAG,id);
                 map.put(Utils.STARTED_AT_TAG,startedAt);
                 map.put(Utils.STOPPED_TAG,"false");
                 map.put(Utils.OWNER_NAME_TAG,session.getUserDetails().get(SessionManager.KEY_USER));
                 //Assuming the title is the ID
                 operationList.add(map);
-                updateOrCreateList();
             }
         }catch(JSONException e){
             e.printStackTrace();
@@ -368,8 +402,9 @@ public class OperationsList extends ActionBarActivity {
             try {
                 String size = json.getString("size");
                 if(!size.equals("0")) {
-                    operations = json.getString("data");
-                    createList();
+                    String operations = json.getString("data");
+                    createList(operations);
+                    updateOrCreateList();
                 }else{
                     emptyOperations();
                 }
@@ -430,11 +465,14 @@ public class OperationsList extends ActionBarActivity {
             holder.operation_machine.setTypeface(font);
             holder.operation_lot.setTypeface(font);
             holder.operation_time.setTypeface(font);
+            holder.operation_project.setTypeface(font);
 
             holder.operation_name.setText(data.get(+position).get(Utils.PART_TAG));
             holder.operation_machine.setText(data.get(+position).get(Utils.MACHINE_TAG));
             holder.operation_lot.setText("Lot: "+data.get(+position).get(Utils.LOT_NUMBER_TAG));
             holder.operation_time.setText("Time: "+data.get(+position).get(Utils.TIME_TAG));
+            holder.operation_project.setText(
+                    "Project: "+data.get(+position).get(Utils.PROJECT_NAME_TAG));
 
             if(getItem(position).get(Utils.STATUS_TAG).equals("1")){
                 holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_ORANGE_COLOR));

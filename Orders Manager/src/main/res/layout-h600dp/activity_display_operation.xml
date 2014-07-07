@@ -13,7 +13,7 @@
         android:textColor="@color/wba_orange"
         android:id="@+id/lot_number"
         android:layout_marginTop="56dp"
-        android:textSize="90sp"
+        android:textSize="100sp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
@@ -25,7 +25,7 @@
         android:id="@+id/part_name"
         android:text="Part Name"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="24sp"
+        android:textSize="28sp"
         android:layout_alignTop="@+id/lot_number"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -41,7 +41,7 @@
         android:text="Operation"
         android:paddingBottom="10dp"
         android:id="@+id/operation"
-        android:textSize="24sp"
+        android:textSize="28sp"
         android:layout_above="@+id/project"
         android:layout_alignLeft="@+id/part_name"
         android:layout_alignStart="@+id/part_name" />
@@ -87,16 +87,17 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Next Process"
         android:id="@+id/next_process"
-        android:layout_below="@+id/client"
-        android:layout_alignLeft="@+id/client"
-        android:layout_alignStart="@+id/client"
         android:paddingStart="20dp"
-        android:maxWidth="180dp" />
+        android:maxWidth="180dp"
+        android:layout_below="@+id/client"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="10dp" />
 
     <LinearLayout
         android:id="@+id/actions_layout"
         android:layout_width="fill_parent"
-        android:layout_height="60dp"
+        android:layout_height="150dp"
         android:layout_alignParentBottom="true"
         android:background="@color/wba_light_grey"
         android:weightSum="2">
@@ -108,7 +109,8 @@
             android:layout_weight="1"
             android:background="@color/wba_dark_grey"
             android:textColor="@color/white"
-            android:text="Start" />
+            android:text="Start"
+            android:textSize="30dp" />
 
         <View
             android:layout_width="3dp"
@@ -121,7 +123,8 @@
             android:layout_weight="1"
             android:background="@color/wba_dark_grey"
             android:textColor="@color/white"
-            android:text="Finish"/>
+            android:text="Finish"
+            android:textSize="30dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -138,7 +141,7 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/wba_blue"
             android:text="00:00:00"
-            android:textSize="25sp"
+            android:textSize="40sp"
             android:layout_gravity="center"
             android:id="@+id/expected_time" />
     </LinearLayout>
@@ -156,7 +159,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="00h00m00s"
-            android:textSize="35sp"
+            android:textSize="50sp"
             android:layout_gravity="center"
             android:id="@+id/timer" />
     </LinearLayout>
