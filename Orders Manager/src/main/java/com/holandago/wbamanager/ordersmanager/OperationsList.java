@@ -107,6 +107,7 @@ public class OperationsList extends ActionBarActivity {
                 UserOperations.flush();
                 session.logoutUser();
                 startLoginActivity();
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
