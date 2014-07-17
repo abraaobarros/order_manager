@@ -340,8 +340,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
 
         @Override
         public void onClick(View thisButton){
-            startUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+pID+"/start";
-            finishUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+pID+"/finish";
+            startUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+pID+"/start";
+            finishUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+pID+"/finish";
             thisButton.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
             if(handle.equals("start")){
                 AsyncGetRequest requester = new AsyncGetRequest(true);
@@ -365,14 +365,14 @@ public class DisplayOperationActivity extends ActionBarActivity {
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
                             public void onClick(DialogInterface arg0, int arg1) {
-                                AsyncGetRequest requester = new AsyncGetRequest(false);
-                                requester.execute(new String[]{finishUrl});
                                 UserOperations.changeOperationStatus(
                                         id,
                                         lotNumber,
                                         UserOperations.FINISH,
                                         String.format("%d",System.currentTimeMillis())
                                 );
+                                AsyncGetRequest requester = new AsyncGetRequest(false);
+                                requester.execute(new String[]{finishUrl});
 
                             }
                         }).create().show();
@@ -391,7 +391,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 holder.action1.setOnClickListener(new ButtonListener("start2",holder.action2));
             }else
             if(handle.equals("start2")){
-                startTime = System.currentTimeMillis();
+                startTime = SystemClock.elapsedRealtime();
                 holder.action1.setEnabled(true);
                 otherButton.setEnabled(true);
                 customHandler.postDelayed(updateTimer, 0);
@@ -483,6 +483,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 DefaultHttpClient httpClient = HttpClient.getDefaultHttpClient();
                 HttpPost httpPost = new HttpPost(url);
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+                if(updatedTime<0)
+                    updatedTime = 0;
                 nameValuePairs.add(new BasicNameValuePair(
                         "real_time",String.format("%d",updatedTime/1000)));
                 nameValuePairs.add(new BasicNameValuePair(

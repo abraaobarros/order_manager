@@ -31,14 +31,27 @@ import android.widget.TextView;
 import com.holandago.wbamanager.R;
 import com.holandago.wbamanager.library.JSONParser;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 import com.holandago.wbamanager.library.Utils;
 
@@ -55,6 +68,7 @@ public class OperationsList extends ActionBarActivity {
             "com.holandago.wbamanager.ordersmanager.OPERATION_MESSAGE";
 
     SessionManager session;
+    ListView listView;
 
 
     @Override
@@ -105,9 +119,9 @@ public class OperationsList extends ActionBarActivity {
                 return true;
             case R.id.action_logout:
                 UserOperations.flush();
+                updateOrCreateList();
                 session.logoutUser();
                 startLoginActivity();
-                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -141,12 +155,22 @@ public class OperationsList extends ActionBarActivity {
                                 //Sends first element of the ordered Array
                                 operationsFromOrder.get(0));
                     }else{
+                        new SetOwnerTask(lot,id).execute();
+                        new JSONParse(session.getUserDetails().get(SessionManager.KEY_ID)).execute();
+                        for(HashMap<String,String> operation : operationList){
+                            if(operation.get(Utils.ORDER_ID_TAG).equals(id)){
+                                if(operation.get(Utils.LOT_NUMBER_TAG).equals(lot)){
+                                    operationsFromOrder.add(operation);
+                                }
+                            }
+                        }
+                        final HashMap<String, String> firstOperation = operationsFromOrder.get(0);
                         new AlertDialog.Builder(this)
-                                .setTitle("You do not have any operations from this order")
-                                .setNeutralButton("Go Back", new DialogInterface.OnClickListener() {
+                                .setTitle("Added operations of this order")
+                                .setNeutralButton("Go to first", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        onResume();
+                                        sendOperationMessage(firstOperation);
                                     }
                                 }).create().show();
                     }
@@ -168,6 +192,15 @@ public class OperationsList extends ActionBarActivity {
                 new JSONParse(session.getUserDetails()
                         .get(SessionManager.KEY_ID)).execute();
             }
+        }
+    }
+
+    @Override
+    protected void onResume(){
+        if(session.isLoggedIn())
+            super.onResume();
+        else{
+            startLoginActivity();
         }
     }
 
@@ -194,7 +227,8 @@ public class OperationsList extends ActionBarActivity {
         ArrayList<HashMap<String,String>> uniqueOperations =
                 new ArrayList<HashMap<String, String>>();
         for(HashMap<String,String> operation : operationList){
-            if(!uniqueID.contains(operation.get(Utils.ID_TAG))){
+            if(!uniqueID.contains(operation.get(Utils.ID_TAG)) &&
+                    !operation.get(Utils.STATUS_TAG).equals("2")){
                 uniqueID.add(operation.get(Utils.ID_TAG));
                 uniqueOperations.add(operation);
             }
@@ -259,7 +293,7 @@ public class OperationsList extends ActionBarActivity {
         }
         //Needs to be a final because it's called from an inner class
         final ArrayList<HashMap<String,String>> uniqueOperationsf = uniqueOperations;
-        ListView listView = (ListView)findViewById(R.id.orderList);
+        listView = (ListView)findViewById(R.id.orderList);
         ListAdapter adapter = new CustomAdapter(
                 OperationsList.this,
                 uniqueOperationsf
@@ -416,6 +450,62 @@ public class OperationsList extends ActionBarActivity {
             }
         }
 
+    }
+
+    //Asynchronous get request to access the url
+    private class SetOwnerTask extends AsyncTask<String, String, String> {
+        private ProgressDialog pDialog;
+        private final String setOwnerUrl =
+                "http://wba-urbbox-teste.herokuapp.com/rest/set-progresses-owner-by-lot/";
+        private String lotNumber;
+        private String orderID;
+
+
+        private SetOwnerTask(String lotNumber, String orderID){
+            this.lotNumber = lotNumber;
+            this.orderID = orderID;
+        }
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+            pDialog = new ProgressDialog(OperationsList.this);
+            pDialog.setMessage("Making the request");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(true);
+            pDialog.show();
+        }
+        @Override
+        protected String doInBackground(String... urls){
+            String output = null;
+            output = getOutputFromUrl(setOwnerUrl+
+                    "/"+session.getUserDetails().get(SessionManager.KEY_ID)+
+                    "/"+orderID+
+                    "/"+lotNumber
+            );
+            return output;
+        }
+
+        private String getOutputFromUrl(String url){
+            String output = null;
+            try{
+                DefaultHttpClient httpClient = HttpClient.getDefaultHttpClient();
+                HttpGet httpGet = new HttpGet(url);
+                HttpResponse httpResponse = httpClient.execute(httpGet);
+                HttpEntity httpEntity = httpResponse.getEntity();
+                output = EntityUtils.toString(httpEntity);
+            } catch(UnsupportedEncodingException e){
+                e.printStackTrace();
+            } catch(IOException e){
+                e.printStackTrace();
+            }
+            return output;
+        }
+
+
+        @Override
+        protected void onPostExecute(String output){
+            pDialog.dismiss();
+        }
     }
 
     private class CustomAdapter extends BaseAdapter{

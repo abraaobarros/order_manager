@@ -5,6 +5,7 @@ import android.os.SystemClock;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Created by maestro on 06/07/14.
@@ -31,6 +32,18 @@ public class SecureDate {
         return INSTANCE;
     }
 
+    public long getTime(){
+        long current = 0L;
+        if(mServerDate == null){
+            Calendar now = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"),Locale.GERMANY);
+            current = now.getTimeInMillis();
+        } else {
+            mServerDate.setTime(mServerDate.getTime()
+                    + (SystemClock.elapsedRealtime() - mElapsedRealtime));
+            current = mServerDate.getTime();
+        }
+        return current;
+    }
     /**
      * Method used to obtain the real date based on the server date
      * if the server date was sync

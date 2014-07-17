@@ -21,6 +21,7 @@ public class HttpClient {
     private HttpClient(){
 
     }
+
     public static DefaultHttpClient getDefaultHttpClient(){
         if(defaultHttpClient == null){
             defaultHttpClient = new DefaultHttpClient();

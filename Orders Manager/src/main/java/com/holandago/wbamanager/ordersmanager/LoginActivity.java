@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -34,7 +35,7 @@ public class LoginActivity extends ActionBarActivity {
     private EditText pass = null;
     private UserLoginTask authTask= null;
     private ProgressDialog pDialog;
-    private String targetUrl = "http://wba-urbbox.herokuapp.com/rest/login";
+    private String targetUrl = "http://wba-urbbox-teste.herokuapp.com/rest/login";
     public final static String USERID_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.USERID_MESSAGE";
     SessionManager session;
