@@ -17,6 +17,10 @@
     <item android:id="@+id/action_logout"
         android:icon="@drawable/ic_action_logout"
         android:title="@string/logout_button"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="collapseActionView"/>
+
+    <item android:id="@+id/action_finalized"
+        android:title="@string/see_finalized"
+        app:showAsAction="collapseActionView"/>
 
 </menu>

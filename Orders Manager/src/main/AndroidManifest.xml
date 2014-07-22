@@ -31,7 +31,11 @@
         <activity
             android:name=".ordersmanager.DisplayOperationActivity"
             android:label="@string/title_activity_display_operation"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".ordersmanager.FinalizedOperationsActivity"
+            android:label="@string/title_activity_finalized_operations" >
         </activity>
     </application>
 

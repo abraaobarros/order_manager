@@ -57,7 +57,7 @@ import com.holandago.wbamanager.library.Utils;
 
 
 public class OperationsList extends ActionBarActivity {
-    private static String targetUrl = "http://wba-urbbox.herokuapp.com/rest/operations";
+    private static String targetUrl = "http://wba-urbbox-teste.herokuapp.com/rest/operations";
     public final static String OPERATIONS_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.OPERATIONS_MESSAGE";
     public final static String ORDER_TITLE_MESSAGE =
@@ -66,25 +66,31 @@ public class OperationsList extends ActionBarActivity {
             "com.holandago.wbamanager.ordersmanager.ORDER_ID_MESSAGE";
     public final static String OPERATION_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.OPERATION_MESSAGE";
+    public final static String IS_FINALIZED_MESSAGE =
+            "com.holandago.wbamanager.ordersmanager.IS_FINALIZED_MESSAGE";
 
     SessionManager session;
     ListView listView;
+    boolean isFinalized=false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_orders_list);
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         session = new SessionManager(getApplicationContext());
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        Intent intent = getIntent();
+        if (intent.hasExtra(IS_FINALIZED_MESSAGE))
+            isFinalized = true;
         if(session.isLoggedIn())
             new JSONParse(session.getUserDetails()
                     .get(SessionManager.KEY_ID)).execute();
         else{
-            startLoginActivity();
+            //startLoginActivity();
         }
         actionBar.setDisplayHomeAsUpEnabled(true);
     }
@@ -94,6 +100,11 @@ public class OperationsList extends ActionBarActivity {
         //Inflating the actionBar menu
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.order_list_actions,menu);
+        if(isFinalized){
+            MenuItem item = menu.findItem(R.id.action_finalized);
+            item.setVisible(false);
+            this.invalidateOptionsMenu();
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -123,6 +134,8 @@ public class OperationsList extends ActionBarActivity {
                 session.logoutUser();
                 startLoginActivity();
                 return true;
+            case R.id.action_finalized:
+                seeFinalized();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -197,11 +210,15 @@ public class OperationsList extends ActionBarActivity {
 
     @Override
     protected void onResume(){
-        if(session.isLoggedIn())
-            super.onResume();
-        else{
+        super.onResume();
+        if(!session.isLoggedIn())
             startLoginActivity();
-        }
+    }
+
+    private void seeFinalized(){
+        Intent intent = new Intent(this, OperationsList.class);
+        intent.putExtra(IS_FINALIZED_MESSAGE,"true");
+        startActivityForResult(intent, 1);
     }
 
     private void startLoginActivity(){
@@ -227,67 +244,76 @@ public class OperationsList extends ActionBarActivity {
         ArrayList<HashMap<String,String>> uniqueOperations =
                 new ArrayList<HashMap<String, String>>();
         for(HashMap<String,String> operation : operationList){
-            if(!uniqueID.contains(operation.get(Utils.ID_TAG)) &&
-                    !operation.get(Utils.STATUS_TAG).equals("2")){
-                uniqueID.add(operation.get(Utils.ID_TAG));
-                uniqueOperations.add(operation);
+            if(!isFinalized) {
+                if (!uniqueID.contains(operation.get(Utils.ID_TAG)) &&
+                        !operation.get(Utils.STATUS_TAG).equals("2")) {
+                    uniqueID.add(operation.get(Utils.ID_TAG));
+                    uniqueOperations.add(operation);
+                }
+            }else{
+                if (!uniqueID.contains(operation.get(Utils.ID_TAG)) &&
+                        operation.get(Utils.STATUS_TAG).equals("2")) {
+                    uniqueID.add(operation.get(Utils.ID_TAG));
+                    uniqueOperations.add(operation);
+                }
             }
         }
         Collections.sort(uniqueOperations,new NumberComparator());
         //Setting the next and last operations
         //Next Operation
-        for(int i = 0; i<uniqueOperations.size()-1;i++){
-            for(int j = 0; j<uniqueOperations.size();j++) {
-                if(uniqueOperations.get(j).get(Utils.PART_TAG).equals(
-                        uniqueOperations.get(i).get(Utils.PART_TAG))
-                    && j!=i)
-                {
-                    JSONObject json = new JSONObject();
-                    try {
-                        json.put(Utils.ID_TAG, uniqueOperations.get(j).get(Utils.ID_TAG));
-                        json.put(
-                                Utils.LOT_NUMBER_TAG,
-                                uniqueOperations.get(j).get(Utils.LOT_NUMBER_TAG));
-                        json.put(
-                                Utils.OPERATION_NAME_TAG,
-                                uniqueOperations.get(j).get(Utils.OPERATION_NAME_TAG)
+        if(!isFinalized) {
+            for (int i = 0; i < uniqueOperations.size() - 1; i++) {
+                for (int j = 0; j < uniqueOperations.size(); j++) {
+                    if (uniqueOperations.get(j).get(Utils.PART_TAG).equals(
+                            uniqueOperations.get(i).get(Utils.PART_TAG))
+                            && j != i) {
+                        JSONObject json = new JSONObject();
+                        try {
+                            json.put(Utils.ID_TAG, uniqueOperations.get(j).get(Utils.ID_TAG));
+                            json.put(
+                                    Utils.LOT_NUMBER_TAG,
+                                    uniqueOperations.get(j).get(Utils.LOT_NUMBER_TAG));
+                            json.put(
+                                    Utils.OPERATION_NAME_TAG,
+                                    uniqueOperations.get(j).get(Utils.OPERATION_NAME_TAG)
+                            );
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        uniqueOperations.get(i).put(
+                                Utils.NEXT_OPERATION_TAG,
+                                json.toString()
                         );
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        break;
                     }
-                    uniqueOperations.get(i).put(
-                            Utils.NEXT_OPERATION_TAG,
-                            json.toString()
-                    );
-                    break;
                 }
             }
-        }
-        //Last Operation
-        for(int i = 0; i<uniqueOperations.size();i++){
-            for(int j = 0; j<uniqueOperations.size();j++) {
-                if(uniqueOperations.get(j).get(Utils.PART_TAG)
-                   .equals(uniqueOperations.get(i).get(Utils.PART_TAG))
-                   && j !=i){
+            //Last Operation
+            for (int i = 0; i < uniqueOperations.size(); i++) {
+                for (int j = 0; j < uniqueOperations.size(); j++) {
+                    if (uniqueOperations.get(j).get(Utils.PART_TAG)
+                            .equals(uniqueOperations.get(i).get(Utils.PART_TAG))
+                            && j != i) {
 
-                    JSONObject json = new JSONObject();
-                    try {
-                        json.put(Utils.ID_TAG, uniqueOperations.get(i).get(Utils.ID_TAG));
-                        json.put(
-                                Utils.LOT_NUMBER_TAG,
-                                uniqueOperations.get(i).get(Utils.LOT_NUMBER_TAG));
-                        json.put(
-                                Utils.OPERATION_NAME_TAG,
-                                uniqueOperations.get(i).get(Utils.OPERATION_NAME_TAG)
+                        JSONObject json = new JSONObject();
+                        try {
+                            json.put(Utils.ID_TAG, uniqueOperations.get(i).get(Utils.ID_TAG));
+                            json.put(
+                                    Utils.LOT_NUMBER_TAG,
+                                    uniqueOperations.get(i).get(Utils.LOT_NUMBER_TAG));
+                            json.put(
+                                    Utils.OPERATION_NAME_TAG,
+                                    uniqueOperations.get(i).get(Utils.OPERATION_NAME_TAG)
+                            );
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        uniqueOperations.get(j).put(
+                                Utils.LAST_OPERATION_TAG,
+                                json.toString()
                         );
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        break;
                     }
-                    uniqueOperations.get(j).put(
-                            Utils.LAST_OPERATION_TAG,
-                            json.toString()
-                    );
-                    break;
                 }
             }
         }
@@ -332,6 +358,7 @@ public class OperationsList extends ActionBarActivity {
             JSONArray json = new JSONArray(operations);
             for(int i = 0; i< json.length(); i++){
                 JSONObject object = json.getJSONObject(i);
+                String realTime = object.getString(Utils.REAL_TIME_TAG);
                 String projectName = object.getString(Utils.PROJECT_NAME_TAG);
                 String part = object.getString(Utils.PART_TAG);
                 String opNo = object.getString(Utils.OPERATION_NUMBER_TAG);
@@ -348,6 +375,8 @@ public class OperationsList extends ActionBarActivity {
                 String operation_name = object.getString(Utils.OPERATION_NAME_TAG);
                 String id = object.getString(Utils.ID_TAG);
                 HashMap<String,String> map = new HashMap<String, String>();
+                map.put(Utils.FINISHED_AT_TAG,"0");
+                map.put(Utils.REAL_TIME_TAG,realTime);
                 map.put(Utils.MY_STARTED_AT_TAG,"0");
                 map.put(Utils.UPDATED_AT_TAG,updatedAt);
                 map.put(Utils.PROJECT_NAME_TAG,projectName);
@@ -567,6 +596,14 @@ public class OperationsList extends ActionBarActivity {
 
             if(getItem(position).get(Utils.STATUS_TAG).equals("1")){
                 holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_ORANGE_COLOR));
+            }else
+            if(getItem(position).get(Utils.STATUS_TAG).equals("2")){
+                holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
+                holder.operation_name.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+                holder.operation_machine.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+                holder.operation_lot.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+                holder.operation_time.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+                holder.operation_project.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
             }else{
                 holder.background.setBackgroundColor(Color.parseColor("#FFFFFFFF"));
             }

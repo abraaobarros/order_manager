@@ -64,6 +64,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
     private long startTime = 0L;
     private long updatedTime = 0L;
     private long timeSwapBuff = 0L;
+    private long timeFromFinish = 0L;
     private Handler customHandler = new Handler();
     private static final int SWIPE_MIN_DISTANCE = 120;
     private static final int SWIPE_MAX_OFF_PATH = 250;
@@ -73,7 +74,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //TODO: CHANGE THE LAYOUT, NEED TO MAKE IT IN A BETTER WAY (ENCAPSULATING ELEMENTS)
         super.onCreate(savedInstanceState);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_display_operation);
@@ -227,6 +227,25 @@ public class DisplayOperationActivity extends ActionBarActivity {
             holder.client.setTypeface(font);
             holder.expected_time.setTypeface(font);
 
+            if(status.equals("2")){
+                setColorsFinish();
+                timeFromFinish = Long.parseLong(json.getString(Utils.FINISHED_AT_TAG));
+                timeSwapBuff = Long.parseLong(json.getString(Utils.TIME_SWAP_TAG));
+                if(timeFromFinish == 0){
+                    String realTime = json.getString(Utils.REAL_TIME_TAG);
+                    if(!realTime.equals("null"))
+                        timeFromFinish = Long.parseLong(realTime);
+                    timeSwapBuff = 0L;
+                }
+                updatedTime = timeSwapBuff+timeFromFinish;
+                int secs = (int)(updatedTime/1000);
+                int mins = secs/60;
+                int hours = mins/60;
+                mins = mins%60;
+                secs = secs%60;
+                holder.timer.setText(String.format("%02dh%02dm%02ds",hours,mins,secs));
+            }
+
             if(status.equals("1")){
                 String stopped = json.getString(Utils.STOPPED_TAG);
                 setColorsStart();
@@ -369,7 +388,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                                         id,
                                         lotNumber,
                                         UserOperations.FINISH,
-                                        String.format("%d",System.currentTimeMillis())
+                                        String.format("%d",updatedTime)
                                 );
                                 AsyncGetRequest requester = new AsyncGetRequest(false);
                                 requester.execute(new String[]{finishUrl});
@@ -412,13 +431,39 @@ public class DisplayOperationActivity extends ActionBarActivity {
         holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_ORANGE_COLOR));
         holder.expected_time.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.lot_number.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.part.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
+        holder.machine.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
+        holder.next_process.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
+        holder.client.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
+        holder.operation.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
+        holder.project.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
+        holder.action2.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
         holder.action1.setEnabled(false);
         holder.action2.setEnabled(true);
     }
 
+    private void setColorsFinish(){
+        holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
+        holder.expected_time.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.timer.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.lot_number.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.part.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.machine.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.lot_number.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.next_process.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.client.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.operation.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.project.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.action1.setText("Restart");
+        holder.action1.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
+        holder.action2.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
+        holder.action1.setEnabled(true);
+        holder.action2.setEnabled(false);
+    }
+
     private Runnable updateTimer = new Runnable(){
         public void run(){
-            timeInMillis = timeFromServer + SystemClock.elapsedRealtime() - startTime;
+            timeInMillis = timeFromFinish + timeFromServer + SystemClock.elapsedRealtime() - startTime;
             updatedTime = timeSwapBuff+timeInMillis;
             int secs = (int)(updatedTime/1000);
             int mins = secs/60;
