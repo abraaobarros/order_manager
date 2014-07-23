@@ -1,5 +1,7 @@
 package com.holandago.wbamanager.ordersmanager;
 
+import com.holandago.wbamanager.library.Utils;
+
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -11,14 +13,6 @@ import java.util.HashMap;
 public class UserOperations {
     private static ArrayList<HashMap<String,String>> operationsList;
     private static UserOperations me;
-    private static final String ID_TAG = "id";
-    private static final String LOT_NUMBER_TAG = "lot";
-    private static final String STATUS_TAG = "status";
-    private static final String STARTED_AT_TAG = "started_at";
-    private static final String TIME_SWAP_TAG = "time_swap";
-    private static final String FINISHED_AT_TAG = "finished_at";
-    private static final String STOPPED_TAG = "stopped?";
-    private static final String MY_STARTED_AT_TAG = "my_started_at";
     public static final int START = 0;
     public static final int FINISH = 1;
     public static final int STOP = 2;
@@ -38,8 +32,8 @@ public class UserOperations {
     public static JSONObject getOperationJSON(int operationID, int lotNumber){
         //Never call this method before having the operationsList setup
         for(HashMap<String,String> map : operationsList){
-            if(map.get(ID_TAG).equals(operationID)){
-                if(map.get(LOT_NUMBER_TAG).equals(lotNumber))
+            if(map.get(Utils.ID_TAG).equals(operationID)){
+                if(map.get(Utils.LOT_NUMBER_TAG).equals(lotNumber))
                     return new JSONObject(map);
             }
         }
@@ -55,31 +49,31 @@ public class UserOperations {
         String operationID,String lotNumber,int action, String doneAt){
         if(action == START){
             for(HashMap<String,String> map : operationsList){
-                if(map.get(ID_TAG).equals(operationID)){
-                    if(map.get(LOT_NUMBER_TAG).equals(lotNumber)){
-                        map.put(STATUS_TAG,"1");
-                        map.put(STOPPED_TAG,"false");
-                        map.put(MY_STARTED_AT_TAG,doneAt);
+                if(map.get(Utils.ID_TAG).equals(operationID)){
+                    if(map.get(Utils.LOT_NUMBER_TAG).equals(lotNumber)){
+                        map.put(Utils.STATUS_TAG,"1");
+                        map.put(Utils.STOPPED_TAG,"false");
+                        map.put(Utils.MY_STARTED_AT_TAG,doneAt);
                     }
                 }
             }
         }else
         if(action == FINISH){
             for(HashMap<String,String> map : operationsList){
-                if(map.get(ID_TAG).equals(operationID)){
-                    if(map.get(LOT_NUMBER_TAG).equals(lotNumber)){
-                        map.put(STATUS_TAG,"2");
-                        map.put(FINISHED_AT_TAG,doneAt);
+                if(map.get(Utils.ID_TAG).equals(operationID)){
+                    if(map.get(Utils.LOT_NUMBER_TAG).equals(lotNumber)){
+                        map.put(Utils.STATUS_TAG,"2");
+                        map.put(Utils.FINISHED_AT_TAG,doneAt);
                     }
                 }
             }
         }else
         if(action == STOP){
             for(HashMap<String,String> map : operationsList){
-                if(map.get(ID_TAG).equals(operationID)){
-                    if(map.get(LOT_NUMBER_TAG).equals(lotNumber)){
-                        map.put(TIME_SWAP_TAG,doneAt);
-                        map.put(STOPPED_TAG,"true");
+                if(map.get(Utils.ID_TAG).equals(operationID)){
+                    if(map.get(Utils.LOT_NUMBER_TAG).equals(lotNumber)){
+                        map.put(Utils.TIME_SWAP_TAG,doneAt);
+                        map.put(Utils.STOPPED_TAG,"true");
                     }
                 }
             }

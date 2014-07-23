@@ -1,7 +1,11 @@
 package com.holandago.wbamanager.ordersmanager;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -12,6 +16,8 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.holandago.wbamanager.R;
 
@@ -35,7 +41,7 @@ public class LoginActivity extends ActionBarActivity {
     private EditText pass = null;
     private UserLoginTask authTask= null;
     private ProgressDialog pDialog;
-    private String targetUrl = "http://wba-urbbox-teste.herokuapp.com/rest/login";
+    private String targetUrl = "http://wba-urbbox.herokuapp.com/rest/login";
     public final static String USERID_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.USERID_MESSAGE";
     SessionManager session;
@@ -114,8 +120,19 @@ public class LoginActivity extends ActionBarActivity {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            authTask = new UserLoginTask(username, password);
-            authTask.execute((Void) null);
+            ConnectivityManager conMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+            if ( conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED
+                    || conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTED ) {
+                authTask = new UserLoginTask(username, password);
+                authTask.execute((Void) null);
+            }
+            else if ( conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED
+                    && conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED) {
+                TextView error = (TextView)findViewById(R.id.login_error_message);
+                error.setText("Please connect to the internet to login");
+                error.setTextColor(Color.RED);
+            }
+
         }
     }
 
@@ -124,6 +141,7 @@ public class LoginActivity extends ActionBarActivity {
         private final String username;
         private final String password;
         private String userID;
+
 
         UserLoginTask(String username, String password) {
             this.username = username;
@@ -184,9 +202,11 @@ public class LoginActivity extends ActionBarActivity {
                 setResult(RESULT_OK, intent);
                 finish();
             } else {
-                pass.setError(getString(R.string.error_incorrect_password));
                 pass.setText("");
-                pass.requestFocus();
+                user.setText("");
+                TextView error = (TextView)findViewById(R.id.login_error_message);
+                error.setText("Wrong password or username");
+                error.setTextColor(Color.RED);
             }
         }
 

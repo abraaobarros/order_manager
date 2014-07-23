@@ -233,8 +233,11 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 timeSwapBuff = Long.parseLong(json.getString(Utils.TIME_SWAP_TAG));
                 if(timeFromFinish == 0){
                     String realTime = json.getString(Utils.REAL_TIME_TAG);
-                    if(!realTime.equals("null"))
-                        timeFromFinish = Long.parseLong(realTime);
+                    if(!realTime.equals("null")) {
+                        double hours = Double.parseDouble(realTime);
+                        long mili = (long)Math.floor(hours*60*1000);
+                        timeFromFinish = mili;
+                    }
                     timeSwapBuff = 0L;
                 }
                 updatedTime = timeSwapBuff+timeFromFinish;
@@ -308,7 +311,14 @@ public class DisplayOperationActivity extends ActionBarActivity {
     private String convertTime(String time){
         if(time.equals(""))
             time = "0";
-        double t = Double.parseDouble(time);
+        double t = 0;
+        try {
+            t = Double.parseDouble(time);
+        }catch(NumberFormatException e){
+            e.printStackTrace();
+            time = time.replace(",",".");
+            t = Double.parseDouble(time);
+        }
         int hour = (int)Math.floor(t);
         double fractional = t - Math.floor(t);
         int minutes = (int)Math.floor(fractional*60);
@@ -359,22 +369,32 @@ public class DisplayOperationActivity extends ActionBarActivity {
 
         @Override
         public void onClick(View thisButton){
-            startUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+pID+"/start";
-            finishUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+pID+"/finish";
+            startUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+pID+"/start";
+            finishUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+pID+"/finish";
             thisButton.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
             if(handle.equals("start")){
-                AsyncGetRequest requester = new AsyncGetRequest(true);
-                requester.execute(new String[]{startUrl});
-                setColorsStart();
                 startTime = SystemClock.elapsedRealtime();
-                UserOperations.changeOperationStatus(
-                        id,
-                        lotNumber,
-                        UserOperations.START,
-                        String.format("%d", startTime)
-                );
-                holder.action1.setEnabled(true);
-                otherButton.setEnabled(true);
+                new AlertDialog.Builder(DisplayOperationActivity.this)
+                        .setTitle("Really Start?")
+                        .setMessage("Are you sure you want to start this operation?")
+                        .setNegativeButton(android.R.string.no, null)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface arg0, int arg1) {
+                                setColorsStart();
+                                AsyncGetRequest requester = new AsyncGetRequest(true);
+                                requester.execute(new String[]{startUrl});
+                                UserOperations.changeOperationStatus(
+                                        id,
+                                        lotNumber,
+                                        UserOperations.START,
+                                        String.format("%d", startTime)
+                                );
+                                holder.action1.setEnabled(true);
+                                otherButton.setEnabled(true);
+
+                            }
+                        }).create().show();
             }else
             if(handle.equals("finish")){
                 new AlertDialog.Builder(DisplayOperationActivity.this)
@@ -399,30 +419,48 @@ public class DisplayOperationActivity extends ActionBarActivity {
             if(handle.equals("stop")){
                 customHandler.removeCallbacks(updateTimer);
                 timeSwapBuff += timeInMillis;
-                UserOperations.changeOperationStatus(
-                        id,
-                        lotNumber,
-                        UserOperations.STOP,
-                        String.format("%d",timeSwapBuff)
-                );
-                holder.action1.setText("Start");
-                holder.action1.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
-                holder.action1.setOnClickListener(new ButtonListener("start2",holder.action2));
+                new AlertDialog.Builder(DisplayOperationActivity.this)
+                        .setTitle("Really Stop?")
+                        .setMessage("Are you sure you want to stop this operation?")
+                        .setNegativeButton(android.R.string.no, null)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface arg0, int arg1) {
+                                UserOperations.changeOperationStatus(
+                                        id,
+                                        lotNumber,
+                                        UserOperations.STOP,
+                                        String.format("%d",timeSwapBuff)
+                                );
+                                holder.action1.setText("Start");
+                                holder.action1.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
+                                holder.action1.setOnClickListener(new ButtonListener("start2",holder.action2));
+                            }
+                        }).create().show();
             }else
             if(handle.equals("start2")){
                 startTime = SystemClock.elapsedRealtime();
-                holder.action1.setEnabled(true);
-                otherButton.setEnabled(true);
-                customHandler.postDelayed(updateTimer, 0);
-                holder.action1.setText("Stop");
-                holder.action1.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
-                holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
-                UserOperations.changeOperationStatus(
-                        id,
-                        lotNumber,
-                        UserOperations.START,
-                        String.format("%d", startTime)
-                );
+                new AlertDialog.Builder(DisplayOperationActivity.this)
+                        .setTitle("Really Start?")
+                        .setMessage("Are you sure you want to start this operation?")
+                        .setNegativeButton(android.R.string.no, null)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface arg0, int arg1) {
+                                holder.action1.setEnabled(true);
+                                otherButton.setEnabled(true);
+                                customHandler.postDelayed(updateTimer, 0);
+                                holder.action1.setText("Stop");
+                                holder.action1.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
+                                holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
+                                UserOperations.changeOperationStatus(
+                                        id,
+                                        lotNumber,
+                                        UserOperations.START,
+                                        String.format("%d", startTime)
+                                );
+                            }
+                        }).create().show();
             }
         }
     }
@@ -430,6 +468,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
     private void setColorsStart(){
         holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_ORANGE_COLOR));
         holder.expected_time.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.timer.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
         holder.lot_number.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.part.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
         holder.machine.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));

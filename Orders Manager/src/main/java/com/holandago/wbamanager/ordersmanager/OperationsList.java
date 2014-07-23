@@ -371,14 +371,14 @@ public class OperationsList extends ActionBarActivity {
                 String time = object.getString(Utils.TIME_TAG);
                 String lot = object.getString(Utils.LOT_NUMBER_TAG);
                 String startedAt = object.getString(Utils.STARTED_AT_TAG);
-                String updatedAt = object.getString(Utils.UPDATED_AT_TAG);
+                //String updatedAt = object.getString(Utils.UPDATED_AT_TAG);
                 String operation_name = object.getString(Utils.OPERATION_NAME_TAG);
                 String id = object.getString(Utils.ID_TAG);
                 HashMap<String,String> map = new HashMap<String, String>();
                 map.put(Utils.FINISHED_AT_TAG,"0");
                 map.put(Utils.REAL_TIME_TAG,realTime);
                 map.put(Utils.MY_STARTED_AT_TAG,"0");
-                map.put(Utils.UPDATED_AT_TAG,updatedAt);
+                //map.put(Utils.UPDATED_AT_TAG,updatedAt);
                 map.put(Utils.PROJECT_NAME_TAG,projectName);
                 map.put(Utils.TIME_SWAP_TAG,"0");
                 map.put(Utils.PART_TAG,part);
@@ -485,7 +485,7 @@ public class OperationsList extends ActionBarActivity {
     private class SetOwnerTask extends AsyncTask<String, String, String> {
         private ProgressDialog pDialog;
         private final String setOwnerUrl =
-                "http://wba-urbbox-teste.herokuapp.com/rest/set-progresses-owner-by-lot/";
+                "http://wba-urbbox.herokuapp.com/rest/set-progresses-owner-by-lot/";
         private String lotNumber;
         private String orderID;
 
