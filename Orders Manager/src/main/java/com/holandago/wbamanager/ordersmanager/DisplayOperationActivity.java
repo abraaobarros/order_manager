@@ -75,7 +75,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_display_operation);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -99,7 +98,11 @@ public class DisplayOperationActivity extends ActionBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.display_operation, menu);
+        try {
+            getMenuInflater().inflate(R.menu.display_operation, menu);
+        }catch(NullPointerException e){
+            e.printStackTrace();
+        }
         return true;
     }
 
@@ -369,8 +372,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
 
         @Override
         public void onClick(View thisButton){
-            startUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+pID+"/start";
-            finishUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+pID+"/finish";
+            startUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+pID+"/start";
+            finishUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+pID+"/finish";
             thisButton.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
             if(handle.equals("start")){
                 startTime = SystemClock.elapsedRealtime();

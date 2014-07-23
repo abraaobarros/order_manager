@@ -259,6 +259,21 @@ public class OperationsList extends ActionBarActivity {
             }
         }
         Collections.sort(uniqueOperations,new NumberComparator());
+
+        if(isFinalized){
+            for(HashMap<String,String> operation : uniqueOperations){
+                if(!operation.get(Utils.STATUS_TAG).equals("2")){
+                    uniqueOperations.remove(operation);
+                }
+            }
+        }else{
+            for(HashMap<String,String> operation : uniqueOperations){
+                if(operation.get(Utils.STATUS_TAG).equals("2")){
+                    uniqueOperations.remove(operation);
+                }
+            }
+        }
+
         //Setting the next and last operations
         //Next Operation
         if(!isFinalized) {
@@ -317,6 +332,8 @@ public class OperationsList extends ActionBarActivity {
                 }
             }
         }
+
+
         //Needs to be a final because it's called from an inner class
         final ArrayList<HashMap<String,String>> uniqueOperationsf = uniqueOperations;
         listView = (ListView)findViewById(R.id.orderList);
@@ -485,7 +502,7 @@ public class OperationsList extends ActionBarActivity {
     private class SetOwnerTask extends AsyncTask<String, String, String> {
         private ProgressDialog pDialog;
         private final String setOwnerUrl =
-                "http://wba-urbbox.herokuapp.com/rest/set-progresses-owner-by-lot/";
+                "http://wba-urbbox-teste.herokuapp.com/rest/set-progresses-owner-by-lot/";
         private String lotNumber;
         private String orderID;
 

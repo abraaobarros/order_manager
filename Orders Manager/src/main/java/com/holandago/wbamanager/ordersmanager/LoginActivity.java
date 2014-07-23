@@ -41,7 +41,7 @@ public class LoginActivity extends ActionBarActivity {
     private EditText pass = null;
     private UserLoginTask authTask= null;
     private ProgressDialog pDialog;
-    private String targetUrl = "http://wba-urbbox.herokuapp.com/rest/login";
+    private String targetUrl = "http://wba-urbbox-teste.herokuapp.com/rest/login";
     public final static String USERID_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.USERID_MESSAGE";
     SessionManager session;
