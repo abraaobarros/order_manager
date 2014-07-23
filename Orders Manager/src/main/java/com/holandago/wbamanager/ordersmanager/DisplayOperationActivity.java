@@ -421,7 +421,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
             }else
             if(handle.equals("stop")){
                 customHandler.removeCallbacks(updateTimer);
-                timeSwapBuff += timeInMillis;
+                timeSwapBuff += timeInMillis-timeFromServer;
                 new AlertDialog.Builder(DisplayOperationActivity.this)
                         .setTitle("Really Stop?")
                         .setMessage("Are you sure you want to stop this operation?")
@@ -443,6 +443,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
             }else
             if(handle.equals("start2")){
                 startTime = SystemClock.elapsedRealtime();
+                Toast.makeText(DisplayOperationActivity.this,""+timeFromFinish+" "+timeFromServer,Toast.LENGTH_LONG).show();
                 new AlertDialog.Builder(DisplayOperationActivity.this)
                         .setTitle("Really Start?")
                         .setMessage("Are you sure you want to start this operation?")
