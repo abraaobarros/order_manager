@@ -372,8 +372,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
 
         @Override
         public void onClick(View thisButton){
-            startUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+pID+"/start";
-            finishUrl = "http://wba-urbbox-teste.herokuapp.com/rest/progress/"+pID+"/finish";
+            startUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+pID+"/start";
+            finishUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+pID+"/finish";
             thisButton.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
             if(handle.equals("start")){
                 startTime = SystemClock.elapsedRealtime();
@@ -421,7 +421,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
             }else
             if(handle.equals("stop")){
                 customHandler.removeCallbacks(updateTimer);
-                timeSwapBuff += timeInMillis-timeFromServer;
+                timeSwapBuff += timeInMillis-timeFromServer-timeFromFinish;
                 new AlertDialog.Builder(DisplayOperationActivity.this)
                         .setTitle("Really Stop?")
                         .setMessage("Are you sure you want to stop this operation?")
@@ -443,7 +443,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
             }else
             if(handle.equals("start2")){
                 startTime = SystemClock.elapsedRealtime();
-                Toast.makeText(DisplayOperationActivity.this,""+timeFromFinish+" "+timeFromServer,Toast.LENGTH_LONG).show();
                 new AlertDialog.Builder(DisplayOperationActivity.this)
                         .setTitle("Really Start?")
                         .setMessage("Are you sure you want to start this operation?")

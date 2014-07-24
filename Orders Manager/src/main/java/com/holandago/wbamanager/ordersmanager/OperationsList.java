@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.holandago.wbamanager.R;
 import com.holandago.wbamanager.library.JSONParser;
@@ -57,7 +58,7 @@ import com.holandago.wbamanager.library.Utils;
 
 
 public class OperationsList extends ActionBarActivity {
-    private static String targetUrl = "http://wba-urbbox-teste.herokuapp.com/rest/operations";
+    private static String targetUrl = "http://wba-urbbox.herokuapp.com/rest/operations";
     public final static String OPERATIONS_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.OPERATIONS_MESSAGE";
     public final static String ORDER_TITLE_MESSAGE =
@@ -163,13 +164,24 @@ public class OperationsList extends ActionBarActivity {
                         }
                     }
                     if(!operationsFromOrder.isEmpty()) {
-                        Collections.sort(operationsFromOrder, new NumberComparator());
-                        sendOperationMessage(
-                                //Sends first element of the ordered Array
-                                operationsFromOrder.get(0));
+                        for(HashMap<String,String> operation : operationList){
+                            if(operation.get(Utils.STATUS_TAG).equals("2"))
+                                operationsFromOrder.remove(operation);
+                        }
+                        if(!operationsFromOrder.isEmpty()) {
+                            Collections.sort(operationsFromOrder, new NumberComparator());
+                            sendOperationMessage(
+                                    //Sends first element of the ordered Array
+                                    operationsFromOrder.get(0));
+                        }else{
+                            Toast.makeText(
+                                    OperationsList.this,
+                                    "All operations finished", Toast.LENGTH_LONG).show();
+                        }
                     }else{
                         new SetOwnerTask(lot,id).execute();
                         new JSONParse(session.getUserDetails().get(SessionManager.KEY_ID)).execute();
+                        operationList = UserOperations.getOperationsList();
                         for(HashMap<String,String> operation : operationList){
                             if(operation.get(Utils.ORDER_ID_TAG).equals(id)){
                                 if(operation.get(Utils.LOT_NUMBER_TAG).equals(lot)){
@@ -177,15 +189,21 @@ public class OperationsList extends ActionBarActivity {
                                 }
                             }
                         }
-                        final HashMap<String, String> firstOperation = operationsFromOrder.get(0);
-                        new AlertDialog.Builder(this)
-                                .setTitle("Added operations of this order")
-                                .setNeutralButton("Go to first", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        sendOperationMessage(firstOperation);
-                                    }
-                                }).create().show();
+                        if(!operationsFromOrder.isEmpty()) {
+                            final HashMap<String, String> firstOperation = operationsFromOrder.get(0);
+                            new AlertDialog.Builder(this)
+                                    .setTitle("Added operations of this order")
+                                    .setNeutralButton("Go to first", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            sendOperationMessage(firstOperation);
+                                        }
+                                    }).create().show();
+                        }else{
+                            Toast.makeText(
+                                    OperationsList.this,
+                                    "All operations finished", Toast.LENGTH_LONG).show();
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -446,7 +464,8 @@ public class OperationsList extends ActionBarActivity {
                 .setNeutralButton("Try Again", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        onResume();
+                        new JSONParse(session.getUserDetails()
+                                .get(SessionManager.KEY_ID)).execute();
                     }
                 }).create().show();
     }
