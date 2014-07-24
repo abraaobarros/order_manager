@@ -4,6 +4,7 @@ package com.holandago.wbamanager.library;
  * Created by maestro on 04/07/14.
  */
 public class Utils{
+    public static final String BASE_URL = "http://wba-urbbox-teste.herokuapp.com";
     public static final String WBA_DARK_GREY_COLOR = "#666767";
     public static final String WBA_BLUE_COLOR = "#72A7C4";
     public static final String WBA_ORANGE_COLOR = "#FBB03B";
@@ -31,4 +32,5 @@ public class Utils{
     public static final String STOPPED_TAG = "stopped?";
     public static final String MY_STARTED_AT_TAG = "my_started_at";
     public static final String LAST_OPERATION_TAG = "last_operation";
+    public static final String WBA_NUMBER_TAG = "wba_no";
 }

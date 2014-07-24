@@ -136,7 +136,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                             finish();
                         }
                         else
-                            Toast.makeText(DisplayOperationActivity.this,"No next operation yet",
+                            Toast.makeText(DisplayOperationActivity.this,"No next operation",
                                     Toast.LENGTH_SHORT).show();
                     }catch(JSONException e){
                         e.printStackTrace();
@@ -147,7 +147,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                         sendOperationMessage(operationJson.getString(Utils.LAST_OPERATION_TAG));
                         finish();
                     }catch(JSONException e){
-                        Toast.makeText(DisplayOperationActivity.this,"No previous operation yet",
+                        Toast.makeText(DisplayOperationActivity.this,"No previous operation",
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -372,8 +372,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
 
         @Override
         public void onClick(View thisButton){
-            startUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+pID+"/start";
-            finishUrl = "http://wba-urbbox.herokuapp.com/rest/progress/"+pID+"/finish";
+            startUrl = Utils.BASE_URL+"/rest/progress/"+pID+"/start";
+            finishUrl = Utils.BASE_URL+"/rest/progress/"+pID+"/finish";
             thisButton.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
             if(handle.equals("start")){
                 startTime = SystemClock.elapsedRealtime();
@@ -598,7 +598,16 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
             }else {
                 holder.action2.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
-                onBackPressed();
+                try {
+                    if(!operationJson.getString(Utils.NEXT_OPERATION_TAG).equals("null")) {
+                        sendOperationMessage(operationJson.getString(Utils.NEXT_OPERATION_TAG));
+                        finish();
+                    }
+                    else
+                        onBackPressed();
+                }catch(JSONException e){
+                    e.printStackTrace();
+                }
             }
         }
     }

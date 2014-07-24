@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.holandago.wbamanager.R;
+import com.holandago.wbamanager.library.Utils;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -41,7 +42,7 @@ public class LoginActivity extends ActionBarActivity {
     private EditText pass = null;
     private UserLoginTask authTask= null;
     private ProgressDialog pDialog;
-    private String targetUrl = "http://wba-urbbox.herokuapp.com/rest/login";
+    private String targetUrl = Utils.BASE_URL+"/rest/login";
     public final static String USERID_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.USERID_MESSAGE";
     SessionManager session;

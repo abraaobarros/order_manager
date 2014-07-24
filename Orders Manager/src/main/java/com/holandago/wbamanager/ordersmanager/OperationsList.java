@@ -34,12 +34,8 @@ import com.holandago.wbamanager.library.JSONParser;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,18 +43,16 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.IDN;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 
 import com.holandago.wbamanager.library.Utils;
 
 
 public class OperationsList extends ActionBarActivity {
-    private static String targetUrl = "http://wba-urbbox.herokuapp.com/rest/operations";
+    private static String targetUrl = Utils.BASE_URL+"/rest/operations";
     public final static String OPERATIONS_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.OPERATIONS_MESSAGE";
     public final static String ORDER_TITLE_MESSAGE =
@@ -292,62 +286,75 @@ public class OperationsList extends ActionBarActivity {
             }
         }
 
+        Collections.sort(uniqueOperations,new PartComparator());
+        int firstOperationFromLastPartPointer=-1;
         //Setting the next and last operations
         //Next Operation
-        if(!isFinalized) {
-            for (int i = 0; i < uniqueOperations.size() - 1; i++) {
-                for (int j = 0; j < uniqueOperations.size(); j++) {
-                    if (uniqueOperations.get(j).get(Utils.PART_TAG).equals(
-                            uniqueOperations.get(i).get(Utils.PART_TAG))
-                            && j != i) {
-                        JSONObject json = new JSONObject();
-                        try {
-                            json.put(Utils.ID_TAG, uniqueOperations.get(j).get(Utils.ID_TAG));
-                            json.put(
-                                    Utils.LOT_NUMBER_TAG,
-                                    uniqueOperations.get(j).get(Utils.LOT_NUMBER_TAG));
-                            json.put(
-                                    Utils.OPERATION_NAME_TAG,
-                                    uniqueOperations.get(j).get(Utils.OPERATION_NAME_TAG)
-                            );
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+        for (int i = 0; i < uniqueOperations.size() - 1; i++) {
+            JSONObject jsonNext = new JSONObject();
+            if(uniqueOperations.get(i+1).get(Utils.PART_TAG).equals(uniqueOperations.get(i).get(Utils.PART_TAG))) {
+                try {
+                    int nextOp = i+1;
+                    jsonNext.put(Utils.ID_TAG, uniqueOperations.get(nextOp).get(Utils.ID_TAG));
+                    jsonNext.put(
+                            Utils.LOT_NUMBER_TAG,
+                            uniqueOperations.get(nextOp).get(Utils.LOT_NUMBER_TAG));
+                    jsonNext.put(
+                            Utils.OPERATION_NAME_TAG,
+                            uniqueOperations.get(nextOp).get(Utils.OPERATION_NAME_TAG)
+                    );
+                    uniqueOperations.get(i).put(
+                            Utils.NEXT_OPERATION_TAG,
+                            jsonNext.toString()
+                    );
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                try {
+                    int nextOp = firstOperationFromLastPartPointer + 1;
+                    if(nextOp != (i)) {
+                        jsonNext.put(Utils.ID_TAG, uniqueOperations.get(nextOp).get(Utils.ID_TAG));
+                        jsonNext.put(
+                                Utils.LOT_NUMBER_TAG,
+                                uniqueOperations.get(nextOp).get(Utils.LOT_NUMBER_TAG));
+                        jsonNext.put(
+                                Utils.OPERATION_NAME_TAG,
+                                uniqueOperations.get(nextOp).get(Utils.OPERATION_NAME_TAG)
+                        );
                         uniqueOperations.get(i).put(
                                 Utils.NEXT_OPERATION_TAG,
-                                json.toString()
+                                jsonNext.toString()
                         );
-                        break;
                     }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+                firstOperationFromLastPartPointer = i;
             }
-            //Last Operation
-            for (int i = 0; i < uniqueOperations.size(); i++) {
-                for (int j = 0; j < uniqueOperations.size(); j++) {
-                    if (uniqueOperations.get(j).get(Utils.PART_TAG)
-                            .equals(uniqueOperations.get(i).get(Utils.PART_TAG))
-                            && j != i) {
 
-                        JSONObject json = new JSONObject();
-                        try {
-                            json.put(Utils.ID_TAG, uniqueOperations.get(i).get(Utils.ID_TAG));
-                            json.put(
-                                    Utils.LOT_NUMBER_TAG,
-                                    uniqueOperations.get(i).get(Utils.LOT_NUMBER_TAG));
-                            json.put(
-                                    Utils.OPERATION_NAME_TAG,
-                                    uniqueOperations.get(i).get(Utils.OPERATION_NAME_TAG)
-                            );
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        uniqueOperations.get(j).put(
-                                Utils.LAST_OPERATION_TAG,
-                                json.toString()
-                        );
-                        break;
-                    }
+        }
+        //Last Operation
+        for (int i = 1; i < uniqueOperations.size(); i++) {
+            JSONObject jsonNext = new JSONObject();
+            if(uniqueOperations.get(i-1).get(Utils.PART_TAG).equals(uniqueOperations.get(i).get(Utils.PART_TAG))) {
+                try {
+                    int lastOp = i-1;
+                    jsonNext.put(Utils.ID_TAG, uniqueOperations.get(lastOp).get(Utils.ID_TAG));
+                    jsonNext.put(
+                            Utils.LOT_NUMBER_TAG,
+                            uniqueOperations.get(lastOp).get(Utils.LOT_NUMBER_TAG));
+                    jsonNext.put(
+                            Utils.OPERATION_NAME_TAG,
+                            uniqueOperations.get(lastOp).get(Utils.OPERATION_NAME_TAG)
+                    );
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+                uniqueOperations.get(i).put(
+                        Utils.LAST_OPERATION_TAG,
+                        jsonNext.toString()
+                );
             }
         }
 
@@ -377,6 +384,13 @@ public class OperationsList extends ActionBarActivity {
         }
     }
 
+    public class PartComparator implements Comparator<HashMap<String,String>> {
+        @Override
+        public int compare(HashMap<String,String> operation1, HashMap<String,String> operation2){
+            return operation1.get(Utils.PART_TAG).compareTo(operation2.get(Utils.PART_TAG));
+        }
+    }
+
     public class NumberComparator implements Comparator<HashMap<String,String>>{
         @Override
         public int compare(HashMap<String,String> operation1, HashMap<String,String>operation2){
@@ -394,6 +408,7 @@ public class OperationsList extends ActionBarActivity {
             for(int i = 0; i< json.length(); i++){
                 JSONObject object = json.getJSONObject(i);
                 String realTime = object.getString(Utils.REAL_TIME_TAG);
+                String wbaNo = object.getString(Utils.WBA_NUMBER_TAG);
                 String projectName = object.getString(Utils.PROJECT_NAME_TAG);
                 String part = object.getString(Utils.PART_TAG);
                 String opNo = object.getString(Utils.OPERATION_NUMBER_TAG);
@@ -410,6 +425,7 @@ public class OperationsList extends ActionBarActivity {
                 String operation_name = object.getString(Utils.OPERATION_NAME_TAG);
                 String id = object.getString(Utils.ID_TAG);
                 HashMap<String,String> map = new HashMap<String, String>();
+                map.put(Utils.WBA_NUMBER_TAG,wbaNo);
                 map.put(Utils.FINISHED_AT_TAG,"0");
                 map.put(Utils.REAL_TIME_TAG,realTime);
                 map.put(Utils.MY_STARTED_AT_TAG,"0");
@@ -605,7 +621,7 @@ public class OperationsList extends ActionBarActivity {
                 holder.operation_name = (TextView)convertView.findViewById(R.id.operation_list_part);
                 holder.operation_machine =
                         (TextView)convertView.findViewById(R.id.operation_list_machine);
-                holder.operation_lot = (TextView)convertView.findViewById(R.id.operation_list_lot);
+                holder.operation_wbaNo = (TextView)convertView.findViewById(R.id.operation_list_wba_no);
                 holder.operation_time = (TextView)convertView.findViewById(R.id.operation_list_time);
                 holder.operation_project = (TextView)convertView.findViewById(R.id.operation_list_project);
                 holder.background = (LinearLayout)convertView.findViewById(R.id.operation_list_background);
@@ -619,13 +635,13 @@ public class OperationsList extends ActionBarActivity {
             Typeface font = Typeface.createFromAsset(getAssets(),"HelveticaNeue_Lt.ttf");
             holder.operation_name.setTypeface(font, Typeface.BOLD);
             holder.operation_machine.setTypeface(font);
-            holder.operation_lot.setTypeface(font);
+            holder.operation_wbaNo.setTypeface(font);
             holder.operation_time.setTypeface(font);
             holder.operation_project.setTypeface(font);
 
             holder.operation_name.setText(data.get(+position).get(Utils.PART_TAG));
             holder.operation_machine.setText(data.get(+position).get(Utils.MACHINE_TAG));
-            holder.operation_lot.setText("Lot: "+data.get(+position).get(Utils.LOT_NUMBER_TAG));
+            holder.operation_wbaNo.setText("WBA Nr.: "+data.get(+position).get(Utils.WBA_NUMBER_TAG));
             holder.operation_time.setText("Time: "+data.get(+position).get(Utils.TIME_TAG));
             holder.operation_project.setText(
                     "Project: "+data.get(+position).get(Utils.PROJECT_NAME_TAG));
@@ -637,7 +653,7 @@ public class OperationsList extends ActionBarActivity {
                 holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
                 holder.operation_name.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
                 holder.operation_machine.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
-                holder.operation_lot.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+                holder.operation_wbaNo.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
                 holder.operation_time.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
                 holder.operation_project.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
             }else{
@@ -652,7 +668,7 @@ public class OperationsList extends ActionBarActivity {
     private static class OperationViewHolder {
         TextView operation_name;
         TextView operation_machine;
-        TextView operation_lot;
+        TextView operation_wbaNo;
         TextView operation_time;
         TextView operation_project;
         LinearLayout background;

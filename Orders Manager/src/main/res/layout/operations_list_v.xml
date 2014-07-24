@@ -67,7 +67,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="Lot: 0"
-            android:id="@+id/operation_list_lot"
+            android:id="@+id/operation_list_wba_no"
             android:singleLine="false" />
     </LinearLayout>
 
