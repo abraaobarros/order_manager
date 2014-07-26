@@ -98,7 +98,7 @@ public class OperationsList extends ActionBarActivity {
         if(isFinalized){
             MenuItem item = menu.findItem(R.id.action_finalized);
             item.setVisible(false);
-            this.invalidateOptionsMenu();
+            //this.invalidateOptionsMenu();
         }
         return super.onCreateOptionsMenu(menu);
     }
@@ -642,7 +642,7 @@ public class OperationsList extends ActionBarActivity {
             holder.operation_name.setText(data.get(+position).get(Utils.PART_TAG));
             holder.operation_machine.setText(data.get(+position).get(Utils.MACHINE_TAG));
             holder.operation_wbaNo.setText("WBA Nr.: "+data.get(+position).get(Utils.WBA_NUMBER_TAG));
-            holder.operation_time.setText("Time: "+data.get(+position).get(Utils.TIME_TAG));
+            holder.operation_time.setText("Zeit: "+data.get(+position).get(Utils.TIME_TAG));
             holder.operation_project.setText(
                     "Project: "+data.get(+position).get(Utils.PROJECT_NAME_TAG));
 
