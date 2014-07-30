@@ -262,7 +262,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                         time = time.replace(",", ".");
                         t = Double.parseDouble(time);
                     }
-                    timeSwapBuff = (int) Math.floor(t*60*60*1000);
+                    timeSwapBuff = (long) Math.floor(t*60*60*1000);
                 }
                 setColorsStart();
                 String realTime = json.getString(Utils.REAL_TIME_TAG);
@@ -287,7 +287,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                     time = time.replace(",",".");
                     t = Double.parseDouble(time);
                 }
-                timeSwapBuff = (int) Math.floor(t*60*60*1000);
+                timeSwapBuff = (long) Math.floor(t*3600*1000);
                 holder.action1.setText("Start");
                 holder.action1.setEnabled(true);
                 holder.action2.setEnabled(false);
@@ -398,7 +398,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
             startUrl = Utils.BASE_URL+"/rest/progress/"+pID+"/start";
             finishUrl = Utils.BASE_URL+"/rest/progress/"+pID+"/finish";
             stopUrl = Utils.BASE_URL+"/rest/progress/"+pID+"/stop";
-            thisButton.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
             if(handle.equals("start")){
                 if(status.equals("2")){
                     timeFromFinish = 0L;

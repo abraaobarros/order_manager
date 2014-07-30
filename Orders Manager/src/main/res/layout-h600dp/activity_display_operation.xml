@@ -9,11 +9,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="00"
+        android:text="00.0"
         android:textColor="@color/wba_orange"
         android:id="@+id/lot_number"
         android:layout_marginTop="56dp"
-        android:textSize="100sp"
+        android:textSize="80sp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
@@ -77,9 +77,9 @@
         android:paddingBottom="15dp"
         android:id="@+id/client"
         android:paddingStart="20dp"
-        android:layout_below="@+id/lot_number"
-        android:layout_alignLeft="@+id/lot_number"
-        android:layout_alignStart="@+id/lot_number" />
+        android:layout_below="@+id/operation"
+        android:layout_alignLeft="@+id/next_process"
+        android:layout_alignStart="@+id/next_process" />
 
     <TextView
         android:layout_width="wrap_content"
