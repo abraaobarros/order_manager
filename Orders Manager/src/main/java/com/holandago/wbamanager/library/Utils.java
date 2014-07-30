@@ -26,7 +26,7 @@ public class Utils{
     public static final String ID_TAG = "id";
     public static final String OPERATION_NAME_TAG = "operation_name";
     public static final String LOT_NUMBER_TAG = "lot";
-    public static final String TIME_SWAP_TAG = "time_swap";
+    public static final String TIME_SWAP_TAG = "stop_time";
     public static final String STARTED_AT_TAG = "started_at";
     public static final String UPDATED_AT_TAG = "updated_at";
     public static final String STOPPED_TAG = "stopped?";

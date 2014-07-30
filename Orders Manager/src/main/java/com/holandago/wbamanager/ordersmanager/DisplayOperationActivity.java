@@ -55,6 +55,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
     private OperationViewHolder holder;
     private String startUrl;
     private String finishUrl;
+    private String stopUrl;
     private String id;
     private String pID;
     private String lotNumber;
@@ -233,7 +234,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
             if(status.equals("2")){
                 setColorsFinish();
                 timeFromFinish = Long.parseLong(json.getString(Utils.FINISHED_AT_TAG));
-                timeSwapBuff = Long.parseLong(json.getString(Utils.TIME_SWAP_TAG));
                 if(timeFromFinish == 0){
                     String realTime = json.getString(Utils.REAL_TIME_TAG);
                     if(!realTime.equals("null")) {
@@ -241,7 +241,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
                         long mili = (long)Math.floor(hours*60*1000);
                         timeFromFinish = mili;
                     }
-                    timeSwapBuff = 0L;
                 }
                 updatedTime = timeSwapBuff+timeFromFinish;
                 int secs = (int)(updatedTime/1000);
@@ -253,29 +252,53 @@ public class DisplayOperationActivity extends ActionBarActivity {
             }
 
             if(status.equals("1")){
-                String stopped = json.getString(Utils.STOPPED_TAG);
+                String time = (json.getString(Utils.TIME_SWAP_TAG));
+                if(!time.equals("null")) {
+                    double t = 0;
+                    try {
+                        t = Double.parseDouble(time);
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                        time = time.replace(",", ".");
+                        t = Double.parseDouble(time);
+                    }
+                    timeSwapBuff = (int) Math.floor(t*60*60*1000);
+                }
                 setColorsStart();
+                String realTime = json.getString(Utils.REAL_TIME_TAG);
                 startTime = Long.parseLong(json.getString(Utils.MY_STARTED_AT_TAG));
                 if(startTime == 0){
-                    calculateElapsedTime(json.getString(Utils.STARTED_AT_TAG));
+                     calculateElapsedTime(json.getString(Utils.STARTED_AT_TAG));
                 }
                 customHandler.postDelayed(updateTimer, 0);
-                timeSwapBuff = Long.parseLong(json.getString(Utils.TIME_SWAP_TAG));
                 holder.action1.setText("Stop");
                 holder.action1.setEnabled(true);
                 holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
-                if(stopped.equals("true")){
-                    holder.action1.setText("Start");
-                    holder.action1.setOnClickListener(new ButtonListener("start",holder.action2));
-                    customHandler.removeCallbacks(updateTimer);
-                    updatedTime = timeSwapBuff;
-                    int secs = (int)(updatedTime/1000);
-                    int mins = secs/60;
-                    int hours = mins/60;
-                    mins = mins%60;
-                    secs = secs%60;
-                    holder.timer.setText(String.format("%02dh%02dm%02ds",hours,mins,secs));
+            }
+
+            if(status.equals("3")){
+                setColorsStart();
+                String time = (json.getString(Utils.TIME_SWAP_TAG));
+                double t = 0;
+                try {
+                    t = Double.parseDouble(time);
+                }catch(NumberFormatException e){
+                    e.printStackTrace();
+                    time = time.replace(",",".");
+                    t = Double.parseDouble(time);
                 }
+                timeSwapBuff = (int) Math.floor(t*60*60*1000);
+                holder.action1.setText("Start");
+                holder.action1.setEnabled(true);
+                holder.action2.setEnabled(false);
+                holder.action1.setOnClickListener(new ButtonListener("start",holder.action2));
+                updatedTime = timeSwapBuff;
+                int secs = (int)(updatedTime/1000);
+                int mins = secs/60;
+                int hours = mins/60;
+                mins = mins%60;
+                secs = secs%60;
+                holder.timer.setText(String.format("%02dh%02dm%02ds",hours,mins,secs));
             }
         }catch(JSONException e){
             e.printStackTrace();
@@ -374,8 +397,14 @@ public class DisplayOperationActivity extends ActionBarActivity {
         public void onClick(View thisButton){
             startUrl = Utils.BASE_URL+"/rest/progress/"+pID+"/start";
             finishUrl = Utils.BASE_URL+"/rest/progress/"+pID+"/finish";
+            stopUrl = Utils.BASE_URL+"/rest/progress/"+pID+"/stop";
             thisButton.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
             if(handle.equals("start")){
+                if(status.equals("2")){
+                    timeFromFinish = 0L;
+                    updatedTime = 0L;
+                    timeSwapBuff = 0L;
+                }
                 startTime = SystemClock.elapsedRealtime();
                 new AlertDialog.Builder(DisplayOperationActivity.this)
                         .setTitle("Really Start?")
@@ -385,7 +414,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
 
                             public void onClick(DialogInterface arg0, int arg1) {
                                 setColorsStart();
-                                AsyncGetRequest requester = new AsyncGetRequest(true);
+                                AsyncGetRequest requester = new AsyncGetRequest(UserOperations.START);
                                 requester.execute(new String[]{startUrl});
                                 UserOperations.changeOperationStatus(
                                         id,
@@ -413,7 +442,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                                         UserOperations.FINISH,
                                         String.format("%d",updatedTime)
                                 );
-                                AsyncGetRequest requester = new AsyncGetRequest(false);
+                                AsyncGetRequest requester = new AsyncGetRequest(UserOperations.FINISH);
                                 requester.execute(new String[]{finishUrl});
 
                             }
@@ -429,11 +458,13 @@ public class DisplayOperationActivity extends ActionBarActivity {
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
                             public void onClick(DialogInterface arg0, int arg1) {
+                                AsyncGetRequest requester = new AsyncGetRequest(UserOperations.STOP);
+                                requester.execute(new String[]{stopUrl});
                                 UserOperations.changeOperationStatus(
                                         id,
                                         lotNumber,
                                         UserOperations.STOP,
-                                        String.format("%d",timeSwapBuff)
+                                        String.format("%d",timeSwapBuff/60000)
                                 );
                                 holder.action1.setText("Start");
                                 holder.action1.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
@@ -520,10 +551,10 @@ public class DisplayOperationActivity extends ActionBarActivity {
     //Asynchronous get request to access the url
     private class AsyncGetRequest extends AsyncTask<String, String, String> {
         private ProgressDialog pDialog;
-        private boolean start;
+        int task;
 
-        private AsyncGetRequest(boolean start){
-            this.start = start;
+        private AsyncGetRequest(int task){
+            this.task = task;
         }
         @Override
         protected void onPreExecute(){
@@ -538,10 +569,14 @@ public class DisplayOperationActivity extends ActionBarActivity {
         protected String doInBackground(String... urls){
             String output = null;
             for(String url:urls){
-                if(start){
+                if(task == UserOperations.START){
                     output = getOutputFromUrl(url);
-                }else{
+                }else
+                if(task == UserOperations.FINISH){
                     output = postTime(url);
+                }else
+                if(task == UserOperations.STOP){
+                   output = postTime(url);
                 }
             }
 
@@ -567,15 +602,17 @@ public class DisplayOperationActivity extends ActionBarActivity {
         private String postTime(String url){
             String output = null;
             try{
+                String tag;
+                if(task == UserOperations.FINISH){
+                    tag = "real_time";
+                }else tag = "stop_time";
                 DefaultHttpClient httpClient = HttpClient.getDefaultHttpClient();
                 HttpPost httpPost = new HttpPost(url);
-                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
                 if(updatedTime<0)
                     updatedTime = 0;
                 nameValuePairs.add(new BasicNameValuePair(
-                        "real_time",String.format("%d",updatedTime/1000)));
-                nameValuePairs.add(new BasicNameValuePair(
-                        Utils.PROGRESS_ID_TAG,pID));
+                        tag,String.format("%d",updatedTime/1000)));
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                 HttpResponse httpResponse = httpClient.execute(httpPost);
                 HttpEntity httpEntity = httpResponse.getEntity();
@@ -591,12 +628,13 @@ public class DisplayOperationActivity extends ActionBarActivity {
         @Override
         protected void onPostExecute(String output){
             pDialog.dismiss();
-            if(start){
+            if(task == UserOperations.START){
                 holder.action1.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
                 customHandler.postDelayed(updateTimer, 0);
                 holder.action1.setText("Stop");
                 holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
-            }else {
+            }else
+            if(task == UserOperations.FINISH){
                 holder.action2.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
                 try {
                     if(!operationJson.getString(Utils.NEXT_OPERATION_TAG).equals("null")) {

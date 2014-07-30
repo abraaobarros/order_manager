@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -82,8 +84,7 @@ public class OperationsList extends ActionBarActivity {
         if (intent.hasExtra(IS_FINALIZED_MESSAGE))
             isFinalized = true;
         if(session.isLoggedIn())
-            new JSONParse(session.getUserDetails()
-                    .get(SessionManager.KEY_ID)).execute();
+            getOperations();
         else{
             //startLoginActivity();
         }
@@ -108,8 +109,7 @@ public class OperationsList extends ActionBarActivity {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                new JSONParse(session.getUserDetails()
-                        .get(SessionManager.KEY_ID)).execute();
+                getOperations();
                 return true;
             case R.id.action_qrcode:
                 try{
@@ -174,7 +174,7 @@ public class OperationsList extends ActionBarActivity {
                         }
                     }else{
                         new SetOwnerTask(lot,id).execute();
-                        new JSONParse(session.getUserDetails().get(SessionManager.KEY_ID)).execute();
+                        getOperations();
                         operationList = UserOperations.getOperationsList();
                         for(HashMap<String,String> operation : operationList){
                             if(operation.get(Utils.ORDER_ID_TAG).equals(id)){
@@ -214,8 +214,7 @@ public class OperationsList extends ActionBarActivity {
         if(requestCode == 2){
             //From an LoginActivity
             if(resultCode == RESULT_OK){
-                new JSONParse(session.getUserDetails()
-                        .get(SessionManager.KEY_ID)).execute();
+                getOperations();
             }
         }
     }
@@ -362,7 +361,7 @@ public class OperationsList extends ActionBarActivity {
         //Needs to be a final because it's called from an inner class
         final ArrayList<HashMap<String,String>> uniqueOperationsf = uniqueOperations;
         listView = (ListView)findViewById(R.id.orderList);
-        ListAdapter adapter = new CustomAdapter(
+        ListAdapter adapter = new OperationListAdapter(
                 OperationsList.this,
                 uniqueOperationsf
         );
@@ -421,6 +420,7 @@ public class OperationsList extends ActionBarActivity {
                 String time = object.getString(Utils.TIME_TAG);
                 String lot = object.getString(Utils.LOT_NUMBER_TAG);
                 String startedAt = object.getString(Utils.STARTED_AT_TAG);
+                String timeSwap = object.getString(Utils.TIME_SWAP_TAG);
                 //String updatedAt = object.getString(Utils.UPDATED_AT_TAG);
                 String operation_name = object.getString(Utils.OPERATION_NAME_TAG);
                 String id = object.getString(Utils.ID_TAG);
@@ -431,7 +431,7 @@ public class OperationsList extends ActionBarActivity {
                 map.put(Utils.MY_STARTED_AT_TAG,"0");
                 //map.put(Utils.UPDATED_AT_TAG,updatedAt);
                 map.put(Utils.PROJECT_NAME_TAG,projectName);
-                map.put(Utils.TIME_SWAP_TAG,"0");
+                map.put(Utils.TIME_SWAP_TAG,timeSwap);
                 map.put(Utils.PART_TAG,part);
                 map.put(Utils.PROGRESS_ID_TAG,pID);
                 map.put(Utils.OPERATION_NUMBER_TAG,opNo);
@@ -463,15 +463,27 @@ public class OperationsList extends ActionBarActivity {
 
     public void cannotGetOperations(){
         new AlertDialog.Builder(this)
-                .setTitle("Cannot get operations from server")
+                .setTitle("There are no operations from server")
                 .setNeutralButton("Try Again", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new JSONParse(session.getUserDetails()
-                                .get(SessionManager.KEY_ID))
-                                .execute();
+                        getOperations();
                     }
                 }).create().show();
+    }
+
+    public void getOperations(){
+        ConnectivityManager conMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        if ( conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED
+                || conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTED ) {
+            new GetOperationsTask(session.getUserDetails()
+                    .get(SessionManager.KEY_ID)).execute();
+        }
+        else if ( conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED
+                && conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED) {
+            Toast.makeText(this,
+                    "Please connect to the internet to get operations",Toast.LENGTH_LONG).show();
+        }
     }
 
     public void emptyOperations(){
@@ -480,19 +492,18 @@ public class OperationsList extends ActionBarActivity {
                 .setNeutralButton("Try Again", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        new JSONParse(session.getUserDetails()
-                                .get(SessionManager.KEY_ID)).execute();
+                        getOperations();
                     }
                 }).create().show();
     }
 
 
-    public class JSONParse extends AsyncTask<String,String, JSONObject>{
+    public class GetOperationsTask extends AsyncTask<String,String, JSONObject>{
         private ProgressDialog pDialog;
         private String userID;
         private JSONParser parser = new JSONParser();
 
-        public JSONParse(String userID){
+        public GetOperationsTask(String userID){
             this.userID = userID;
         }
 
@@ -589,11 +600,11 @@ public class OperationsList extends ActionBarActivity {
         }
     }
 
-    private class CustomAdapter extends BaseAdapter{
+    private class OperationListAdapter extends BaseAdapter{
         private LayoutInflater inflater;
         private ArrayList<HashMap<String,String>> data;
 
-        public CustomAdapter(Context context, ArrayList<HashMap<String,String>> data){
+        public OperationListAdapter(Context context, ArrayList<HashMap<String, String>> data){
             this.inflater = LayoutInflater.from(context);
             this.data = data;
         }
@@ -644,9 +655,10 @@ public class OperationsList extends ActionBarActivity {
             holder.operation_wbaNo.setText("WBA Nr.: "+data.get(+position).get(Utils.WBA_NUMBER_TAG));
             holder.operation_time.setText("Zeit: "+data.get(+position).get(Utils.TIME_TAG));
             holder.operation_project.setText(
-                    "Project: "+data.get(+position).get(Utils.PROJECT_NAME_TAG));
+                    data.get(+position).get(Utils.PROJECT_NAME_TAG));
 
-            if(getItem(position).get(Utils.STATUS_TAG).equals("1")){
+            if(getItem(position).get(Utils.STATUS_TAG).equals("1") ||
+                    getItem(position).get(Utils.STATUS_TAG).equals("3")){
                 holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_ORANGE_COLOR));
             }else
             if(getItem(position).get(Utils.STATUS_TAG).equals("2")){
