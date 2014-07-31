@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.holandago.wbamanager.R;
 import com.holandago.wbamanager.library.JSONParser;
+import com.holandago.wbamanager.library.Utils;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -49,8 +50,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-
-import com.holandago.wbamanager.library.Utils;
 
 
 public class OperationsList extends ActionBarActivity {

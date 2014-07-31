@@ -2,8 +2,6 @@ package com.holandago.wbamanager.ordersmanager;
 
 import com.holandago.wbamanager.library.Utils;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
