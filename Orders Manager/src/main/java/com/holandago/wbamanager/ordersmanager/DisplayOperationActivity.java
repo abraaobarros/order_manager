@@ -457,14 +457,15 @@ public class DisplayOperationActivity extends ActionBarActivity {
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
                             public void onClick(DialogInterface arg0, int arg1) {
-                                AsyncGetRequest requester = new AsyncGetRequest(UserOperations.STOP);
-                                requester.execute(new String[]{stopUrl});
+                                double timeInHours = (double) updatedTime/3600000;
                                 UserOperations.changeOperationStatus(
                                         id,
                                         lotNumber,
                                         UserOperations.STOP,
-                                        String.format("%d",timeSwapBuff/60000)
+                                        String.format("%f",timeInHours)
                                 );
+                                AsyncGetRequest requester = new AsyncGetRequest(UserOperations.STOP);
+                                requester.execute(new String[]{stopUrl});
                                 holder.action1.setText("Start");
                                 holder.action1.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
                                 holder.action1.setOnClickListener(new ButtonListener("start2",holder.action2));
