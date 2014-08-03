@@ -547,7 +547,7 @@ public class OperationsList extends ActionBarActivity {
     private class SetOwnerTask extends AsyncTask<String, String, String> {
         private ProgressDialog pDialog;
         private final String setOwnerUrl =
-                "http://wba-urbbox-teste.herokuapp.com/rest/set-progresses-owner-by-lot/";
+                "http://wba-urbbox.herokuapp.com/rest/set-progresses-owner-by-lot/";
         private String lotNumber;
         private String orderID;
 

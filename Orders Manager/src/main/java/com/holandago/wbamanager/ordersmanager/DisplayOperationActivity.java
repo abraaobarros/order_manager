@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.Scroller;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -452,7 +454,11 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 new AlertDialog.Builder(DisplayOperationActivity.this)
                         .setTitle("Really Stop?")
                         .setMessage("Are you sure you want to stop this operation?")
-                        .setNegativeButton(android.R.string.no, null)
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface arg0, int arg1) {
+                                customHandler.postDelayed(updateTimer, 0);
+                            }
+                        })
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
                             public void onClick(DialogInterface arg0, int arg1) {
@@ -466,7 +472,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
                                 AsyncGetRequest requester = new AsyncGetRequest(UserOperations.STOP);
                                 requester.execute(new String[]{stopUrl});
                                 holder.action1.setText("Start");
-                                holder.action1.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
                                 holder.action1.setOnClickListener(new ButtonListener("start2",holder.action2));
                             }
                         }).create().show();
@@ -484,7 +489,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
                                 otherButton.setEnabled(true);
                                 customHandler.postDelayed(updateTimer, 0);
                                 holder.action1.setText("Stop");
-                                holder.action1.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
                                 holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
                                 UserOperations.changeOperationStatus(
                                         id,
@@ -509,7 +513,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
         holder.client.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
         holder.operation.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
         holder.project.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
-        holder.action2.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
+        holder.action1.setBackgroundResource((R.drawable.button_bg));
+        holder.action2.setBackgroundResource((R.drawable.button_bg));
         holder.action1.setEnabled(false);
         holder.action2.setEnabled(true);
     }
@@ -526,9 +531,9 @@ public class DisplayOperationActivity extends ActionBarActivity {
         holder.client.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.operation.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.project.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.action1.setBackgroundResource((R.drawable.button_finalized_bg));
+        holder.action2.setBackgroundResource((R.drawable.button_finalized_bg));
         holder.action1.setText("Restart");
-        holder.action1.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
-        holder.action2.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
         holder.action1.setEnabled(true);
         holder.action2.setEnabled(false);
     }
@@ -628,13 +633,11 @@ public class DisplayOperationActivity extends ActionBarActivity {
         protected void onPostExecute(String output){
             pDialog.dismiss();
             if(task == UserOperations.START){
-                holder.action1.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
                 customHandler.postDelayed(updateTimer, 0);
                 holder.action1.setText("Stop");
                 holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
             }else
             if(task == UserOperations.FINISH){
-                holder.action2.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
                 try {
                     if(!operationJson.getString(Utils.NEXT_OPERATION_TAG).equals("null")) {
                         sendOperationMessage(operationJson.getString(Utils.NEXT_OPERATION_TAG));
