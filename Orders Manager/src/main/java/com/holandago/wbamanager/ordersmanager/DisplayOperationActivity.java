@@ -265,6 +265,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                     timeSwapBuff = (long) Math.floor(t*60*60*1000);
                 }
                 setColorsStart();
+                String realTime = json.getString(Utils.REAL_TIME_TAG);
                 startTime = Long.parseLong(json.getString(Utils.MY_STARTED_AT_TAG));
                 if(startTime == 0){
                      calculateElapsedTime(json.getString(Utils.STARTED_AT_TAG));
@@ -301,6 +302,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
             }
         }catch(JSONException e){
             e.printStackTrace();
+        }catch(ArrayIndexOutOfBoundsException e){
+            Log.e("CREATE LIST ERROR: ", "Index out of bounds" + e);
         }
     }
 
