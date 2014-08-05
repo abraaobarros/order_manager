@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RelativeLayout;
-import android.widget.Scroller;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -266,7 +265,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
                     timeSwapBuff = (long) Math.floor(t*60*60*1000);
                 }
                 setColorsStart();
-                String realTime = json.getString(Utils.REAL_TIME_TAG);
                 startTime = Long.parseLong(json.getString(Utils.MY_STARTED_AT_TAG));
                 if(startTime == 0){
                      calculateElapsedTime(json.getString(Utils.STARTED_AT_TAG));
@@ -310,15 +308,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
         String[] yearMonthDay = date.split("-");
         String[] day = yearMonthDay[2].split(" ");
         String[] hours = day[1].split(":");
-        for(String s : day){
-            Log.e("TESTING VALUES: ",s);
-        }
         Calendar started = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"),Locale.GERMANY);
         Calendar now = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"),Locale.GERMANY);
-        Log.e("TESTING VALUES: ", +now.get(Calendar.YEAR)+"/"+
-                now.get(Calendar.MONTH)+"/"+now.get(Calendar.DAY_OF_MONTH)
-                +"/"+now.get(Calendar.HOUR_OF_DAY)+":"+now.get(Calendar.MINUTE)+":"+now.get(Calendar.SECOND));
-
         started.set(Calendar.YEAR, Integer.parseInt(yearMonthDay[0]));
         started.set(Calendar.MONTH, Integer.parseInt(yearMonthDay[1])-1);
         started.set(Calendar.DAY_OF_MONTH, Integer.parseInt(day[0]));
@@ -326,12 +317,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
         started.set(Calendar.MINUTE, Integer.parseInt(hours[1]));
         started.set(Calendar.SECOND, Integer.parseInt(hours[2]));
 
-        Log.e("TESTING VALUES: ", +started.get(Calendar.YEAR)+"/"+
-                started.get(Calendar.MONTH)+"/"+started.get(Calendar.DAY_OF_MONTH)
-                +"/"+started.get(Calendar.HOUR_OF_DAY)+":"+started.get(Calendar.MINUTE)+":"+started.get(Calendar.SECOND));
         startTime = SystemClock.elapsedRealtime();
-        Log.e("TESTING VALUES: ", ""+now.getTimeInMillis());
-        Log.e("TESTING VALUES: ", ""+started.getTimeInMillis());
         timeFromServer = now.getTimeInMillis()-started.getTimeInMillis()-41200;
     }
 
@@ -408,6 +394,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 startTime = SystemClock.elapsedRealtime();
                 new AlertDialog.Builder(DisplayOperationActivity.this)
                         .setTitle("Really Start?")
+                        .setCancelable(false)
                         .setMessage("Are you sure you want to start this operation?")
                         .setNegativeButton(android.R.string.no, null)
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
@@ -431,6 +418,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
             if(handle.equals("finish")){
                 new AlertDialog.Builder(DisplayOperationActivity.this)
                         .setTitle("Really Finish?")
+                        .setCancelable(false)
                         .setMessage("Are you sure you want to finish this operation?")
                         .setNegativeButton(android.R.string.no, null)
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
@@ -453,6 +441,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 timeSwapBuff += timeInMillis-timeFromServer-timeFromFinish;
                 new AlertDialog.Builder(DisplayOperationActivity.this)
                         .setTitle("Really Stop?")
+                        .setCancelable(false)
                         .setMessage("Are you sure you want to stop this operation?")
                         .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface arg0, int arg1) {
@@ -480,6 +469,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 startTime = SystemClock.elapsedRealtime();
                 new AlertDialog.Builder(DisplayOperationActivity.this)
                         .setTitle("Really Start?")
+                        .setCancelable(false)
                         .setMessage("Are you sure you want to start this operation?")
                         .setNegativeButton(android.R.string.no, null)
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
