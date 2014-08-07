@@ -68,6 +68,9 @@ public class OperationsList extends ActionBarActivity {
     SessionManager session;
     ListView listView;
     boolean isFinalized=false;
+    ArrayList<HashMap<String,String>> uniqueOperations =
+            new ArrayList<HashMap<String, String>>();
+    OperationListAdapter adapter = null;
 
 
     @Override
@@ -80,6 +83,10 @@ public class OperationsList extends ActionBarActivity {
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         session = new SessionManager(getApplicationContext());
         Intent intent = getIntent();
+        adapter = new OperationListAdapter(
+                OperationsList.this,
+                uniqueOperations
+        );
         if (intent.hasExtra(IS_FINALIZED_MESSAGE))
             isFinalized = true;
         if(session.isLoggedIn())
@@ -247,12 +254,11 @@ public class OperationsList extends ActionBarActivity {
 
     public void updateOrCreateList(){
         ArrayList<HashMap<String,String>> operationList = UserOperations.getOperationsList();
+        uniqueOperations.removeAll(uniqueOperations);
         LotNumberComparator lotComparator = new LotNumberComparator();
         Collections.sort(operationList,lotComparator);
         ArrayList<String> uniqueID = new ArrayList<String>();
         //Holds the value of the uniqueOperations that are unfinished
-        ArrayList<HashMap<String,String>> uniqueOperations =
-                new ArrayList<HashMap<String, String>>();
         for(HashMap<String,String> operation : operationList){
             if(!isFinalized) {
                 if (!uniqueID.contains(operation.get(Utils.ID_TAG)) &&
@@ -269,7 +275,6 @@ public class OperationsList extends ActionBarActivity {
             }
         }
         Collections.sort(uniqueOperations,new NumberComparator());
-
         if(isFinalized){
             for(HashMap<String,String> operation : uniqueOperations){
                 if(!operation.get(Utils.STATUS_TAG).equals("2")){
@@ -355,24 +360,18 @@ public class OperationsList extends ActionBarActivity {
                 );
             }
         }
-
-
+        runOnUiThread(new NotifyChange());
         //Needs to be a final because it's called from an inner class
-        final ArrayList<HashMap<String,String>> uniqueOperationsf = uniqueOperations;
         listView = (ListView)findViewById(R.id.orderList);
-        ListAdapter adapter = new OperationListAdapter(
-                OperationsList.this,
-                uniqueOperationsf
-        );
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                //Sends the operations part of the JSONObject to the next activity
-                sendOperationMessage(uniqueOperationsf.get(+position));
-            }
-        });
+        listView.setOnItemClickListener(adapter);
+    }
+
+    public class NotifyChange implements Runnable{
+        @Override
+        public void run(){
+            adapter.notifyDataSetChanged();
+        }
     }
 
     public class LotNumberComparator implements Comparator<HashMap<String,String>> {
@@ -398,6 +397,7 @@ public class OperationsList extends ActionBarActivity {
     }
 
     public void createList(String operations){
+        UserOperations.flush();
         ArrayList<HashMap<String,String>> operationList = UserOperations.getOperationsList();
         try{
             //Gets the operation from a JSONArray and put them in an ArrayList of Hashmaps with
@@ -449,11 +449,13 @@ public class OperationsList extends ActionBarActivity {
                 map.put(Utils.OWNER_NAME_TAG,session.getUserDetails().get(SessionManager.KEY_USER));
                 //Assuming the title is the ID
                 operationList.add(map);
+                operationList = UserOperations.getOperationsList();
             }
         }catch(JSONException e){
             e.printStackTrace();
             Log.e("JSON Error", "JSON error on create list " + e.toString());
         }finally{
+            updateOrCreateList();
             //If for some reason he couldn't get the elements:
             if(operationList.isEmpty())
                 cannotGetOperations();
@@ -463,7 +465,7 @@ public class OperationsList extends ActionBarActivity {
     public void cannotGetOperations(){
         new AlertDialog.Builder(this)
                 .setTitle("There are no operations from server")
-                .setNeutralButton("Try Again", new DialogInterface.OnClickListener() {
+                .setNeutralButton("Aktualisieren", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         getOperations();
@@ -481,7 +483,7 @@ public class OperationsList extends ActionBarActivity {
         else if ( conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED
                 && conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED) {
             Toast.makeText(this,
-                    "Please connect to the internet to get operations",Toast.LENGTH_LONG).show();
+                    "Verbindung mit dem Internet",Toast.LENGTH_LONG).show();
         }
     }
 
@@ -530,11 +532,19 @@ public class OperationsList extends ActionBarActivity {
                 if(!size.equals("0")) {
                     String operations = json.getString("data");
                     createList(operations);
-                    updateOrCreateList();
+                    JSONArray json2 = new JSONArray(operations);
+                    for(int i=0; i<json2.length(); i++){
+                        JSONObject obj = json2.getJSONObject(i);
+                        if(obj.getString(Utils.WBA_NUMBER_TAG).equals("34-128.1.1")){
+                            Log.w("TESTANDO VALOR",obj.getString(Utils.REAL_TIME_TAG));
+                            Log.w("TESTANDO VALOR",obj.getString(Utils.STATUS_TAG));
+                        }
+                    }
                 }else{
                     emptyOperations();
                 }
             }catch (NullPointerException e){
+                Log.e("GetOwnerTask", ""+e);
                 cannotGetOperations();
             }catch(JSONException e){
                 e.printStackTrace();
@@ -599,7 +609,7 @@ public class OperationsList extends ActionBarActivity {
         }
     }
 
-    private class OperationListAdapter extends BaseAdapter{
+    private class OperationListAdapter extends BaseAdapter implements AdapterView.OnItemClickListener{
         private LayoutInflater inflater;
         private ArrayList<HashMap<String,String>> data;
 
@@ -610,6 +620,11 @@ public class OperationsList extends ActionBarActivity {
 
         public int getCount(){
             return data.size();
+        }
+
+        @Override
+        public void notifyDataSetChanged(){
+            super.notifyDataSetChanged();
         }
 
         @Override
@@ -673,6 +688,14 @@ public class OperationsList extends ActionBarActivity {
 
             return convertView;
         }
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view,
+                                int position, long id) {
+            //Sends the operations part of the JSONObject to the next activity
+            sendOperationMessage(data.get(+position));
+        }
+
 
     }
 

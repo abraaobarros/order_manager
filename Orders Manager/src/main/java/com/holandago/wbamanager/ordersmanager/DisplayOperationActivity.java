@@ -2,11 +2,13 @@ package com.holandago.wbamanager.ordersmanager;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -303,6 +305,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
         }catch(JSONException e){
             e.printStackTrace();
         }catch(ArrayIndexOutOfBoundsException e){
+            Toast.makeText(this,"Correct bad information in server",Toast.LENGTH_LONG);
             Log.e("CREATE LIST ERROR: ", "Index out of bounds" + e);
         }
     }
@@ -388,110 +391,120 @@ public class DisplayOperationActivity extends ActionBarActivity {
             startUrl = Utils.BASE_URL+"/rest/progress/"+pID+"/start";
             finishUrl = Utils.BASE_URL+"/rest/progress/"+pID+"/finish";
             stopUrl = Utils.BASE_URL+"/rest/progress/"+pID+"/stop";
-            if(handle.equals("start")){
-                if(status.equals("2")){
-                    timeFromFinish = 0L;
-                    updatedTime = 0L;
-                    timeSwapBuff = 0L;
+            ConnectivityManager conMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+            if ( conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED
+                    || conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTED ) {
+                if(handle.equals("start")){
+                    if(status.equals("2")){
+                        timeFromFinish = 0L;
+                        updatedTime = 0L;
+                        timeSwapBuff = 0L;
+                    }
+                    startTime = SystemClock.elapsedRealtime();
+                    new AlertDialog.Builder(DisplayOperationActivity.this)
+                            .setTitle("Really Start?")
+                            .setCancelable(false)
+                            .setMessage("Are you sure you want to start this operation?")
+                            .setNegativeButton(android.R.string.no, null)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface arg0, int arg1) {
+                                    setColorsStart();
+                                    AsyncGetRequest requester = new AsyncGetRequest(UserOperations.START);
+                                    requester.execute(new String[]{startUrl});
+                                    UserOperations.changeOperationStatus(
+                                            id,
+                                            lotNumber,
+                                            UserOperations.START,
+                                            String.format("%d", startTime)
+                                    );
+                                    holder.action1.setEnabled(true);
+                                    otherButton.setEnabled(true);
+
+                                }
+                            }).create().show();
+                }else
+                if(handle.equals("finish")){
+                    new AlertDialog.Builder(DisplayOperationActivity.this)
+                            .setTitle("Really Finish?")
+                            .setCancelable(false)
+                            .setMessage("Are you sure you want to finish this operation?")
+                            .setNegativeButton(android.R.string.no, null)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface arg0, int arg1) {
+                                    UserOperations.changeOperationStatus(
+                                            id,
+                                            lotNumber,
+                                            UserOperations.FINISH,
+                                            String.format("%d",updatedTime)
+                                    );
+                                    AsyncGetRequest requester = new AsyncGetRequest(UserOperations.FINISH);
+                                    requester.execute(new String[]{finishUrl});
+
+                                }
+                            }).create().show();
+                }else
+                if(handle.equals("stop")){
+                    customHandler.removeCallbacks(updateTimer);
+                    timeSwapBuff += timeInMillis-timeFromServer-timeFromFinish;
+                    new AlertDialog.Builder(DisplayOperationActivity.this)
+                            .setTitle("Really Stop?")
+                            .setCancelable(false)
+                            .setMessage("Are you sure you want to stop this operation?")
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface arg0, int arg1) {
+                                    customHandler.postDelayed(updateTimer, 0);
+                                }
+                            })
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface arg0, int arg1) {
+                                    double timeInHours = (double) updatedTime/3600000;
+                                    UserOperations.changeOperationStatus(
+                                            id,
+                                            lotNumber,
+                                            UserOperations.STOP,
+                                            String.format("%f",timeInHours)
+                                    );
+                                    AsyncGetRequest requester = new AsyncGetRequest(UserOperations.STOP);
+                                    requester.execute(new String[]{stopUrl});
+                                    holder.action1.setText("Start");
+                                    holder.action1.setOnClickListener(new ButtonListener("start2",holder.action2));
+                                }
+                            }).create().show();
+                }else
+                if(handle.equals("start2")){
+                    startTime = SystemClock.elapsedRealtime();
+                    new AlertDialog.Builder(DisplayOperationActivity.this)
+                            .setTitle("Really Start?")
+                            .setCancelable(false)
+                            .setMessage("Are you sure you want to start this operation?")
+                            .setNegativeButton(android.R.string.no, null)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface arg0, int arg1) {
+                                    holder.action1.setEnabled(true);
+                                    otherButton.setEnabled(true);
+                                    customHandler.postDelayed(updateTimer, 0);
+                                    holder.action1.setText("Stop");
+                                    holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
+                                    UserOperations.changeOperationStatus(
+                                            id,
+                                            lotNumber,
+                                            UserOperations.START,
+                                            String.format("%d", startTime)
+                                    );
+                                }
+                            }).create().show();
                 }
-                startTime = SystemClock.elapsedRealtime();
-                new AlertDialog.Builder(DisplayOperationActivity.this)
-                        .setTitle("Really Start?")
-                        .setCancelable(false)
-                        .setMessage("Are you sure you want to start this operation?")
-                        .setNegativeButton(android.R.string.no, null)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                            public void onClick(DialogInterface arg0, int arg1) {
-                                setColorsStart();
-                                AsyncGetRequest requester = new AsyncGetRequest(UserOperations.START);
-                                requester.execute(new String[]{startUrl});
-                                UserOperations.changeOperationStatus(
-                                        id,
-                                        lotNumber,
-                                        UserOperations.START,
-                                        String.format("%d", startTime)
-                                );
-                                holder.action1.setEnabled(true);
-                                otherButton.setEnabled(true);
-
-                            }
-                        }).create().show();
-            }else
-            if(handle.equals("finish")){
-                new AlertDialog.Builder(DisplayOperationActivity.this)
-                        .setTitle("Really Finish?")
-                        .setCancelable(false)
-                        .setMessage("Are you sure you want to finish this operation?")
-                        .setNegativeButton(android.R.string.no, null)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                            public void onClick(DialogInterface arg0, int arg1) {
-                                UserOperations.changeOperationStatus(
-                                        id,
-                                        lotNumber,
-                                        UserOperations.FINISH,
-                                        String.format("%d",updatedTime)
-                                );
-                                AsyncGetRequest requester = new AsyncGetRequest(UserOperations.FINISH);
-                                requester.execute(new String[]{finishUrl});
-
-                            }
-                        }).create().show();
-            }else
-            if(handle.equals("stop")){
-                customHandler.removeCallbacks(updateTimer);
-                timeSwapBuff += timeInMillis-timeFromServer-timeFromFinish;
-                new AlertDialog.Builder(DisplayOperationActivity.this)
-                        .setTitle("Really Stop?")
-                        .setCancelable(false)
-                        .setMessage("Are you sure you want to stop this operation?")
-                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface arg0, int arg1) {
-                                customHandler.postDelayed(updateTimer, 0);
-                            }
-                        })
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                            public void onClick(DialogInterface arg0, int arg1) {
-                                double timeInHours = (double) updatedTime/3600000;
-                                UserOperations.changeOperationStatus(
-                                        id,
-                                        lotNumber,
-                                        UserOperations.STOP,
-                                        String.format("%f",timeInHours)
-                                );
-                                AsyncGetRequest requester = new AsyncGetRequest(UserOperations.STOP);
-                                requester.execute(new String[]{stopUrl});
-                                holder.action1.setText("Start");
-                                holder.action1.setOnClickListener(new ButtonListener("start2",holder.action2));
-                            }
-                        }).create().show();
-            }else
-            if(handle.equals("start2")){
-                startTime = SystemClock.elapsedRealtime();
-                new AlertDialog.Builder(DisplayOperationActivity.this)
-                        .setTitle("Really Start?")
-                        .setCancelable(false)
-                        .setMessage("Are you sure you want to start this operation?")
-                        .setNegativeButton(android.R.string.no, null)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                            public void onClick(DialogInterface arg0, int arg1) {
-                                holder.action1.setEnabled(true);
-                                otherButton.setEnabled(true);
-                                customHandler.postDelayed(updateTimer, 0);
-                                holder.action1.setText("Stop");
-                                holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
-                                UserOperations.changeOperationStatus(
-                                        id,
-                                        lotNumber,
-                                        UserOperations.START,
-                                        String.format("%d", startTime)
-                                );
-                            }
-                        }).create().show();
             }
+            else if ( conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED
+                    && conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED) {
+                Toast.makeText(DisplayOperationActivity.this,
+                        "Verbindung mit dem Internet",Toast.LENGTH_LONG).show();
+            }
+
         }
     }
 
