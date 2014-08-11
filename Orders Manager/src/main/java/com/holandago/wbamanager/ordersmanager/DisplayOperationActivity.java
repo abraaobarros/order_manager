@@ -470,31 +470,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                                     AsyncGetRequest requester = new AsyncGetRequest(UserOperations.STOP);
                                     requester.execute(new String[]{stopUrl});
                                     holder.action1.setText("Start");
-                                    holder.action1.setOnClickListener(new ButtonListener("start2",holder.action2));
-                                }
-                            }).create().show();
-                }else
-                if(handle.equals("start2")){
-                    startTime = SystemClock.elapsedRealtime();
-                    new AlertDialog.Builder(DisplayOperationActivity.this)
-                            .setTitle("Really Start?")
-                            .setCancelable(false)
-                            .setMessage("Are you sure you want to start this operation?")
-                            .setNegativeButton(android.R.string.no, null)
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                                public void onClick(DialogInterface arg0, int arg1) {
-                                    holder.action1.setEnabled(true);
-                                    otherButton.setEnabled(true);
-                                    customHandler.postDelayed(updateTimer, 0);
-                                    holder.action1.setText("Stop");
-                                    holder.action1.setOnClickListener(new ButtonListener("stop",holder.action2));
-                                    UserOperations.changeOperationStatus(
-                                            id,
-                                            lotNumber,
-                                            UserOperations.START,
-                                            String.format("%d", startTime)
-                                    );
+                                    holder.action1.setOnClickListener(new ButtonListener("start",holder.action2));
                                 }
                             }).create().show();
                 }
@@ -502,7 +478,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
             else if ( conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED
                     && conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED) {
                 Toast.makeText(DisplayOperationActivity.this,
-                        "Verbindung mit dem Internet",Toast.LENGTH_LONG).show();
+                        "Keine Internetverbindund",Toast.LENGTH_LONG).show();
             }
 
         }
