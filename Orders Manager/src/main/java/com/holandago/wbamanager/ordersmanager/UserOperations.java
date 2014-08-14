@@ -40,7 +40,7 @@ public class UserOperations {
 
     public static void flush(){
         me = new UserOperations();
-        operationsList = new ArrayList<HashMap<String, String>>();
+        operationsList = null;
     }
 
     public static void changeOperationStatus(

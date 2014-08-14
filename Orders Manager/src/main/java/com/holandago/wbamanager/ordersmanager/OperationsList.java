@@ -24,10 +24,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,12 +49,14 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 
 
-public class OperationsList extends ActionBarActivity {
+public class OperationsList extends ActionBarActivity{
     private static String targetUrl = Utils.BASE_URL+"/rest/operations";
     public final static String OPERATIONS_MESSAGE =
             "com.holandago.wbamanager.ordersmanager.OPERATIONS_MESSAGE";
@@ -94,6 +98,7 @@ public class OperationsList extends ActionBarActivity {
         else{
             //startLoginActivity();
         }
+
         actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
@@ -255,58 +260,36 @@ public class OperationsList extends ActionBarActivity {
     public void updateOrCreateList(){
         ArrayList<HashMap<String,String>> operationList = UserOperations.getOperationsList();
         uniqueOperations.removeAll(uniqueOperations);
+        ArrayList<HashMap<String,String>> singleLotOperations = uniqueOperations;
         LotNumberComparator lotComparator = new LotNumberComparator();
         Collections.sort(operationList,lotComparator);
         ArrayList<String> uniqueID = new ArrayList<String>();
         //Holds the value of the uniqueOperations that are unfinished
         for(HashMap<String,String> operation : operationList){
-            if(!isFinalized) {
-                if (!uniqueID.contains(operation.get(Utils.ID_TAG)) &&
-                        !operation.get(Utils.STATUS_TAG).equals("2")) {
-                    uniqueID.add(operation.get(Utils.ID_TAG));
-                    uniqueOperations.add(operation);
-                }
-            }else{
-                if (!uniqueID.contains(operation.get(Utils.ID_TAG)) &&
-                        operation.get(Utils.STATUS_TAG).equals("2")) {
-                    uniqueID.add(operation.get(Utils.ID_TAG));
-                    uniqueOperations.add(operation);
-                }
-            }
-        }
-        Collections.sort(uniqueOperations,new NumberComparator());
-        if(isFinalized){
-            for(HashMap<String,String> operation : uniqueOperations){
-                if(!operation.get(Utils.STATUS_TAG).equals("2")){
-                    uniqueOperations.remove(operation);
-                }
-            }
-        }else{
-            for(HashMap<String,String> operation : uniqueOperations){
-                if(operation.get(Utils.STATUS_TAG).equals("2")){
-                    uniqueOperations.remove(operation);
-                }
+            if (!uniqueID.contains(operation.get(Utils.ID_TAG))) {
+                uniqueID.add(operation.get(Utils.ID_TAG));
+                singleLotOperations.add(operation);
             }
         }
 
-        Collections.sort(uniqueOperations,new PartComparator());
+        Collections.sort(singleLotOperations,new PartComparator());
         int firstOperationFromLastPartPointer=-1;
         //Setting the next and last operations
         //Next Operation
-        for (int i = 0; i < uniqueOperations.size() - 1; i++) {
+        for (int i = 0; i < singleLotOperations.size() - 1; i++) {
             JSONObject jsonNext = new JSONObject();
-            if(uniqueOperations.get(i+1).get(Utils.PART_TAG).equals(uniqueOperations.get(i).get(Utils.PART_TAG))) {
+            if(singleLotOperations.get(i+1).get(Utils.PART_TAG).equals(singleLotOperations.get(i).get(Utils.PART_TAG))) {
                 try {
                     int nextOp = i+1;
-                    jsonNext.put(Utils.ID_TAG, uniqueOperations.get(nextOp).get(Utils.ID_TAG));
+                    jsonNext.put(Utils.ID_TAG, singleLotOperations.get(nextOp).get(Utils.ID_TAG));
                     jsonNext.put(
                             Utils.LOT_NUMBER_TAG,
-                            uniqueOperations.get(nextOp).get(Utils.LOT_NUMBER_TAG));
+                            singleLotOperations.get(nextOp).get(Utils.LOT_NUMBER_TAG));
                     jsonNext.put(
                             Utils.OPERATION_NAME_TAG,
-                            uniqueOperations.get(nextOp).get(Utils.OPERATION_NAME_TAG)
+                            singleLotOperations.get(nextOp).get(Utils.OPERATION_NAME_TAG)
                     );
-                    uniqueOperations.get(i).put(
+                    singleLotOperations.get(i).put(
                             Utils.NEXT_OPERATION_TAG,
                             jsonNext.toString()
                     );
@@ -317,15 +300,15 @@ public class OperationsList extends ActionBarActivity {
                 try {
                     int nextOp = firstOperationFromLastPartPointer + 1;
                     if(nextOp != (i)) {
-                        jsonNext.put(Utils.ID_TAG, uniqueOperations.get(nextOp).get(Utils.ID_TAG));
+                        jsonNext.put(Utils.ID_TAG, singleLotOperations.get(nextOp).get(Utils.ID_TAG));
                         jsonNext.put(
                                 Utils.LOT_NUMBER_TAG,
-                                uniqueOperations.get(nextOp).get(Utils.LOT_NUMBER_TAG));
+                                singleLotOperations.get(nextOp).get(Utils.LOT_NUMBER_TAG));
                         jsonNext.put(
                                 Utils.OPERATION_NAME_TAG,
-                                uniqueOperations.get(nextOp).get(Utils.OPERATION_NAME_TAG)
+                                singleLotOperations.get(nextOp).get(Utils.OPERATION_NAME_TAG)
                         );
-                        uniqueOperations.get(i).put(
+                        singleLotOperations.get(i).put(
                                 Utils.NEXT_OPERATION_TAG,
                                 jsonNext.toString()
                         );
@@ -338,28 +321,38 @@ public class OperationsList extends ActionBarActivity {
 
         }
         //Last Operation
-        for (int i = 1; i < uniqueOperations.size(); i++) {
+        for (int i = 1; i < singleLotOperations.size(); i++) {
             JSONObject jsonNext = new JSONObject();
-            if(uniqueOperations.get(i-1).get(Utils.PART_TAG).equals(uniqueOperations.get(i).get(Utils.PART_TAG))) {
+            if(singleLotOperations.get(i-1).get(Utils.PART_TAG).equals(singleLotOperations.get(i).get(Utils.PART_TAG))) {
                 try {
                     int lastOp = i-1;
-                    jsonNext.put(Utils.ID_TAG, uniqueOperations.get(lastOp).get(Utils.ID_TAG));
+                    jsonNext.put(Utils.ID_TAG, singleLotOperations.get(lastOp).get(Utils.ID_TAG));
                     jsonNext.put(
                             Utils.LOT_NUMBER_TAG,
-                            uniqueOperations.get(lastOp).get(Utils.LOT_NUMBER_TAG));
+                            singleLotOperations.get(lastOp).get(Utils.LOT_NUMBER_TAG));
                     jsonNext.put(
                             Utils.OPERATION_NAME_TAG,
-                            uniqueOperations.get(lastOp).get(Utils.OPERATION_NAME_TAG)
+                            singleLotOperations.get(lastOp).get(Utils.OPERATION_NAME_TAG)
                     );
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                uniqueOperations.get(i).put(
+                singleLotOperations.get(i).put(
                         Utils.LAST_OPERATION_TAG,
                         jsonNext.toString()
                 );
             }
         }
+
+        if(isFinalized){
+            statusFilter(singleLotOperations,"1");
+            statusFilter(singleLotOperations,"3");
+            statusFilter(singleLotOperations,"0");
+        }else{
+            statusFilter(singleLotOperations,"2");
+        }
+        uniqueOperations = singleLotOperations;
+
         runOnUiThread(new NotifyChange());
         //Needs to be a final because it's called from an inner class
         listView = (ListView)findViewById(R.id.orderList);
@@ -462,6 +455,12 @@ public class OperationsList extends ActionBarActivity {
         }
     }
 
+    static void statusFilter(ArrayList<HashMap<String,String>> c, String STATUS) {
+        for (Iterator<HashMap<String,String>> it = c.iterator(); it.hasNext(); )
+            if (it.next().get(Utils.STATUS_TAG).equals(STATUS))
+                it.remove();
+    }
+
     public void cannotGetOperations(){
         new AlertDialog.Builder(this)
                 .setTitle("There are no operations from server")
@@ -483,7 +482,7 @@ public class OperationsList extends ActionBarActivity {
         else if ( conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED
                 && conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED) {
             Toast.makeText(this,
-                    "Verbindung mit dem Internet",Toast.LENGTH_LONG).show();
+                    "Keine Internetverbindund",Toast.LENGTH_LONG).show();
         }
     }
 
@@ -497,7 +496,6 @@ public class OperationsList extends ActionBarActivity {
                     }
                 }).create().show();
     }
-
 
     public class GetOperationsTask extends AsyncTask<String,String, JSONObject>{
         private ProgressDialog pDialog;
@@ -532,14 +530,6 @@ public class OperationsList extends ActionBarActivity {
                 if(!size.equals("0")) {
                     String operations = json.getString("data");
                     createList(operations);
-                    JSONArray json2 = new JSONArray(operations);
-                    for(int i=0; i<json2.length(); i++){
-                        JSONObject obj = json2.getJSONObject(i);
-                        if(obj.getString(Utils.WBA_NUMBER_TAG).equals("34-128.1.1")){
-                            Log.w("TESTANDO VALOR",obj.getString(Utils.REAL_TIME_TAG));
-                            Log.w("TESTANDO VALOR",obj.getString(Utils.STATUS_TAG));
-                        }
-                    }
                 }else{
                     emptyOperations();
                 }
