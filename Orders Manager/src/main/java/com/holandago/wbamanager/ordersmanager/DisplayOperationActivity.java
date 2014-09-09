@@ -215,7 +215,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
             holder.part.setText(part);
             holder.machine.setText(machine);
             holder.lot_number.setText(lotNumber);
-            holder.next_process.setText(nextProcess);
             holder.client.setText(customer);
             holder.expected_time.setText(convertTime(expectedTime));
             holder.action1.setOnClickListener(
@@ -229,7 +228,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
             holder.part.setTypeface(font,Typeface.BOLD);
             holder.machine.setTypeface(font);
             holder.lot_number.setTypeface(font);
-            holder.next_process.setTypeface(font);
             holder.client.setTypeface(font);
             holder.expected_time.setTypeface(font);
 
@@ -279,7 +277,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
             }
 
             if(status.equals("3")){
-                setColorsStart();
+                setColorsStop();
                 String time = (json.getString(Utils.TIME_SWAP_TAG));
                 double t = 0;
                 try {
@@ -353,7 +351,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
         holder.client = (TextView)findViewById(R.id.client);
         holder.project = (TextView)findViewById(R.id.project);
         holder.lot_number = (TextView)findViewById(R.id.lot_number);
-        holder.next_process = (TextView)findViewById(R.id.next_process);
         holder.expected_time = (TextView)findViewById(R.id.expected_time);
         holder.timer = (TextView)findViewById(R.id.timer);
         holder.action1 = (Button)findViewById(R.id.action1);
@@ -370,7 +367,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
         TextView client;
         TextView project;
         TextView lot_number;
-        TextView next_process;
         TextView expected_time;
         TextView timer;
         Button action1;
@@ -469,6 +465,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                                     );
                                     AsyncGetRequest requester = new AsyncGetRequest(UserOperations.STOP);
                                     requester.execute(new String[]{stopUrl});
+                                    setColorsStop();
                                     holder.action1.setText("Start");
                                     holder.action1.setOnClickListener(new ButtonListener("start",holder.action2));
                                 }
@@ -491,7 +488,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
         holder.lot_number.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.part.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
         holder.machine.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
-        holder.next_process.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
         holder.client.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
         holder.operation.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
         holder.project.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
@@ -499,6 +495,21 @@ public class DisplayOperationActivity extends ActionBarActivity {
         holder.action2.setBackgroundResource((R.drawable.button_bg));
         holder.action1.setEnabled(false);
         holder.action2.setEnabled(true);
+    }
+
+    private void setColorsStop(){
+        holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
+        holder.expected_time.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.timer.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.lot_number.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.part.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.machine.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.lot_number.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.client.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.operation.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.project.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.action1.setEnabled(true);
+        holder.action2.setEnabled(false);
     }
 
     private void setColorsFinish(){
@@ -509,7 +520,6 @@ public class DisplayOperationActivity extends ActionBarActivity {
         holder.part.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.machine.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.lot_number.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
-        holder.next_process.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.client.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.operation.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.project.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));

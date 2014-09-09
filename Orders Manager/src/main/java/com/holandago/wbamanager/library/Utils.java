@@ -6,7 +6,7 @@ package com.holandago.wbamanager.library;
 public class Utils{
     public static final String BASE_URL = "http://wba-urbbox-teste.herokuapp.com";
     public static final String WBA_DARK_GREY_COLOR = "#666767";
-    public static final String WBA_BLUE_COLOR = "#72A7C4";
+    public static final String WBA_BLUE_COLOR = "#62ADE3";
     public static final String WBA_ORANGE_COLOR = "#FBB03B";
     public static final String WBA_LIGHT_GREY_COLOR = "#E9E9EA";
     public static final String REAL_TIME_TAG = "real_time";

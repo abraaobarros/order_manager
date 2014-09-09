@@ -49,7 +49,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -75,6 +74,7 @@ public class OperationsList extends ActionBarActivity{
     ArrayList<HashMap<String,String>> uniqueOperations =
             new ArrayList<HashMap<String, String>>();
     OperationListAdapter adapter = null;
+    GetOperationsTask mGetTask = null;
 
 
     @Override
@@ -227,6 +227,19 @@ public class OperationsList extends ActionBarActivity{
             if(resultCode == RESULT_OK){
                 getOperations();
             }
+        }
+    }
+
+    public void callQrCodeActivity(View v){
+        try{
+            Intent intent = new Intent("com.google.zxing.client.android.SCAN");
+            intent.putExtra("SCAN_MODE","QR_CODE_MODE");
+            startActivityForResult(intent,0);
+        }catch(Exception e){
+            Uri marketUri = Uri.parse("market://details?id=com.google.zxing.client.android");
+            Intent marketIntent = new Intent(Intent.ACTION_VIEW,marketUri);
+            startActivity(marketIntent);
+            e.printStackTrace();
         }
     }
 
@@ -476,8 +489,13 @@ public class OperationsList extends ActionBarActivity{
         ConnectivityManager conMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         if ( conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED
                 || conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTED ) {
-            new GetOperationsTask(session.getUserDetails()
-                    .get(SessionManager.KEY_ID)).execute();
+            if(mGetTask == null) {
+                new GetOperationsTask(session.getUserDetails()
+                        .get(SessionManager.KEY_ID)).execute();
+            }else{
+                mGetTask.setUserId(session.getUserDetails().get(SessionManager.KEY_ID));
+                mGetTask.execute();
+            }
         }
         else if ( conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED
                 && conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED) {
@@ -504,6 +522,10 @@ public class OperationsList extends ActionBarActivity{
 
         public GetOperationsTask(String userID){
             this.userID = userID;
+        }
+
+        public void setUserId(String userId){
+            userID = userId;
         }
 
         @Override
@@ -661,8 +683,7 @@ public class OperationsList extends ActionBarActivity{
             holder.operation_project.setText(
                     data.get(+position).get(Utils.PROJECT_NAME_TAG));
 
-            if(getItem(position).get(Utils.STATUS_TAG).equals("1") ||
-                    getItem(position).get(Utils.STATUS_TAG).equals("3")){
+            if(getItem(position).get(Utils.STATUS_TAG).equals("1")){
                 holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_ORANGE_COLOR));
             }else
             if(getItem(position).get(Utils.STATUS_TAG).equals("2")){
@@ -672,7 +693,10 @@ public class OperationsList extends ActionBarActivity{
                 holder.operation_wbaNo.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
                 holder.operation_time.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
                 holder.operation_project.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
-            }else{
+            }else if(getItem(position).get(Utils.STATUS_TAG).equals("3")){
+                holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
+            }
+            else{
                 holder.background.setBackgroundColor(Color.parseColor("#FFFFFFFF"));
             }
 

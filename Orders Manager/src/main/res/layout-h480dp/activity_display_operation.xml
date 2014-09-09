@@ -52,6 +52,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Machine"
         android:paddingTop="0dp"
+        android:layout_toLeftOf="@id/client"
         android:id="@+id/machine"
         android:layout_below="@+id/lot_number"
         android:layout_alignLeft="@+id/operation"
@@ -80,19 +81,6 @@
         android:layout_below="@+id/lot_number"
         android:layout_alignLeft="@+id/lot_number"
         android:layout_alignStart="@+id/lot_number" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Next Process"
-        android:id="@+id/next_process"
-        android:paddingStart="20dp"
-        android:maxWidth="200dp"
-        android:layout_below="@+id/client"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="10dp" />
 
     <LinearLayout
         android:id="@+id/actions_layout"

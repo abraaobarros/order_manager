@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,7 +9,30 @@
     <ListView
         android:id="@+id/orderList"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"/>
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/divider"/>
+
+    <View
+        android:layout_width="fill_parent"
+        android:id="@+id/divider"
+        android:layout_height="1dp"
+        android:layout_above="@+id/action_qrcode2"
+        android:background="#CC808080" />
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:id="@+id/action_qrcode2"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:background="@drawable/qr_bg"
+        android:layout_alignParentBottom="true"
+        >
+        <ImageView
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_gravity="center"
+            android:onClick="callQrCodeActivity"
+            android:src="@drawable/ic_qr_code"/>
+        </LinearLayout>
 
 
-</LinearLayout>
+</RelativeLayout>
