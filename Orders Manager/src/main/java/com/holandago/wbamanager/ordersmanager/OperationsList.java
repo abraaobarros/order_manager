@@ -11,6 +11,7 @@ import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -91,6 +92,9 @@ public class OperationsList extends ActionBarActivity{
                 OperationsList.this,
                 uniqueOperations
         );
+
+
+
         if (intent.hasExtra(IS_FINALIZED_MESSAGE))
             isFinalized = true;
         if(session.isLoggedIn())
@@ -101,6 +105,8 @@ public class OperationsList extends ActionBarActivity{
 
         actionBar.setDisplayHomeAsUpEnabled(true);
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -258,6 +264,7 @@ public class OperationsList extends ActionBarActivity{
 
     private void startLoginActivity(){
         Intent intent = new Intent(this, LoginActivity.class);
+        intent.putExtra("isResult",true);
         startActivityForResult(intent, 2);
     }
 
