@@ -2,19 +2,35 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content" android:layout_height="wrap_content"
-    android:background="@drawable/postit_grey9">
+    android:id="@+id/operation_list_background"
+    android:background="@drawable/postit_greys9"
+    android:layout_margin="6dp">
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/operation_list_wba_no"
         android:text="39-100.1"
+        android:layout_margin="8dp"
         android:textSize="30sp"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/part_name"
+        android:id="@+id/operation_list_part"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_below="@id/operation_list_wba_no"
-        android:textSize="25sp"
+        android:textSize="19sp"
+        android:lines="2"
+        android:layout_margin="8dp"
         android:text="Part Name"
      />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/operation_list_project"
+        android:text="Project"
+        android:layout_margin="8dp"
+        android:layout_below="@+id/operation_list_part"
+        android:textSize="16sp"/>
 </RelativeLayout>

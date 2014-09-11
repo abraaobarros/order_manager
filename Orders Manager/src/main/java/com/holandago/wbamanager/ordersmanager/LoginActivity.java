@@ -321,16 +321,9 @@ public class LoginActivity extends ActionBarActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             ConnectivityManager conMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-            if ( conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED
-                    || conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTED ) {
+            if(Utils.isNetworkAvailable(LoginActivity.this)){
                 authTask = new UserLoginTask(username, password);
                 authTask.execute((Void) null);
-            }
-            else if ( conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED
-                    && conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED) {
-                TextView error = (TextView)findViewById(R.id.login_error_message);
-                error.setText("Please connect to the internet to login");
-                error.setTextColor(Color.RED);
             }
 
         }

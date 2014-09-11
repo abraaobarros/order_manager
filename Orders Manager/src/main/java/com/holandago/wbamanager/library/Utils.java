@@ -1,5 +1,24 @@
 package com.holandago.wbamanager.library;
 
+import android.annotation.TargetApi;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.holandago.wbamanager.ordersmanager.SessionManager;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 /**
  * Created by maestro on 04/07/14.
  */
@@ -33,4 +52,39 @@ public class Utils{
     public static final String MY_STARTED_AT_TAG = "my_started_at";
     public static final String LAST_OPERATION_TAG = "last_operation";
     public static final String WBA_NUMBER_TAG = "wba_no";
+
+    public static boolean isNetworkAvailable(Context context){
+        ConnectivityManager conMgr = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if ( conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED
+                || conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTED ) {
+            return true;
+        }
+        else if ( conMgr.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED
+                && conMgr.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED) {
+            Toast.makeText(context,
+                    "Keine Internetverbindund", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        return false;
+    }
+
+    public static boolean hasActiveInternetConnection(Context context) {
+        String LOG_TAG = "ACTIVE CONNECTION";
+        if (isNetworkAvailable(context)) {
+            try {
+                HttpURLConnection urlc = (HttpURLConnection) (new URL("http://www.google.com").openConnection());
+                urlc.setRequestProperty("User-Agent", "Test");
+                urlc.setRequestProperty("Connection", "close");
+                urlc.setConnectTimeout(1500);
+                urlc.connect();
+                return (urlc.getResponseCode() == 200);
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error checking internet connection", e);
+            }
+        } else {
+            Log.d(LOG_TAG, "No network available!");
+        }
+        return false;
+    }
+
 }

@@ -15,6 +15,7 @@
     <item name="wba_button_pressed" type="color">#4A4A48</item>
     <item name="wba_light_grey" type="color">#E9E9EA</item>
     <item name="wba_dark_grey" type="color">#696967</item>
+    <item name="wba_dark_grey_op" type="color">#CC696967</item>
     <item name="wba_orange" type="color">#FBB03B</item>
     <item name="wba_blue" type="color">#72A7C4</item>
     <item name="wba_blue_pressed" type="color">#5B869D</item>
