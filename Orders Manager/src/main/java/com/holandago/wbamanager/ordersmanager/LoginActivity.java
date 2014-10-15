@@ -75,8 +75,7 @@ public class LoginActivity extends ActionBarActivity {
         }
 
         if (mNfcAdapter == null) {
-            // Stop here, we definitely need NFC
-            Toast.makeText(this, "This device doesn't support NFC.", Toast.LENGTH_LONG).show();
+
         }else{
             handleIntent(getIntent());
         }

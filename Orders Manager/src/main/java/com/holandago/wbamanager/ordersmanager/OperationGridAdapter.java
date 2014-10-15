@@ -1,6 +1,5 @@
 package com.holandago.wbamanager.ordersmanager;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.Log;
@@ -9,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -90,7 +88,7 @@ public class OperationGridAdapter extends BaseAdapter implements AdapterView.OnI
             }
             holder.operation_wbaNo.setText(wbaNo);
             holder.operation_project.setText(
-                    data.get(+position).get(Utils.PROJECT_NAME_TAG));
+                    data.get(+position).get(Utils.OPERATION_NAME_TAG));
 
             if(getItem(position).get(Utils.STATUS_TAG).equals("1")){
                 holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_ORANGE_COLOR));

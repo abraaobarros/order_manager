@@ -6,21 +6,21 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.NFC" />
 
-
-
-
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/ActionBarTheme" >
-
+        <receiver android:name=".library.NetworkStateReceiver" >
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name=".ordersmanager.OperationsList"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -46,8 +46,16 @@
         <activity
             android:name=".ordersmanager.DisplayOperationActivity"
             android:label="@string/title_activity_display_operation"
-            android:theme="@style/NoActionBar"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:theme="@style/NoActionBar" >
+        </activity>
+        <activity
+            android:name=".ordersmanager.UpdatesActivity"
+            android:label="@string/title_activity_updates"
+            android:parentActivityName=".ordersmanager.OperationsList" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.holandago.wbamanager.ordersmanager.OperationsList" />
         </activity>
     </application>
 

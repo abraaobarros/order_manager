@@ -9,11 +9,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="00"
+        android:text="00.0"
         android:textColor="@color/wba_orange"
         android:id="@+id/lot_number"
         android:layout_marginTop="100dp"
-        android:textSize="140sp"
+        android:textSize="100sp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
@@ -24,9 +24,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/part_name"
+        android:paddingTop="10dp"
         android:text="Part Name"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="50sp"
+        android:textSize="40sp"
         android:layout_alignTop="@+id/lot_number"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -81,6 +82,7 @@
         android:text="Client"
         android:paddingBottom="15dp"
         android:id="@+id/client"
+        android:paddingLeft="20dp"
         android:paddingStart="20dp"
         android:layout_below="@+id/lot_number"
         android:layout_alignLeft="@+id/lot_number"
@@ -157,20 +159,6 @@
             android:layout_gravity="center"
             android:id="@+id/timer" />
     </LinearLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Lot:"
-        android:id="@+id/lot_string"
-        android:textSize="35sp"
-        android:layout_alignParentTop="true"
-        android:layout_alignLeft="@+id/lot_number"
-        android:layout_alignStart="@+id/lot_number"
-        android:layout_marginTop="50dp"
-        android:paddingStart="10dp"
-        android:layout_above="@+id/part_name" />
 
 
 </RelativeLayout>

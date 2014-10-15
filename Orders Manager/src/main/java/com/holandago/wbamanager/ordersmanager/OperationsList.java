@@ -3,31 +3,20 @@ package com.holandago.wbamanager.ordersmanager;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.holandago.wbamanager.R;
@@ -99,8 +88,10 @@ public class OperationsList extends ActionBarActivity{
 
         if (intent.hasExtra(IS_FINALIZED_MESSAGE))
             isFinalized = true;
-        if(session.isLoggedIn())
+        if(session.isLoggedIn()) {
             getOperations();
+            setTitle(session.getUserDetails().get(SessionManager.KEY_USER));
+        }
         else{
             //startLoginActivity();
         }
@@ -148,6 +139,12 @@ public class OperationsList extends ActionBarActivity{
                 session.logoutUser();
                 startLoginActivity();
                 return true;
+            /*
+            case R.id.action_update:
+                Intent intent = new Intent(this, UpdatesActivity.class);
+                startActivity(intent);
+                return true;
+            */
             case R.id.action_finalized:
                 seeFinalized();
             default:

@@ -2,13 +2,10 @@ package com.holandago.wbamanager.ordersmanager;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -189,6 +186,23 @@ public class DisplayOperationActivity extends ActionBarActivity {
         }
     }
 
+    public String setWbaNo(String rawWbaNo){
+        String[] part = rawWbaNo.split("-");
+        String[] splitWbaNo = part[1].split("\\.");
+        String wbaNo = rawWbaNo;
+        try {
+            if (splitWbaNo[2].equals("1")) {
+                wbaNo = splitWbaNo[0]+"."+splitWbaNo[1];
+            }else{
+                wbaNo = splitWbaNo[0]+"."+splitWbaNo[1];
+            }
+        }catch (ArrayIndexOutOfBoundsException e){
+            e.printStackTrace();
+            Log.e("WBA NUMBER",""+splitWbaNo.length);
+        }
+        return wbaNo;
+    }
+
     public void fillLayout(JSONObject json){
         try {
             //Using the json to fill the layout
@@ -205,6 +219,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
             String part = json.getString(Utils.PART_TAG);
             String operation = json.getString(Utils.OPERATION_NAME_TAG);
             String projectName = json.getString(Utils.PROJECT_NAME_TAG);
+            String wbaNo = setWbaNo(json.getString(Utils.WBA_NUMBER_TAG));
             status = json.getString(Utils.STATUS_TAG);
             id = json.getString(Utils.ID_TAG);
             pID = json.getString(Utils.PROGRESS_ID_TAG);
@@ -214,7 +229,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
             holder.operation.setText(operation);
             holder.part.setText(part);
             holder.machine.setText(machine);
-            holder.lot_number.setText(lotNumber);
+            holder.wba_no.setText(wbaNo);
             holder.client.setText(customer);
             holder.expected_time.setText(convertTime(expectedTime));
             holder.action1.setOnClickListener(
@@ -227,7 +242,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
             Typeface font = Typeface.createFromAsset(getAssets(),"HelveticaNeue_Lt.ttf");
             holder.part.setTypeface(font,Typeface.BOLD);
             holder.machine.setTypeface(font);
-            holder.lot_number.setTypeface(font);
+            holder.wba_no.setTypeface(font);
             holder.client.setTypeface(font);
             holder.expected_time.setTypeface(font);
 
@@ -350,7 +365,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
         holder.machine = (TextView)findViewById(R.id.machine);
         holder.client = (TextView)findViewById(R.id.client);
         holder.project = (TextView)findViewById(R.id.project);
-        holder.lot_number = (TextView)findViewById(R.id.lot_number);
+        holder.wba_no = (TextView)findViewById(R.id.lot_number);
         holder.expected_time = (TextView)findViewById(R.id.expected_time);
         holder.timer = (TextView)findViewById(R.id.timer);
         holder.action1 = (Button)findViewById(R.id.action1);
@@ -366,7 +381,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
         TextView machine;
         TextView client;
         TextView project;
-        TextView lot_number;
+        TextView wba_no;
         TextView expected_time;
         TextView timer;
         Button action1;
@@ -481,7 +496,8 @@ public class DisplayOperationActivity extends ActionBarActivity {
                 if(handle.equals("stop")){
                     handleStop();
                 }
-            }/*else{
+            }
+            /*else{
                 Toast.makeText(DisplayOperationActivity.this,
                         "Kein oder Schlechte internetverbindung", Toast.LENGTH_LONG).show();
             }*/
@@ -493,7 +509,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
         holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_ORANGE_COLOR));
         holder.expected_time.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.timer.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
-        holder.lot_number.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.wba_no.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.part.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
         holder.machine.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
         holder.client.setTextColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
@@ -509,10 +525,10 @@ public class DisplayOperationActivity extends ActionBarActivity {
         holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_BLUE_COLOR));
         holder.expected_time.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.timer.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
-        holder.lot_number.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.wba_no.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.part.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.machine.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
-        holder.lot_number.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.wba_no.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.client.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.operation.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.project.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
@@ -524,10 +540,10 @@ public class DisplayOperationActivity extends ActionBarActivity {
         holder.background.setBackgroundColor(Color.parseColor(Utils.WBA_DARK_GREY_COLOR));
         holder.expected_time.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.timer.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
-        holder.lot_number.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.wba_no.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.part.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.machine.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
-        holder.lot_number.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
+        holder.wba_no.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.client.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.operation.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));
         holder.project.setTextColor(Color.parseColor(Utils.WBA_LIGHT_GREY_COLOR));

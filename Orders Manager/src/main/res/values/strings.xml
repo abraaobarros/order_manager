@@ -4,6 +4,7 @@
     <string name="app_name">WBA Manager</string>
     <string name="qrcode_button">Read QR Code</string>
     <string name="logout_button">Logout</string>
+    <string name="update_button">Update</string>
     <string name="see_finalized">See Finalized</string>
     <string name="action_settings">Settings</string>
     <string name="refresh_data_button">Refresh</string>
@@ -16,9 +17,12 @@
     <string name="title_activity_login">Sign in</string>
     <string name="title_activity_display_operation">DisplayOperationActivity</string>
     <string name="title_activity_finalized_operations">FinalizedOperationsActivity</string>
+
     <string-array name="database_spinner_array">
         <item>Produktion</item>
         <item>Test</item>
     </string-array>
+
+    <string name="title_activity_updates">UpdatesActivity</string>
 
 </resources>

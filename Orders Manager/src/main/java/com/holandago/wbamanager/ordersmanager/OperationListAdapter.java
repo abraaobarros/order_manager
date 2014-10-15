@@ -1,6 +1,5 @@
 package com.holandago.wbamanager.ordersmanager;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;

@@ -9,11 +9,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="00"
+        android:text="00.0"
         android:textColor="@color/wba_orange"
         android:id="@+id/lot_number"
         android:layout_marginTop="56dp"
-        android:textSize="90sp"
+        android:textSize="57sp"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
@@ -23,10 +23,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/part_name"
+        android:paddingTop="10dp"
         android:text="Part Name"
+        android:layout_alignParentTop="true"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="24sp"
-        android:layout_alignTop="@+id/lot_number"
+        android:textSize="22sp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginLeft="27dp"
@@ -41,7 +42,9 @@
         android:text="Operation"
         android:paddingBottom="10dp"
         android:id="@+id/operation"
-        android:textSize="24sp"
+        android:layout_toLeftOf="@+id/lot_number"
+        android:lines="2"
+        android:textSize="20sp"
         android:layout_above="@+id/project"
         android:layout_alignLeft="@+id/part_name"
         android:layout_alignStart="@+id/part_name" />
@@ -161,19 +164,6 @@
             android:id="@+id/timer" />
     </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Lot:"
-        android:id="@+id/lot_string"
-        android:textSize="30sp"
-        android:layout_alignParentTop="true"
-        android:layout_alignLeft="@+id/lot_number"
-        android:layout_alignStart="@+id/lot_number"
-        android:layout_marginTop="20dp"
-        android:paddingStart="10dp"
-        android:layout_above="@+id/part_name" />
 
 
 </RelativeLayout>

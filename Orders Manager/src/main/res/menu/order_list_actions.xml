@@ -18,6 +18,12 @@
         android:title="@string/logout_button"
         app:showAsAction="collapseActionView"/>
 
+    <!--
+    <item android:id="@+id/action_update"
+        android:title="@string/update_button"
+        app:showAsAction="never"/>
+     -->
+
     <item android:id="@+id/action_finalized"
         android:title="@string/see_finalized"
         app:showAsAction="collapseActionView"/>

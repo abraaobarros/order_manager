@@ -29,6 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/operation_list_project"
+        android:lines="2"
         android:text="Project"
         android:layout_margin="8dp"
         android:layout_below="@+id/operation_list_part"
