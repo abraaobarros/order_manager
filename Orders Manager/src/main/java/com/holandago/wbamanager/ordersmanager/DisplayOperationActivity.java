@@ -253,7 +253,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
                     String realTime = json.getString(Utils.REAL_TIME_TAG);
                     if(!realTime.equals("null")) {
                         double hours = Double.parseDouble(realTime);
-                        long mili = (long)Math.floor(hours*60*1000);
+                        long mili = (long)Math.floor(hours*60*60*1000);
                         timeFromFinish = mili;
                     }
                 }

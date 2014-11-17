@@ -80,21 +80,12 @@
         android:paddingBottom="15dp"
         android:id="@+id/client"
         android:paddingStart="20dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingEnd="20dp"
         android:layout_below="@+id/lot_number"
         android:layout_alignLeft="@+id/lot_number"
         android:layout_alignStart="@+id/lot_number" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Next Process"
-        android:id="@+id/next_process"
-        android:layout_below="@+id/client"
-        android:layout_alignLeft="@+id/client"
-        android:layout_alignStart="@+id/client"
-        android:paddingStart="20dp"
-        android:maxWidth="180dp" />
 
     <LinearLayout
         android:id="@+id/actions_layout"
