@@ -1,17 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<pre-dex-items>
+<items version="2" >
 
     <item
-        dex="/Users/lucianoholandagomes/AndroidStudioProjects/order_manager/Orders Manager/build/intermediates/pre-dexed/debug/classes-f0ce1684ac6060f965eeef550258aad322bc20b9.jar"
-        jar="/Users/lucianoholandagomes/AndroidStudioProjects/order_manager/Orders Manager/build/intermediates/exploded-aar/com.android.support/appcompat-v7/19.1.0/classes.jar"
+        jar="/Users/lucianoholandagomes/.gradle/caches/modules-2/files-2.1/com.koushikdutta.ion/ion/1.3.8/1fc0413880bde2e3ffab3c5e5a243f39dd409b1c/ion-1.3.8.jar"
         jumboMode="false"
-        revision="19.1.0"
-        sha1="3499ceba05ca1f6037c6a2fad73df8f636224a28"/>
+        revision="21.1.2"
+        sha1="1fc0413880bde2e3ffab3c5e5a243f39dd409b1c">
+        <dex dex="/Users/lucianoholandagomes/AndroidStudioProjects/order_manager/Orders Manager/build/intermediates/pre-dexed/debug/ion-1.3.8-bfa340ea25ccc1df3fb371b1536c785e426df9ba.jar" />
+    </item>
     <item
-        dex="/Users/lucianoholandagomes/AndroidStudioProjects/order_manager/Orders Manager/build/intermediates/pre-dexed/debug/support-v4-19.1.0-fe930dc68beb1e566675ce71b270d4091c6c249b.jar"
-        jar="/Applications/Android Studio.app/sdk/extras/android/m2repository/com/android/support/support-v4/19.1.0/support-v4-19.1.0.jar"
+        jar="/Users/lucianoholandagomes/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/22.1.1/support-annotations-22.1.1.jar"
         jumboMode="false"
-        revision="19.1.0"
-        sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67"/>
+        revision="21.1.2"
+        sha1="01d051a6bfb1218b1db2d3a5af0480ac2c25c42a">
+        <dex dex="/Users/lucianoholandagomes/AndroidStudioProjects/order_manager/Orders Manager/build/intermediates/pre-dexed/debug/support-annotations-22.1.1-a0cbfc9c884662705269cb7f8e3892d0edc5d416.jar" />
+    </item>
+    <item
+        jar="/Users/lucianoholandagomes/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.3/5fc52c41ef0239d1093a1eb7c3697036183677ce/gson-2.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="5fc52c41ef0239d1093a1eb7c3697036183677ce">
+        <dex dex="/Users/lucianoholandagomes/AndroidStudioProjects/order_manager/Orders Manager/build/intermediates/pre-dexed/debug/gson-2.3-a48b10dcfb78016b65485d8f607d58e4411e2e18.jar" />
+    </item>
+    <item
+        jar="/Users/lucianoholandagomes/AndroidStudioProjects/order_manager/Orders Manager/build/intermediates/exploded-aar/com.android.support/support-v4/22.1.1/jars/libs/internal_impl-22.1.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="9e070ad32b2700b0343e8e0cccc437733d91ba3a">
+        <dex dex="/Users/lucianoholandagomes/AndroidStudioProjects/order_manager/Orders Manager/build/intermediates/pre-dexed/debug/internal_impl-22.1.1-898560769eefffb79f7083dbc392fb0b6e06f6d0.jar" />
+    </item>
+    <item
+        jar="/Users/lucianoholandagomes/.gradle/caches/modules-2/files-2.1/com.koushikdutta.async/androidasync/1.3.8/1f8e4f77d5f24179688c32b24dd5f79e889e7110/androidasync-1.3.8.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="1f8e4f77d5f24179688c32b24dd5f79e889e7110">
+        <dex dex="/Users/lucianoholandagomes/AndroidStudioProjects/order_manager/Orders Manager/build/intermediates/pre-dexed/debug/androidasync-1.3.8-94dea7bea1a871a91da981e6403cd4dc896caf61.jar" />
+    </item>
+    <item
+        jar="/Users/lucianoholandagomes/AndroidStudioProjects/order_manager/Orders Manager/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.1.1/jars/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="a3ff3c506644c820eb2bdf06e8339f72be578551">
+        <dex dex="/Users/lucianoholandagomes/AndroidStudioProjects/order_manager/Orders Manager/build/intermediates/pre-dexed/debug/classes-7fa057c8e108193bc6f030af1e1f8b7191696908.jar" />
+    </item>
+    <item
+        jar="/Users/lucianoholandagomes/AndroidStudioProjects/order_manager/Orders Manager/build/intermediates/exploded-aar/com.android.support/support-v4/22.1.1/jars/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="c95ba8152923e4872e86a82cfcba9a51c0214328">
+        <dex dex="/Users/lucianoholandagomes/AndroidStudioProjects/order_manager/Orders Manager/build/intermediates/pre-dexed/debug/classes-79d493c9f20cb7383b5651f82e1490e9ca0218c8.jar" />
+    </item>
 
-</pre-dex-items>
+</items>

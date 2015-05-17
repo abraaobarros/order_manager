@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.holandago.wbamanager.R;
 import com.holandago.wbamanager.library.JSONParser;
 import com.holandago.wbamanager.library.Utils;
+import com.holandago.wbamanager.model.UserOperations;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -88,10 +89,12 @@ public class OperationsList extends ActionBarActivity{
 
         if (intent.hasExtra(IS_FINALIZED_MESSAGE))
             isFinalized = true;
+
         if(session.isLoggedIn()) {
             getOperations();
             setTitle(session.getUserDetails().get(SessionManager.KEY_USER));
         }
+
         else{
             //startLoginActivity();
         }
@@ -183,32 +186,6 @@ public class OperationsList extends ActionBarActivity{
                             sendOperationMessage(
                                     //Sends first element of the ordered Array
                                     operationsFromOrder.get(0));
-                        }else{
-                            Toast.makeText(
-                                    OperationsList.this,
-                                    "All operations finished", Toast.LENGTH_LONG).show();
-                        }
-                    }else{
-                        new SetOwnerTask(lot,id).execute();
-                        getOperations();
-                        operationList = UserOperations.getOperationsList();
-                        for(HashMap<String,String> operation : operationList){
-                            if(operation.get(Utils.ORDER_ID_TAG).equals(id)){
-                                if(operation.get(Utils.LOT_NUMBER_TAG).equals(lot)){
-                                    operationsFromOrder.add(operation);
-                                }
-                            }
-                        }
-                        if(!operationsFromOrder.isEmpty()) {
-                            final HashMap<String, String> firstOperation = operationsFromOrder.get(0);
-                            new AlertDialog.Builder(this)
-                                    .setTitle("Added operations of this order")
-                                    .setNeutralButton("Go to first", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            sendOperationMessage(firstOperation);
-                                        }
-                                    }).create().show();
                         }else{
                             Toast.makeText(
                                     OperationsList.this,
@@ -484,7 +461,7 @@ public class OperationsList extends ActionBarActivity{
 
     public void cannotGetOperations(){
         new AlertDialog.Builder(this)
-                .setTitle("There are no operations from server")
+                .setTitle("Kein Antwort vom Server")
                 .setNeutralButton("Aktualisieren", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -502,10 +479,7 @@ public class OperationsList extends ActionBarActivity{
                 mGetTask.setUserId(session.getUserDetails().get(SessionManager.KEY_ID));
                 mGetTask.execute();
             }
-        }/*else {
-            Toast.makeText(this,
-                    "Kein oder Schlechte internetverbindung", Toast.LENGTH_LONG).show();
-        }*/
+        }
     }
 
     public void emptyOperations(){
@@ -541,7 +515,7 @@ public class OperationsList extends ActionBarActivity{
         protected void onPreExecute(){
             super.onPreExecute();
             pDialog = new ProgressDialog(OperationsList.this);
-            pDialog.setMessage("Getting data...");
+            pDialog.setMessage("Data wird aktualisiert sein");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(true);
             pDialog.show();
@@ -567,62 +541,6 @@ public class OperationsList extends ActionBarActivity{
             }
         }
 
-    }
-
-    //Asynchronous get request to access the url
-    private class SetOwnerTask extends AsyncTask<String, String, String> {
-        private ProgressDialog pDialog;
-        private final String setOwnerUrl =
-                "http://wba-urbbox.herokuapp.com/rest/set-progresses-owner-by-lot/";
-        private String lotNumber;
-        private String orderID;
-
-
-        private SetOwnerTask(String lotNumber, String orderID){
-            this.lotNumber = lotNumber;
-            this.orderID = orderID;
-        }
-        @Override
-        protected void onPreExecute(){
-            super.onPreExecute();
-            pDialog = new ProgressDialog(OperationsList.this);
-            pDialog.setMessage("Making the request");
-            pDialog.setIndeterminate(false);
-            pDialog.setCancelable(true);
-            pDialog.show();
-        }
-        @Override
-        protected String doInBackground(String... urls){
-            String output = null;
-            output = getOutputFromUrl(setOwnerUrl+
-                    "/"+session.getUserDetails().get(SessionManager.KEY_ID)+
-                    "/"+orderID+
-                    "/"+lotNumber
-            );
-            return output;
-        }
-
-        private String getOutputFromUrl(String url){
-            String output = null;
-            try{
-                DefaultHttpClient httpClient = HttpClient.getDefaultHttpClient();
-                HttpGet httpGet = new HttpGet(url);
-                HttpResponse httpResponse = httpClient.execute(httpGet);
-                HttpEntity httpEntity = httpResponse.getEntity();
-                output = EntityUtils.toString(httpEntity);
-            } catch(UnsupportedEncodingException e){
-                e.printStackTrace();
-            } catch(IOException e){
-                e.printStackTrace();
-            }
-            return output;
-        }
-
-
-        @Override
-        protected void onPostExecute(String output){
-            pDialog.dismiss();
-        }
     }
 
 }

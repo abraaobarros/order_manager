@@ -14,7 +14,7 @@ import java.net.URL;
  * Created by maestro on 04/07/14.
  */
 public class Utils{
-    public static final String BASE_URL = "http://wba-urbbox.herokuapp.com";
+    public static final String BASE_URL = "http://wba-urbbox-teste.herokuapp.com";
     public static final String WBA_DARK_GREY_COLOR = "#666767";
     public static final String WBA_BLUE_COLOR = "#62ADE3";
     public static final String WBA_ORANGE_COLOR = "#FBB03B";
@@ -43,6 +43,22 @@ public class Utils{
     public static final String MY_STARTED_AT_TAG = "my_started_at";
     public static final String LAST_OPERATION_TAG = "last_operation";
     public static final String WBA_NUMBER_TAG = "wba_no";
+
+    public enum URLs {
+
+        LIST_OPERATIONS("http://wba-urbbox.herokuapp.com/rest/operations");
+
+        private String url;
+
+        private URLs(String url) {
+            this.url = url;
+        }
+
+        public String url() {
+            return this.url;
+        }
+    }
+
 
     public static boolean isNetworkAvailable(Context context){
         ConnectivityManager conMgr = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);

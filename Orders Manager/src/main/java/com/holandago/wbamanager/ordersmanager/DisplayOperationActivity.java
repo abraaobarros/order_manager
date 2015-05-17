@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.holandago.wbamanager.R;
 import com.holandago.wbamanager.library.Utils;
+import com.holandago.wbamanager.model.UserOperations;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -335,6 +336,7 @@ public class DisplayOperationActivity extends ActionBarActivity {
         started.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hours[0]));
         started.set(Calendar.MINUTE, Integer.parseInt(hours[1]));
         started.set(Calendar.SECOND, Integer.parseInt(hours[2]));
+
 
         startTime = SystemClock.elapsedRealtime();
         timeFromServer = now.getTimeInMillis()-started.getTimeInMillis()-41200;

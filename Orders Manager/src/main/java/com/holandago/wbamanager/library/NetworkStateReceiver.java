@@ -7,8 +7,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
-import com.holandago.wbamanager.ordersmanager.UserOperations;
-
 /**
  * Created by razu on 11.09.14.
  */

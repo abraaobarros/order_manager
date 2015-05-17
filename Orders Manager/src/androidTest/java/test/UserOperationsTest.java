@@ -2,12 +2,11 @@ package test;
 
 import android.content.Context;
 import android.os.SystemClock;
-import android.test.ActivityTestCase;
 import android.test.InstrumentationTestCase;
 import android.test.mock.MockContext;
 
 import com.holandago.wbamanager.library.Utils;
-import com.holandago.wbamanager.ordersmanager.UserOperations;
+import com.holandago.wbamanager.model.UserOperations;
 
 import java.util.ArrayList;
 import java.util.HashMap;
